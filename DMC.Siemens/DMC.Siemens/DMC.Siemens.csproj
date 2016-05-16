@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\_LatestBuild\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -43,6 +43,7 @@
     <Compile Include="Common\Base\IParsableSource.cs" />
     <Compile Include="Common\Base\ParsableSourceFactory.cs" />
     <Compile Include="Common\PLC\Base\Block.cs" />
+    <Compile Include="Common\PLC\Base\DataEntity.cs" />
     <Compile Include="Common\PLC\Base\ProjectFolder.cs" />
     <Compile Include="Common\PLC\Base\Symbol.cs" />
     <Compile Include="Common\PLC\DataBlock.cs" />

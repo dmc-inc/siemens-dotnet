@@ -17,7 +17,7 @@ namespace DMC.Siemens.Common.PLC
         public int? ArrayEndIndex { get; set; }
         public int? StringLength { get; set; }
         public string Comment { get; set; }
-        public LinkedList<DataEntry> Children { get; set; }
+        public LinkedList<DataEntry> Children { get; set; } = new LinkedList<DataEntry>();
 
         public static DataEntry FromString(string dataEntry)
         {
@@ -84,8 +84,8 @@ namespace DMC.Siemens.Common.PLC
             }
 
             DataType t;
-            bool validType = Enum.TryParse<DataType>(type, out t);
-            if (!validType) { t = DataType.UDT; }
+            bool validType = Enum.TryParse<DataType>(type, true, out t);
+            if (!validType) { t = DataType.UDT; newEntry.DataTypeName = type; }
 
             newEntry.DataType = t;
 

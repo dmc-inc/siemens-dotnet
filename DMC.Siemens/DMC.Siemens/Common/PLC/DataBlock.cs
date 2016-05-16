@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DMC.Siemens.Common.PLC
 {
-    public class DataBlock : Block
+    public class DataBlock : DataEntity
     {
 
         protected override string DataHeader
@@ -18,7 +18,6 @@ namespace DMC.Siemens.Common.PLC
             }
         }
 
-        public LinkedList<DataEntry> Data { get; set; }
         public bool IsOptimized { get; set; }
         public bool IsInstance { get; set; }
         public bool IsDataType { get; set; }
@@ -27,46 +26,14 @@ namespace DMC.Siemens.Common.PLC
         public override IParsableSource ParseSource(TextReader reader)
         {
             string line;
-            string[] split;
-            bool isInData = false;
-
             while ((line = reader.ReadLine()) != null)
             {
-                if (!isInData)
+                if (line.Contains("S7_Optimized_Access"))
                 {
-                    if (line.Contains("S7_Optimized_Access"))
-                    {
-                        this.IsOptimized = line.ToUpper().Contains("TRUE");
-                    }
-                    else if (line.Contains("VERSION"))
-                    {
-                        split = line.Split(':');
-                        if (split.Length > 1)
-                        {
-                            this.Version = split[1].Trim();
-                        }
-                    }
-                    else if (line.Contains(this.DataHeader))
-                    {
-                        isInData = true;
-                    }
+                    this.IsOptimized = line.ToUpper().Contains("TRUE");
+                    base.ParseSource(reader);
+                    break;
                 }
-                else
-                {
-                    if (!String.IsNullOrWhiteSpace(line))
-                    {
-                        if (line.Contains("END_" + this.DataHeader))
-                        {
-                            isInData = false;
-                            break;
-                        }
-                        else
-                        {
-                            this.Data.AddLast(DataEntry.FromString(line));
-                        }
-                    }
-                }
-
             }
 
             return this;
