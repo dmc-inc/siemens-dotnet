@@ -46,7 +46,7 @@ namespace DMC.Siemens.Common.PLC
                         }
                         else
                         {
-                            this.Data.AddLast(DataEntry.FromString(line));
+                            this.Data.AddLast(DataEntry.FromString(line, reader));
                         }
                     }
                 }

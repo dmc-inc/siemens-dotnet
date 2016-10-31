@@ -13,24 +13,7 @@ namespace DMC.Siemens.Common.PLC
 
         public BlockType Type { get; set; }
         public ProgramLanguage ProgramLanguage { get; set; }
-
-        private int _Number;
-        public int Number
-        {
-            get
-            {
-                return this._Number;
-            }
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException("Number", "Block Number cannot be negative");
-                }
-                this._Number = value;
-            }
-        }
-
+        public int Number { get; set; }
         public string Name { get; set; }
         public string Version { get; set; }
 

@@ -12,5 +12,11 @@ namespace DMC.Siemens.Common.PLC
 
         protected override string DataHeader { get; } = "STRUCT";
 
+        public override IParsableSource ParseSource(TextReader reader)
+        {
+            this.Type = BlockType.UDT;
+            return base.ParseSource(reader);
+        }
+
     }
 }

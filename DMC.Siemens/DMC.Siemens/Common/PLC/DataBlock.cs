@@ -34,7 +34,15 @@ namespace DMC.Siemens.Common.PLC
                     base.ParseSource(reader);
                     break;
                 }
+                else if (line.Contains("TITLE ="))
+                {
+                    this.IsOptimized = false;
+                    base.ParseSource(reader);
+                    break;
+                }
             }
+
+            this.Type = BlockType.DB;
 
             return this;
 
