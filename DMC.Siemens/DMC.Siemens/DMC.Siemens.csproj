@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Base\IParsableSource.cs" />
-    <Compile Include="Common\Base\ParsableSourceFactory.cs" />
+    <Compile Include="Common\ParsableSourceFactory.cs" />
     <Compile Include="Common\PLC\Base\Block.cs" />
     <Compile Include="Common\PLC\Base\DataEntity.cs" />
     <Compile Include="Common\PLC\Base\ProjectFolder.cs" />
@@ -49,6 +49,7 @@
     <Compile Include="Common\PLC\DataBlock.cs" />
     <Compile Include="Common\PLC\Base\DataEntry.cs" />
     <Compile Include="Common\PLC\Types\BlockType.cs" />
+    <Compile Include="Common\PLC\Types\Constant.cs" />
     <Compile Include="Common\PLC\Types\DataType.cs" />
     <Compile Include="Common\PLC\Types\ProgramLanguage.cs" />
     <Compile Include="Common\PLC\UserDataType.cs" />

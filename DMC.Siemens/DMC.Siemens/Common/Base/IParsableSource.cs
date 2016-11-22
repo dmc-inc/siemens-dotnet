@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMC.Siemens.Common
+namespace DMC.Siemens.Common.Base
 {
     public interface IParsableSource
     {

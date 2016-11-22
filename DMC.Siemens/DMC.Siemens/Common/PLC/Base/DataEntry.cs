@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DMC.Siemens.Common.PLC.Types;
 
 namespace DMC.Siemens.Common.PLC
 {
@@ -14,9 +15,9 @@ namespace DMC.Siemens.Common.PLC
         public string Name { get; set; }
         public DataType DataType { get; set; }
         public string DataTypeName { get; set; }
-        public int? ArrayStartIndex { get; set; }
-        public int? ArrayEndIndex { get; set; }
-        public int? StringLength { get; set; }
+        public Constant<int> ArrayStartIndex { get; set; }
+        public Constant<int> ArrayEndIndex { get; set; }
+        public Constant<int> StringLength { get; set; }
         public string Comment { get; set; }
         public LinkedList<DataEntry> Children { get; set; } = new LinkedList<DataEntry>();
 
@@ -62,11 +63,23 @@ namespace DMC.Siemens.Common.PLC
                     splitString = type.Split(new string[] { "[", "..", "]" }, StringSplitOptions.RemoveEmptyEntries);
                     if (splitString.Length == 4)
                     {
-                        bool parsed = int.TryParse(splitString[2], out length);
-                        bool parsed2 = int.TryParse(splitString[1], out arrayStart);
-
-                        newEntry.ArrayStartIndex = arrayStart;
-                        newEntry.ArrayEndIndex = length;
+                        if (int.TryParse(splitString[2], out length)) // See if the array end index is an integer
+                        {
+                            newEntry.ArrayEndIndex = new Constant<int>(length);
+                        }
+                        else // If not, the array index is a constant defined elsewhere
+                        {
+                            newEntry.ArrayEndIndex = new Constant<int>(splitString[2].Trim('\"'));
+                        }
+                        if (int.TryParse(splitString[1], out arrayStart)) // Do the same as above for the start index
+                        {
+                            newEntry.ArrayStartIndex = new Constant<int>(arrayStart);
+                        }
+                        else
+                        {
+                            newEntry.ArrayStartIndex = new Constant<int>(splitString[1].Trim('\"'));
+                        }
+                        
                     }
                     splitString = type.ToUpper().Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
                     if (splitString.Length > 1 && !isUdt)
@@ -82,16 +95,23 @@ namespace DMC.Siemens.Common.PLC
                     splitString = type.Split(new string[] { "[", "]" }, StringSplitOptions.RemoveEmptyEntries);
                     if (splitString.Length > 1)
                     {
-                        bool parsed = int.TryParse(splitString[1], out length);
+                        if (int.TryParse(splitString[1], out length)) // Check to make sure the string length is an integer
+                        {
+                            newEntry.StringLength = new Constant<int>(length);
+                        }
+                        else // If not, it's a constant referenced elsewhere
+                        {
+                            newEntry.StringLength = new Constant<int>(splitString[1].Trim('\"'));
+                        }
+
                     }
                     else
                     {
-                        length = 254;
+                        newEntry.StringLength = new Constant<int>(254);
                         newEntry.Name = newEntry.Name.Trim('\"');
                     }
 
                     type = "STRING";
-                    newEntry.StringLength = length;
 
                 }
                 else if (type.ToUpper().Contains("STRUCT"))

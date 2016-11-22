@@ -5,8 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DMC.Siemens.Common.Base;
 
-namespace DMC.Siemens.Common.Base
+namespace DMC.Siemens.Common
 {
     public static class ParsableSourceFactory
     {
