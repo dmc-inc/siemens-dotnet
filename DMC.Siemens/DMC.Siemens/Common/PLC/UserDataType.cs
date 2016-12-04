@@ -11,13 +11,21 @@ namespace DMC.Siemens.Common.PLC
     public class UserDataType : DataEntity
     {
 
+        #region Protected Properties
+
         protected override string DataHeader { get; } = "STRUCT";
+
+        #endregion
+
+        #region Public Methods
 
         public override IParsableSource ParseSource(TextReader reader)
         {
-            this.Type = BlockType.UDT;
+            this.Type = BlockType.UserDataType;
             return base.ParseSource(reader);
         }
 
+        #endregion
+        
     }
 }

@@ -9,34 +9,34 @@ using DMC.Siemens.Common.Base;
 
 namespace DMC.Siemens.Common
 {
-    public static class ParsableSourceFactory
+    public static class SourceParser
     {
 
-        public static List<IParsableSource> ParseFromFile(string filePath)
+        public static List<IParsableSource> FromFile(string filePath)
         {
             TextReader reader = new StreamReader(filePath);
-            return ParseFromTextReader(reader);
+            return FromTextReader(reader);
         }
 
-        public static List<IParsableSource> ParseFromText(string text)
+        public static List<IParsableSource> FromText(string text)
         {
             TextReader reader = new StringReader(text);
-            return ParseFromTextReader(reader);
+            return FromTextReader(reader);
         }
 
-        public static List<IParsableSource> ParseFromText(string[] text)
+        public static List<IParsableSource> FromText(string[] text)
         {
-            return ParseFromText(String.Join(Environment.NewLine, text));
+            return FromText(String.Join(Environment.NewLine, text));
         }
 
-        public static List<IParsableSource> ParseFromText(IEnumerable<string> text)
+        public static List<IParsableSource> FromText(IEnumerable<string> text)
         {
-            return ParseFromText(String.Join(Environment.NewLine, text));
+            return FromText(String.Join(Environment.NewLine, text));
         }
 
-        public static List<IParsableSource> ParseFromTextReader(TextReader reader)
+        public static List<IParsableSource> FromTextReader(TextReader reader)
         {
-            List<IParsableSource> blockList = new List<IParsableSource>();
+            List<IParsableSource> sourceList = new List<IParsableSource>();
 
             bool isEndEntry = false;
             string entryKey = null;
@@ -68,13 +68,13 @@ namespace DMC.Siemens.Common
                     if (line.Contains("END_" + entryKey))
                     {
                         isEndEntry = false;
-                        blockList.Add(newSource);
+                        sourceList.Add(newSource);
                     }
                 }
 
             }
 
-            return blockList;
+            return sourceList;
 
         }
 

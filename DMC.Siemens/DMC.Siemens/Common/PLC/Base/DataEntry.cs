@@ -6,20 +6,76 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DMC.Siemens.Common.PLC.Types;
+using DmcLib.Events;
 
 namespace DMC.Siemens.Common.PLC
 {
-    public class DataEntry
+    public class DataEntry : NotifyPropertyChanged
     {
 
-        public string Name { get; set; }
-        public DataType DataType { get; set; }
-        public string DataTypeName { get; set; }
+        #region Public Properties
+
+        private string _Name;
+        public string Name
+        {
+            get
+            {
+                return this._Name;
+            }
+            set
+            {
+                this.SetProperty(ref this._Name, value);
+            }
+        }
+
+        private DataType _DataType;
+        public DataType DataType
+        {
+            get
+            {
+                return this._DataType;
+            }
+            set
+            {
+                this.SetProperty(ref this._DataType, value);
+            }
+        }
+
+        private string _DataTypeName;
+        public string DataTypeName
+        {
+            get
+            {
+                return this._DataTypeName;
+            }
+            set
+            {
+                this.SetProperty(ref this._DataTypeName, value);
+            }
+        }
+
         public Constant<int> ArrayStartIndex { get; set; }
         public Constant<int> ArrayEndIndex { get; set; }
         public Constant<int> StringLength { get; set; }
-        public string Comment { get; set; }
+
+        private string _Comment;
+        public string Comment
+        {
+            get
+            {
+                return this._Comment;
+            }
+            set
+            {
+                this.SetProperty(ref this._Comment, value);
+            }
+        }
+
         public LinkedList<DataEntry> Children { get; set; } = new LinkedList<DataEntry>();
+
+        #endregion
+
+        #region Public Methods
 
         public static DataEntry FromString(string dataEntry, TextReader dataReader)
         {
@@ -55,7 +111,7 @@ namespace DMC.Siemens.Common.PLC
                         newEntry.DataTypeName = match.Groups[1].Value;
                         isUdt = true;
                     }
-                    
+
                 }
                 if (type.ToUpper().Contains("ARRAY["))
                 {
@@ -79,7 +135,7 @@ namespace DMC.Siemens.Common.PLC
                         {
                             newEntry.ArrayStartIndex = new Constant<int>(splitString[1].Trim('\"'));
                         }
-                        
+
                     }
                     splitString = type.ToUpper().Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
                     if (splitString.Length > 1 && !isUdt)
@@ -143,5 +199,8 @@ namespace DMC.Siemens.Common.PLC
             return newEntry;
 
         }
+
+        #endregion
+        
     }
 }

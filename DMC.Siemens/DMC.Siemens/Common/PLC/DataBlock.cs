@@ -11,6 +11,64 @@ namespace DMC.Siemens.Common.PLC
     public class DataBlock : DataEntity
     {
 
+        #region Public Properties
+
+        private bool _IsOptimized;
+        public bool IsOptimized
+        {
+            get
+            {
+                return this._IsOptimized;
+            }
+            set
+            {
+                this.SetProperty(ref this._IsOptimized, value);
+            }
+        }
+
+        private bool _IsInstance;
+        public bool IsInstance
+        {
+            get
+            {
+                return this._IsInstance;
+            }
+            set
+            {
+                this.SetProperty(ref this._IsInstance, value);
+            }
+        }
+
+        private bool _IsDataType;
+        public bool IsDataType
+        {
+            get
+            {
+                return this._IsDataType;
+            }
+            set
+            {
+                this.SetProperty(ref this._IsDataType, value);
+            }
+        }
+
+        private string _InstanceName;
+        public string InstanceName
+        {
+            get
+            {
+                return this._InstanceName;
+            }
+            set
+            {
+                this.SetProperty(ref this._InstanceName, value);
+            }
+        }
+
+        #endregion
+
+        #region Protected Properties
+
         protected override string DataHeader
         {
             get
@@ -19,10 +77,9 @@ namespace DMC.Siemens.Common.PLC
             }
         }
 
-        public bool IsOptimized { get; set; }
-        public bool IsInstance { get; set; }
-        public bool IsDataType { get; set; }
-        public string InstanceNumber { get; set; }
+        #endregion
+
+        #region Public Methods
 
         public override IParsableSource ParseSource(TextReader reader)
         {
@@ -43,11 +100,13 @@ namespace DMC.Siemens.Common.PLC
                 }
             }
 
-            this.Type = BlockType.DB;
+            this.Type = BlockType.DataBlock;
 
             return this;
 
         }
 
+        #endregion
+        
     }
 }

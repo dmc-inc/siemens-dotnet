@@ -11,7 +11,13 @@ namespace DMC.Siemens.Common.PLC
     public abstract class DataEntity : Block
     {
 
+        #region Public Properties
+
         public LinkedList<DataEntry> Data { get; set; } = new LinkedList<DataEntry>();
+
+        #endregion
+
+        #region Public Methods
 
         public override IParsableSource ParseSource(TextReader reader)
         {
@@ -58,5 +64,7 @@ namespace DMC.Siemens.Common.PLC
 
         }
 
+        #endregion
+        
     }
 }

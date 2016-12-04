@@ -5,45 +5,105 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DMC.Siemens.Common.Base;
+using DmcLib.Events;
 
 namespace DMC.Siemens.Common.PLC
 {
-    public abstract class Block : IParsableSource
+    public abstract class Block : NotifyPropertyChanged, IParsableSource
     {
+        #region Public Properties
+
+        private BlockType _Type;
+        public BlockType Type
+        {
+            get
+            {
+                return this._Type;
+            }
+            set
+            {
+                this.SetProperty(ref this._Type, value);
+            }
+        }
+
+        private BlockLanguage _Language;
+        public BlockLanguage Language
+        {
+            get
+            {
+                return this._Language;
+            }
+            set
+            {
+                this.SetProperty(ref this._Language, value);
+            }
+        }
+
+        private int _Number;
+        public int Number
+        {
+            get
+            {
+                return this._Number;
+            }
+            set
+            {
+                this.SetProperty(ref this._Number, value);
+            }
+        }
+
+        private string _Name;
+        public string Name
+        {
+            get
+            {
+                return this._Name;
+            }
+            set
+            {
+                this.SetProperty(ref this._Name, value);
+            }
+        }
+
+        private string _Version;
+        public string Version
+        {
+            get
+            {
+                return this._Version;
+            }
+            set
+            {
+                this.SetProperty(ref this._Version, value);
+            }
+        }
+
+        private ProjectFolder _ParentFolder;
+        public ProjectFolder ParentFolder
+        {
+            get
+            {
+                return this._ParentFolder;
+            }
+            set
+            {
+                this.SetProperty(ref this._ParentFolder, value);
+            }
+        }
+
+        #endregion
+
+        #region Protected Properties
+
         protected abstract string DataHeader { get; }
 
-        public BlockType Type { get; set; }
-        public ProgramLanguage ProgramLanguage { get; set; }
-        public int Number { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
+        #endregion
 
-        public ProjectFolder ParentFolder { get; set; }
-
-        public Symbol Symbol
-        {
-            get
-            {
-                //if (ParentFolder != null)
-                //{
-                //    ISymbolTable tmp = ((IProgrammFolder)ParentFolder.ParentFolder).SymbolTable;
-                //    if (tmp != null)
-                //        return tmp.GetEntryFromOperand(BlockName);
-                //}
-                return null;
-            }
-        }
-
-
-        public virtual string BlockName
-        {
-            get
-            {
-                return this.Type.ToString().Replace("S5_", "") + this.Number.ToString();
-            }
-        }
+        #region Public Methods
 
         public abstract IParsableSource ParseSource(TextReader reader);
 
+        #endregion
+        
     }
 }
