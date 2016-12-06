@@ -12,6 +12,18 @@ namespace DMC.Siemens.Common
     public static class SourceParser
     {
 
+        #region Private Fields
+
+        private static readonly Dictionary<string, Type> ParsableTypes = new Dictionary<string, Type>()
+        {
+            { "DATA_BLOCK", typeof(DataBlock)},
+            { "TYPE", typeof(UserDataType)}
+        };
+
+        #endregion
+
+        #region Public Methods
+
         public static List<IParsableSource> FromFile(string filePath)
         {
             TextReader reader = new StreamReader(filePath);
@@ -22,11 +34,6 @@ namespace DMC.Siemens.Common
         {
             TextReader reader = new StringReader(text);
             return FromTextReader(reader);
-        }
-
-        public static List<IParsableSource> FromText(string[] text)
-        {
-            return FromText(String.Join(Environment.NewLine, text));
         }
 
         public static List<IParsableSource> FromText(IEnumerable<string> text)
@@ -78,11 +85,7 @@ namespace DMC.Siemens.Common
 
         }
 
-        private static readonly Dictionary<string, Type> ParsableTypes = new Dictionary<string, Type>()
-        {
-            { "DATA_BLOCK", typeof(DataBlock)},
-            { "TYPE", typeof(UserDataType)}
-        };
+        #endregion
 
     }
 }
