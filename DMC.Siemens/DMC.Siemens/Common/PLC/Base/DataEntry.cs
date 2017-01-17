@@ -113,7 +113,7 @@ namespace DMC.Siemens.Common.PLC
                     }
 
                 }
-                if (type.ToUpper().Contains("ARRAY["))
+                if (type.ToUpper().Replace(" ", null).Contains("ARRAY["))
                 {
                     newEntry.Name = newEntry.Name.Trim('\"');
                     splitString = type.Split(new string[] { "[", "..", "]" }, StringSplitOptions.RemoveEmptyEntries);
@@ -142,6 +142,14 @@ namespace DMC.Siemens.Common.PLC
                     {
                         newEntry.DataTypeName = splitString[1].Trim();
                     }
+                    else if (splitString.Length == 1)  // Search the next line for the array type if it hasn't already been defined
+                    {
+                        string line;
+                        line = dataReader.ReadLine();
+
+                        newEntry.DataTypeName = line.Trim().Trim(';').Trim('\"');
+                    }
+                    
 
                     type = "ARRAY";
 
@@ -182,7 +190,7 @@ namespace DMC.Siemens.Common.PLC
             }
 
             DataType t;
-            if (isUdt)
+            if (isUdt && type != "ARRAY")
             {
                 t = DataType.UDT;
             }
