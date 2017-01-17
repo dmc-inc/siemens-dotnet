@@ -6,7 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DMC.Siemens.Common.PLC.Types;
-using DmcLib.Events;
+using Dmc.Events;
+using Dmc.Wpf.Base;
 
 namespace DMC.Siemens.Common.PLC
 {

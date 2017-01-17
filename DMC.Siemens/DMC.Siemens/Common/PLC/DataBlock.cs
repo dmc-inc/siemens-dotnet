@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DMC.Siemens.Common.Base;
+using DMC.Siemens.Portal.Base;
 
 namespace DMC.Siemens.Common.PLC
 {
@@ -77,11 +78,13 @@ namespace DMC.Siemens.Common.PLC
             }
         }
 
-        #endregion
+		private IDictionary<DataEntry, IAddress> Addresses { get; } = new Dictionary<DataEntry, IAddress>();
 
-        #region Public Methods
+		#endregion
 
-        public override IParsableSource ParseSource(TextReader reader)
+		#region Public Methods
+
+		public override IParsableSource ParseSource(TextReader reader)
         {
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -105,8 +108,19 @@ namespace DMC.Siemens.Common.PLC
             return this;
 
         }
+		
+		public IDictionary<DataEntry, IAddress> CalcluateAbsoluteAddresses()
+		{
+			foreach (DataEntry entry in this)
+			{
+				;
+			}
+
+			return this.Addresses;
+		}
 
         #endregion
         
+
     }
 }

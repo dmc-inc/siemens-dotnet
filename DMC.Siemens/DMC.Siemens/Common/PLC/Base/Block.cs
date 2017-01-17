@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dmc.Wpf.Base;
 using DMC.Siemens.Common.Base;
-using DmcLib.Events;
+using Dmc.Events;
 
 namespace DMC.Siemens.Common.PLC
 {

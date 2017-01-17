@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,18 +9,20 @@ using DMC.Siemens.Common.Base;
 
 namespace DMC.Siemens.Common.PLC
 {
-    public abstract class DataEntity : Block
+    public abstract class DataEntity : Block, IEnumerable<DataEntry>
     {
 
         #region Public Properties
 
         public LinkedList<DataEntry> Data { get; set; } = new LinkedList<DataEntry>();
 
-        #endregion
 
-        #region Public Methods
 
-        public override IParsableSource ParseSource(TextReader reader)
+		#endregion
+
+		#region Public Methods
+
+		public override IParsableSource ParseSource(TextReader reader)
         {
             string line;
             string[] split;
@@ -64,7 +67,17 @@ namespace DMC.Siemens.Common.PLC
 
         }
 
-        #endregion
-        
-    }
+		public IEnumerator<DataEntry> GetEnumerator()
+		{
+			return ((IEnumerable<DataEntry>)this.Data).GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<DataEntry>)this.Data).GetEnumerator();
+		}
+
+		#endregion
+
+	}
 }
