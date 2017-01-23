@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMC.Siemens", "DMC.Siemens\DMC.Siemens.csproj", "{E731ABD1-C72B-455F-B942-5CAF183D5BAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dmc.Siemens", "Dmc.Siemens\Dmc.Siemens.csproj", "{E731ABD1-C72B-455F-B942-5CAF183D5BAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dmc.Wpf.Base;
 using DMC.Siemens.Common.PLC;
 using DMC.Siemens.Portal.Base;
-using DmcLib.Events;
 
 namespace DMC.Siemens.Portal.PLC
 {
