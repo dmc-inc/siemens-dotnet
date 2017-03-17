@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Wpf.Base;
-using DMC.Siemens.Common.Base;
-using Dmc.Events;
+using Dmc.Siemens.Common.Base;
 
-namespace DMC.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.PLC
 {
     public abstract class Block : NotifyPropertyChanged, IParsableSource
     {

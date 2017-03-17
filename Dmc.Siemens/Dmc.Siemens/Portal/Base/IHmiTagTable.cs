@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DMC.Siemens.Common.PLC.Base;
+using Dmc.Siemens.Common.PLC.Base;
 
-namespace DMC.Siemens.Portal.Base
+namespace Dmc.Siemens.Portal.Base
 {
     public interface IHmiTagTable : ITagTable
     {

@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DMC.Siemens.Common.Base;
+using Dmc.Siemens.Common.Base;
 
-namespace DMC.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.PLC
 {
     public class UserDataType : DataEntity
     {

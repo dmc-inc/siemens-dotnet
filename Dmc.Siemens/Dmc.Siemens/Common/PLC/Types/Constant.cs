@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMC.Siemens.Common.PLC.Types
+namespace Dmc.Siemens.Common.PLC.Types
 {
     public struct Constant<T> where T : struct
     {

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Dmc.Siemens</RootNamespace>
     <AssemblyName>Dmc.Siemens</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -59,7 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\SiemensException.cs" />
+    <Compile Include="Common\Base\IAutomationObject.cs" />
+    <Compile Include="Common\Base\IHmi.cs" />
     <Compile Include="Common\Base\IParsableSource.cs" />
+    <Compile Include="Common\Base\IPlc.cs" />
+    <Compile Include="Common\Base\IProject.cs" />
     <Compile Include="Common\SourceParser.cs" />
     <Compile Include="Common\PLC\Base\Block.cs" />
     <Compile Include="Common\PLC\Base\ConstantsEntry.cs" />
@@ -73,11 +78,13 @@
     <Compile Include="Common\PLC\Types\DataType.cs" />
     <Compile Include="Common\PLC\Types\BlockLanguage.cs" />
     <Compile Include="Common\PLC\UserDataType.cs" />
-    <Compile Include="Portal\Base\IAddress.cs" />
+    <Compile Include="Common\TagHelper.cs" />
+    <Compile Include="Portal\Base\Address.cs" />
     <Compile Include="Portal\Base\IHmiTag.cs" />
     <Compile Include="Portal\Base\IPlcTag.cs" />
     <Compile Include="Portal\Base\IHmiTagTable.cs" />
     <Compile Include="Portal\Base\IPlcTagTable.cs" />
+    <Compile Include="Portal\Base\IPortalProject.cs" />
     <Compile Include="Portal\Base\ITag.cs" />
     <Compile Include="Portal\Base\ITagTable.cs" />
     <Compile Include="Portal\PLC\PlcTag.cs" />

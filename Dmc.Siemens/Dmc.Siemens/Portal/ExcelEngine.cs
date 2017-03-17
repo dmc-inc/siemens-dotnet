@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DMC.Siemens.Common.PLC.Base;
-using DMC.Siemens.Portal.Base;
+using Dmc.Siemens.Common.PLC.Base;
+using Dmc.Siemens.Portal.Base;
 using Dmc.IO;
 using SpreadsheetLight;
 
-namespace DMC.Siemens.Portal
+namespace Dmc.Siemens.Portal
 {
     public static class ExcelEngine
     {

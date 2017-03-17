@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DMC.Siemens.Common.Base;
-using DMC.Siemens.Portal.Base;
+using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Portal.Base;
 
-namespace DMC.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.PLC
 {
     public class DataBlock : DataEntity
     {
@@ -77,9 +77,7 @@ namespace DMC.Siemens.Common.PLC
                 return (this.IsOptimized) ? "VAR" : "STRUCT";
             }
         }
-
-		private IDictionary<DataEntry, IAddress> Addresses { get; } = new Dictionary<DataEntry, IAddress>();
-
+		
 		#endregion
 
 		#region Public Methods
@@ -108,16 +106,6 @@ namespace DMC.Siemens.Common.PLC
             return this;
 
         }
-		
-		public IDictionary<DataEntry, IAddress> CalcluateAbsoluteAddresses()
-		{
-			foreach (DataEntry entry in this)
-			{
-				;
-			}
-
-			return this.Addresses;
-		}
 
         #endregion
         

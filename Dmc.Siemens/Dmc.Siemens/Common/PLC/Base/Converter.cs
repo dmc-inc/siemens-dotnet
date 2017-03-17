@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMC.Siemens.Common.PLC.Base
+namespace Dmc.Siemens.Common.PLC.Base
 {
     public static class Converter
     {

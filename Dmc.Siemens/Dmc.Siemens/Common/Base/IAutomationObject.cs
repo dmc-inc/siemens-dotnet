@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dmc.Siemens.Portal.Base
+namespace Dmc.Siemens.Common.Base
 {
-    public interface IHmiTag : ITag
-    {
-
-        //TODO
-
-    }
+	public interface IAutomationObject
+	{
+	}
 }

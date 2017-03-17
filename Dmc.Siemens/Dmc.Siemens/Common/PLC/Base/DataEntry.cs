@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DMC.Siemens.Common.PLC.Types;
-using Dmc.Events;
+using Dmc.Siemens.Common.PLC.Types;
 using Dmc.Wpf.Base;
 
-namespace DMC.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.PLC
 {
     public class DataEntry : NotifyPropertyChanged
     {

@@ -4,14 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMC.Siemens.Portal.Base
+namespace Dmc.Siemens.Common.Base
 {
-	public interface IAddress
+	public interface IHmi : IAutomationObject
 	{
-
-		int ByteOffset { get; set; }
-
-		int BitOffset { get; set; }
-
 	}
 }

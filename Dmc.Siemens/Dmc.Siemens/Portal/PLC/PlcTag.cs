@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Wpf.Base;
-using DMC.Siemens.Common.PLC;
-using DMC.Siemens.Portal.Base;
+using Dmc.Siemens.Common.PLC;
+using Dmc.Siemens.Portal.Base;
 
-namespace DMC.Siemens.Portal.PLC
+namespace Dmc.Siemens.Portal.PLC
 {
     public class PlcTag : NotifyPropertyChanged, IPlcTag
     {

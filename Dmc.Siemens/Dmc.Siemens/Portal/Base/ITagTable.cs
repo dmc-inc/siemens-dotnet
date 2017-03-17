@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMC.Siemens.Portal.Base
+namespace Dmc.Siemens.Portal.Base
 {
     public interface ITagTable
     {

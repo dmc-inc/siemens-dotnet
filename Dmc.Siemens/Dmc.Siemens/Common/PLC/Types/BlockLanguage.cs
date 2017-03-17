@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMC.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.PLC
 {
     public enum BlockLanguage
     {

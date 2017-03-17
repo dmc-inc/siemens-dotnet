@@ -1,13 +1,13 @@
-﻿using DMC.Siemens.Common.PLC;
+﻿using Dmc.Siemens.Common.PLC;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DMC.Siemens.Common.Base;
+using Dmc.Siemens.Common.Base;
 
-namespace DMC.Siemens.Common
+namespace Dmc.Siemens.Common
 {
     public static class SourceParser
     {
