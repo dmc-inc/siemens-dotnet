@@ -19,27 +19,31 @@ namespace Dmc.Siemens.Common.Export
 
 		public static void CreateFromBlocks(IEnumerable<Block> blocks, string path, IProject owningProject)
 		{
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
-			if (!FileHelpers.CheckValidFilePath(path, ".csv"))
-				throw new ArgumentException(path + " is not a valid path.", nameof(path));
-			if (blocks.Count() <= 0)
-				throw new ArgumentException("Blocks does not contain any items.", nameof(blocks));
+			IEnumerable<DataBlock> dataBlocks;
+			if ((dataBlocks = blocks.OfType<DataBlock>()).Count() <= 0)
+				throw new ArgumentException("Blocks does not contain any valid DataBlocks.", nameof(blocks));
 
-			foreach (var block in blocks.OfType<DataBlock>())
-			{
-				ExportDataBlockToFile(block, path, owningProject);
-			}
+			CreateFromBlocksInternal(dataBlocks, path, owningProject);
+		}
+
+		public static void CreateFromBlocks(DataBlock block, string path, IProject owningProject)
+		{
+			CreateFromBlocksInternal(new[] { block }, path, owningProject);
 		}
 
 		#endregion
 
 		#region Private Methods
 
-		private static void ExportDataBlockToFile(DataBlock block, string path, IProject parentProject)
+		private static void CreateFromBlocksInternal(IEnumerable<DataBlock> blocks, string path, IProject parentProject)
 		{
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
+			if (!FileHelpers.CheckValidFilePath(path, ".csv"))
+				throw new ArgumentException(path + " is not a valid path.", nameof(path));
+
 			try
 			{
 				using (var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read))
@@ -48,16 +52,14 @@ namespace Dmc.Siemens.Common.Export
 
 					WriteHeaders(writer);
 
-					Address entryAddress = new Address();
-					int previousSize = 0;
-					foreach (var entry in block)
+					foreach (var block in blocks)
 					{
-						AddDataEntryToFile(writer, entry, block.Name, entryAddress);
-						previousSize = entry.CalculateByteSize(parentProject);
-						if (previousSize == 0)
-							entryAddress += new Address(0, 1);
-						else
-							entryAddress += previousSize;
+						if (block == null)
+							throw new ArgumentNullException(nameof(block));
+						if (block.Data?.Count <= 0)
+							throw new ArgumentException("Block '" + block.Name + "' contains no data", nameof(block));
+
+						ExportDataBlockToFile(block, writer, parentProject);
 					}
 				}
 			}
@@ -65,8 +67,23 @@ namespace Dmc.Siemens.Common.Export
 			{
 				throw new SiemensException("Could not write Kepware configuration", e);
 			}
+		}
 
-			void AddDataEntryToFile(TextWriter writer, DataEntry entry, string entryPrefix, Address address)
+		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, IProject parentProject)
+		{
+			Address entryAddress = new Address();
+			int previousSize = 0;
+			foreach (var entry in block)
+			{
+				AddDataEntry(entry, block.Name, entryAddress);
+				previousSize = entry.CalculateByteSize(parentProject);
+				if (previousSize == 0)
+					entryAddress += new Address(0, 1);
+				else
+					entryAddress += previousSize;
+			}
+
+			void AddDataEntry(DataEntry entry, string entryPrefix, Address address)
 			{
 				string addressPrefix = "";
 				string type = "";
@@ -101,7 +118,7 @@ namespace Dmc.Siemens.Common.Export
 
 							for (int i = parentProject.GetConstantValue(entry.ArrayStartIndex); i <= parentProject.GetConstantValue(entry.ArrayEndIndex); i++)
 							{
-								AddDataEntryToFile(writer, structContents, $"{entryPrefix}{entry.Name}[{i}].", address);
+								AddDataEntry(structContents, $"{entryPrefix}{entry.Name}[{i}].", address);
 							}
 						}
 						else // if it is a primitive, create a temporary data entry to make recurison/address generation simpler
@@ -114,7 +131,7 @@ namespace Dmc.Siemens.Common.Export
 
 							structContents = new DataEntry(entry.Name, DataType.STRUCT, entry.Comment, arrayEntries);
 
-							AddDataEntryToFile(writer, structContents, $"{entryPrefix}{entry.Name}", address);
+							AddDataEntry(structContents, $"{entryPrefix}{entry.Name}", address);
 						}
 						break;
 					case DataType.BOOL:
@@ -162,8 +179,8 @@ namespace Dmc.Siemens.Common.Export
 						string prefix = entryPrefix + ((entry.Children.First.Value.Name.Contains("[")) ? "" : ".");
 						foreach (var subEntry in entry.Children)
 						{
-							
-							AddDataEntryToFile(writer, subEntry, prefix, addresses[subEntry] + address);
+
+							AddDataEntry(subEntry, prefix, addresses[subEntry] + address);
 						}
 						break;
 					case DataType.WORD:
@@ -211,7 +228,7 @@ namespace Dmc.Siemens.Common.Export
 			}
 
 		}
-		
+
 		private static void WriteHeaders(TextWriter writer)
 		{
 			writer.WriteLine("Tag Name,Address,Data Type,Respect Data Type,Client Access,Scan Rate,Scaling,Raw Low,Raw High,Scaled Low,Scaled High,Scaled Data Type,Clamp Low,Clamp High,Eng Units,Description");
