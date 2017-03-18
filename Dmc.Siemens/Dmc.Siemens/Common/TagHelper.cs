@@ -49,5 +49,38 @@ namespace Dmc.Siemens.Common
 			}
 		}
 
+		public static bool IsPrimitive(DataType dataType)
+		{
+			switch (dataType)
+			{
+				case DataType.BOOL:
+				case DataType.BYTE:
+				case DataType.CHAR:
+				case DataType.WORD:
+				case DataType.INT:
+				case DataType.DATE:
+				case DataType.S5TIME:
+				case DataType.COUNTER:
+				case DataType.TIMER:
+				case DataType.DWORD:
+				case DataType.DINT:
+				case DataType.TIME:
+				case DataType.REAL:
+				case DataType.TIME_OF_DAY:
+				case DataType.POINTER:
+				case DataType.DATE_AND_TIME:
+				case DataType.ANY:
+				case DataType.STRING:
+					return true;
+				default:
+					return false;
+			}
+		}
+
+		public static DataType ParseDataType(string dataTypeString)
+		{
+			return (Enum.TryParse(dataTypeString, out DataType type)) ? type : DataType.UNKNOWN;
+		}
+
 	}
 }

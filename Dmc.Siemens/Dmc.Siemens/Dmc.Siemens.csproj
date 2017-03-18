@@ -65,6 +65,7 @@
     <Compile Include="Common\Base\IParsableSource.cs" />
     <Compile Include="Common\Base\IPlc.cs" />
     <Compile Include="Common\Base\IProject.cs" />
+    <Compile Include="Common\Export\KepwareConfiguration.cs" />
     <Compile Include="Common\SourceParser.cs" />
     <Compile Include="Common\PLC\Base\Block.cs" />
     <Compile Include="Common\PLC\Base\ConstantsEntry.cs" />

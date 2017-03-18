@@ -5,7 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Dmc.Siemens.Base;
+using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.PLC.Types;
+using Dmc.Siemens.Portal.Base;
 using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.PLC
@@ -13,9 +16,27 @@ namespace Dmc.Siemens.Common.PLC
     public class DataEntry : NotifyPropertyChanged
     {
 
-        #region Public Properties
+		#region Constructors
 
-        private string _Name;
+		public DataEntry(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null,
+			IEnumerable<DataEntry> children = null, string dataTypeName = null, Constant<int> stringLength = default(Constant<int>),
+			Constant<int> arrayStartIndex = default(Constant<int>), Constant<int> arrayEndIndex = default(Constant<int>))
+		{
+			this.Name = name;
+			this.DataType = dataType;
+			this.Comment = comment;
+			this.Children = (children != null) ? new LinkedList<DataEntry>(children) : new LinkedList<DataEntry>();
+			this.DataTypeName = dataTypeName;
+			this.StringLength = stringLength;
+			this.ArrayStartIndex = arrayStartIndex;
+			this.ArrayEndIndex = arrayEndIndex;
+		}
+
+		#endregion
+
+		#region Public Properties
+
+		private string _Name;
         public string Name
         {
             get
@@ -71,7 +92,7 @@ namespace Dmc.Siemens.Common.PLC
             }
         }
 
-        public LinkedList<DataEntry> Children { get; set; } = new LinkedList<DataEntry>();
+        public LinkedList<DataEntry> Children { get; set; }
 
         #endregion
 
@@ -121,7 +142,7 @@ namespace Dmc.Siemens.Common.PLC
                     {
                         if (int.TryParse(splitString[2], out length)) // See if the array end index is an integer
                         {
-                            newEntry.ArrayEndIndex = new Constant<int>(length);
+                            newEntry.ArrayEndIndex = length;
                         }
                         else // If not, the array index is a constant defined elsewhere
                         {
@@ -129,7 +150,7 @@ namespace Dmc.Siemens.Common.PLC
                         }
                         if (int.TryParse(splitString[1], out arrayStart)) // Do the same as above for the start index
                         {
-                            newEntry.ArrayStartIndex = new Constant<int>(arrayStart);
+                            newEntry.ArrayStartIndex = arrayStart;
                         }
                         else
                         {
@@ -161,7 +182,7 @@ namespace Dmc.Siemens.Common.PLC
                     {
                         if (int.TryParse(splitString[1], out length)) // Check to make sure the string length is an integer
                         {
-                            newEntry.StringLength = new Constant<int>(length);
+                            newEntry.StringLength = length;
                         }
                         else // If not, it's a constant referenced elsewhere
                         {
@@ -171,7 +192,7 @@ namespace Dmc.Siemens.Common.PLC
                     }
                     else
                     {
-                        newEntry.StringLength = new Constant<int>(254);
+                        newEntry.StringLength = 254;
                         newEntry.Name = newEntry.Name.Trim('\"');
                     }
 
@@ -208,7 +229,160 @@ namespace Dmc.Siemens.Common.PLC
 
         }
 
-        #endregion
-        
-    }
+		public IDictionary<DataEntry, Address> CalcluateAddresses(IProject project)
+		{
+			if (this.Children?.Count <= 0)
+				return null;
+
+			Dictionary<DataEntry, Address> addresses = new Dictionary<DataEntry, Address>();
+			int currentByte = 0;
+			int currentBit = 0;
+
+			foreach (DataEntry entry in this.Children)
+			{
+				Address entryAddress;
+				switch (entry.DataType)
+				{
+					case DataType.ANY:
+					case DataType.ARRAY:
+					case DataType.DATE:
+					case DataType.DATE_AND_TIME:
+					case DataType.DINT:
+					case DataType.DWORD:
+					case DataType.INT:
+					case DataType.POINTER:
+					case DataType.REAL:
+					case DataType.STRING:
+					case DataType.STRUCT:
+					case DataType.TIME:
+					case DataType.TIME_OF_DAY:
+					case DataType.UDT:
+					case DataType.WORD:
+						Increment();
+						entryAddress = new Address(currentByte, currentBit);
+						currentByte += this.CalculateByteSize(project);
+						break;
+					case DataType.BOOL:
+						entryAddress = new Address(currentByte, currentBit);
+						Increment(isBit: true);
+						break;
+					case DataType.BYTE:
+					case DataType.CHAR:
+						Increment(isByte: true);
+						entryAddress = new Address(currentByte, currentBit);
+						currentByte += this.CalculateByteSize(null);
+						break;
+					default:
+						entryAddress = new Address();
+						break;
+				}
+
+				// Add or overwrite the current address
+				addresses[entry] = entryAddress;
+
+			}
+
+			void Increment(bool isBit = false, bool isByte = false)
+			{
+				if (isBit)
+				{
+					if (currentBit >= 7)
+					{
+						currentBit = 0;
+						currentByte++;
+					}
+					else
+					{
+						currentBit++;
+					}
+				}
+				else if (isByte)
+				{
+					if (currentBit != 0)
+					{
+						currentByte += 1;
+					}
+					currentBit = 0;
+				}
+				else
+				{
+					if (currentByte % 2 == 0 && currentBit != 0)
+					{
+						currentByte += 2;
+					}
+					else if (currentByte % 2 == 1)
+					{
+						currentByte += 1;
+					}
+
+					currentBit = 0;
+
+				}
+			}
+
+			return addresses;
+		}
+
+		public int CalculateByteSize(IProject project)
+		{
+			// Check if it is a primitive first
+			int size;
+			if ((size = TagHelper.GetPrimitiveByteSize(this.DataType, (this.StringLength.HasValue) ? this.StringLength.Value : 0)) >= 0)
+				return size;
+
+			// Handle the cases where it is not
+			switch (this.DataType)
+			{
+				case DataType.ARRAY:
+					int arraySize = project.GetConstantValue(this.ArrayEndIndex) - project.GetConstantValue(this.ArrayStartIndex) + 1;
+					DataType type;
+					DataEntry newEntry;
+					if (Enum.TryParse(this.DataTypeName, out type))
+					{
+						newEntry = new DataEntry() { DataType = type };
+					}
+					else
+					{
+						newEntry = project.GetUdtStructure(this.DataTypeName);
+					}
+					size = newEntry.CalculateByteSize(project);
+					if (size == 0)
+					{
+						int overflow = arraySize % 16;
+						if (overflow > 0)
+						{
+							return ((arraySize / 16) * 2 + 2);
+						}
+						else
+						{
+							return (arraySize / 16);
+						}
+					}
+					else if (size == 1)
+					{
+						if (arraySize % 2 > 0)
+						{
+							return (arraySize / 2 + 1);
+						}
+						else
+						{
+							return (arraySize / 2);
+						}
+					}
+					else
+					{
+						return arraySize * size;
+					}
+
+				case DataType.STRUCT:
+				case DataType.UDT:
+					return project.GetUdtStructure(this.DataTypeName).CalculateByteSize(project);
+				default:
+					throw new SiemensException($"Invalid DataType: {this.DataType.ToString()}");
+			}
+		}
+
+		#endregion
+
+	}
 }

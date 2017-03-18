@@ -15,9 +15,19 @@ namespace Dmc.Siemens.Portal.Base
 			this.BitOffset = bitOffset;
 		}
 
-		public int ByteOffset { get; set; }
+		public int ByteOffset { get; private set; }
 
-		public int BitOffset { get; set; }
+		public int BitOffset { get; private set; }
+
+		public static Address operator +(Address address, Address addressOffset)
+		{
+			return new Address(address.ByteOffset + addressOffset.ByteOffset, address.BitOffset + addressOffset.BitOffset);
+		}
+
+		public static Address operator +(Address address, int byteOffset)
+		{
+			return new Address(address.ByteOffset + byteOffset, address.BitOffset);
+		}
 
 	}
 }

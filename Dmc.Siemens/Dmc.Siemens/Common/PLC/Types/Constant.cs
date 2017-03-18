@@ -11,11 +11,11 @@ namespace Dmc.Siemens.Common.PLC.Types
 
         #region Constructors
 
-        public Constant(T value)
+        public Constant(T value, string name = null)
         {
             this._Value = value;
             this._HasValue = true;
-            this._Name = null;
+            this._Name = name;
         }
 
         public Constant(string name)
@@ -49,7 +49,7 @@ namespace Dmc.Siemens.Common.PLC.Types
             {
                 return this._Name;
             }
-            set
+            private set
             {
                 this._Name = value;
             }
@@ -81,7 +81,16 @@ namespace Dmc.Siemens.Common.PLC.Types
 
         public override int GetHashCode()
         {
-            return HasValue ? this.Value.GetHashCode() : 0;
+			unchecked
+			{
+				int hash = (int)2166136261;
+				if (this.HasValue)
+					hash = (hash * 16777619) ^ this.Value.GetHashCode();
+				if (this.Name != null)
+					hash = (hash * 16777619) ^ this.Name.GetHashCode();
+
+				return hash;
+			}
         }
 
         public override string ToString()
@@ -89,10 +98,10 @@ namespace Dmc.Siemens.Common.PLC.Types
             return HasValue ? this.Value.ToString() : "";
         }
 
-        public static implicit operator Constant<T>(T value)
-        {
-            return new Constant<T>(value);
-        }
+		public static implicit operator Constant<T>(T value)
+		{
+			return new Constant<T>(value);
+		}
 
         public static explicit operator T(Constant<T> value)
         {
