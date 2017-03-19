@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Dmc.Siemens.Common.PLC;
 using Dmc.Siemens.Common.PLC.Types;
 
-namespace Dmc.Siemens.Common.Base
+namespace Dmc.Siemens.Common.Interfaces
 {
 	public interface IProject : INotifyPropertyChanged
 	{
@@ -15,10 +15,6 @@ namespace Dmc.Siemens.Common.Base
 		IEnumerable<IAutomationObject> AutomationObjects { get; }
 
 		string Name { get; set; }
-
-		T GetConstantValue<T>(Constant<T> constant) where T : struct;
-
-		DataEntry GetUdtStructure(string udtName);
-
+		
 	}
 }

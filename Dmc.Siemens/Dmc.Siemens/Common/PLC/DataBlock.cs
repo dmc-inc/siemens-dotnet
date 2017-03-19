@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
 namespace Dmc.Siemens.Common.PLC

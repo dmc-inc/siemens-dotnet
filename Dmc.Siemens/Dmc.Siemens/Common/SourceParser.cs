@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
 
 namespace Dmc.Siemens.Common
 {

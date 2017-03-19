@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,13 +8,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.PLC.Types;
 using Dmc.Siemens.Portal.Base;
 using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.PLC
 {
-    public class DataEntry : NotifyPropertyChanged
+    public class DataEntry : NotifyPropertyChanged, IDataEntry
     {
 
 		#region Constructors
@@ -93,12 +95,12 @@ namespace Dmc.Siemens.Common.PLC
         }
 
         public LinkedList<DataEntry> Children { get; set; }
+		
+		#endregion
 
-        #endregion
+		#region Public Methods
 
-        #region Public Methods
-
-        public static DataEntry FromString(string dataEntry, TextReader dataReader)
+		public static DataEntry FromString(string dataEntry, TextReader dataReader)
         {
 
             DataEntry newEntry = new DataEntry();
@@ -229,101 +231,12 @@ namespace Dmc.Siemens.Common.PLC
 
         }
 
-		public IDictionary<DataEntry, Address> CalcluateAddresses(IProject project)
+		public IDictionary<DataEntry, Address> CalcluateAddresses(IPlc plc)
 		{
-			if (this.Children?.Count <= 0)
-				return null;
-
-			Dictionary<DataEntry, Address> addresses = new Dictionary<DataEntry, Address>();
-			int currentByte = 0;
-			int currentBit = 0;
-
-			foreach (DataEntry entry in this.Children)
-			{
-				Address entryAddress;
-				switch (entry.DataType)
-				{
-					case DataType.ANY:
-					case DataType.ARRAY:
-					case DataType.DATE:
-					case DataType.DATE_AND_TIME:
-					case DataType.DINT:
-					case DataType.DWORD:
-					case DataType.INT:
-					case DataType.POINTER:
-					case DataType.REAL:
-					case DataType.STRING:
-					case DataType.STRUCT:
-					case DataType.TIME:
-					case DataType.TIME_OF_DAY:
-					case DataType.UDT:
-					case DataType.WORD:
-						Increment();
-						entryAddress = new Address(currentByte, currentBit);
-						currentByte += this.CalculateByteSize(project);
-						break;
-					case DataType.BOOL:
-						entryAddress = new Address(currentByte, currentBit);
-						Increment(isBit: true);
-						break;
-					case DataType.BYTE:
-					case DataType.CHAR:
-						Increment(isByte: true);
-						entryAddress = new Address(currentByte, currentBit);
-						currentByte += this.CalculateByteSize(null);
-						break;
-					default:
-						entryAddress = new Address();
-						break;
-				}
-
-				// Add or overwrite the current address
-				addresses[entry] = entryAddress;
-
-			}
-
-			void Increment(bool isBit = false, bool isByte = false)
-			{
-				if (isBit)
-				{
-					if (currentBit >= 7)
-					{
-						currentBit = 0;
-						currentByte++;
-					}
-					else
-					{
-						currentBit++;
-					}
-				}
-				else if (isByte)
-				{
-					if (currentBit != 0)
-					{
-						currentByte += 1;
-					}
-					currentBit = 0;
-				}
-				else
-				{
-					if (currentByte % 2 == 0 && currentBit != 0)
-					{
-						currentByte += 2;
-					}
-					else if (currentByte % 2 == 1)
-					{
-						currentByte += 1;
-					}
-
-					currentBit = 0;
-
-				}
-			}
-
-			return addresses;
+			return TagHelper.CalcluateAddresses(this, plc);
 		}
 
-		public int CalculateByteSize(IProject project)
+		public int CalculateByteSize(IPlc plc)
 		{
 			// Check if it is a primitive first
 			int size;
@@ -334,18 +247,18 @@ namespace Dmc.Siemens.Common.PLC
 			switch (this.DataType)
 			{
 				case DataType.ARRAY:
-					int arraySize = project.GetConstantValue(this.ArrayEndIndex) - project.GetConstantValue(this.ArrayStartIndex) + 1;
+					int arraySize = plc.GetConstantValue(this.ArrayEndIndex) - plc.GetConstantValue(this.ArrayStartIndex) + 1;
 					DataType type;
-					DataEntry newEntry;
+					IDataEntry newEntry;
 					if (Enum.TryParse(this.DataTypeName, out type))
 					{
 						newEntry = new DataEntry() { DataType = type };
 					}
 					else
 					{
-						newEntry = project.GetUdtStructure(this.DataTypeName);
+						newEntry = plc.GetUdtStructure(this.DataTypeName);
 					}
-					size = newEntry.CalculateByteSize(project);
+					size = newEntry.CalculateByteSize(plc);
 					if (size == 0)
 					{
 						int overflow = arraySize % 16;
@@ -376,10 +289,20 @@ namespace Dmc.Siemens.Common.PLC
 
 				case DataType.STRUCT:
 				case DataType.UDT:
-					return project.GetUdtStructure(this.DataTypeName).CalculateByteSize(project);
+					return plc.GetUdtStructure(this.DataTypeName).CalculateByteSize(plc);
 				default:
 					throw new SiemensException($"Invalid DataType: {this.DataType.ToString()}");
 			}
+		}
+
+		IEnumerator<DataEntry> IEnumerable<DataEntry>.GetEnumerator()
+		{
+			return this.Children.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.Children.GetEnumerator();
 		}
 
 		#endregion

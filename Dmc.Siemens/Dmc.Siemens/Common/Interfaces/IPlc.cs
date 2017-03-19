@@ -4,13 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Common.PLC;
+using Dmc.Siemens.Common.PLC.Types;
 
-namespace Dmc.Siemens.Common.Base
+namespace Dmc.Siemens.Common.Interfaces
 {
 	public interface IPlc : IAutomationObject
 	{
 
 		IEnumerable<Block> Blocks { get; }
+
+		IEnumerable<UserDataType> UserDataTypes { get; }
+
+		T GetConstantValue<T>(Constant<T> constant) where T : struct;
+
+		IDataEntry GetUdtStructure(string udtName);
 
 	}
 }

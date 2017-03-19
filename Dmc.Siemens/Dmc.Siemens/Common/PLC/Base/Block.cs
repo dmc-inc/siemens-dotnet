@@ -6,11 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Dmc.Wpf.Base;
 using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
 
 namespace Dmc.Siemens.Common.PLC
 {
     public abstract class Block : NotifyPropertyChanged, IParsableSource
     {
+
         #region Public Properties
 
         private BlockType _Type;
@@ -65,7 +67,20 @@ namespace Dmc.Siemens.Common.PLC
             }
         }
 
-        private string _Version;
+		private string _Comment;
+		public string Comment
+		{
+			get
+			{
+				return this._Comment;
+			}
+			set
+			{
+				this.SetProperty(ref this._Comment, value);
+			}
+		}
+
+		private string _Version;
         public string Version
         {
             get

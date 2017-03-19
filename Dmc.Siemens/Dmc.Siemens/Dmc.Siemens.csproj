@@ -60,11 +60,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\SiemensException.cs" />
-    <Compile Include="Common\Base\IAutomationObject.cs" />
-    <Compile Include="Common\Base\IHmi.cs" />
-    <Compile Include="Common\Base\IParsableSource.cs" />
-    <Compile Include="Common\Base\IPlc.cs" />
-    <Compile Include="Common\Base\IProject.cs" />
+    <Compile Include="Common\Base\ProjectBase.cs" />
+    <Compile Include="Common\Interfaces\IAutomationObject.cs" />
+    <Compile Include="Common\Interfaces\IDataEntry.cs" />
+    <Compile Include="Common\Interfaces\IHmi.cs" />
+    <Compile Include="Common\Interfaces\IParsableSource.cs" />
+    <Compile Include="Common\Interfaces\IPlc.cs" />
+    <Compile Include="Common\Interfaces\IProject.cs" />
     <Compile Include="Common\Export\KepwareConfiguration.cs" />
     <Compile Include="Common\SourceParser.cs" />
     <Compile Include="Common\PLC\Base\Block.cs" />

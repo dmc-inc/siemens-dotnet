@@ -5,15 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
 
 namespace Dmc.Siemens.Common.PLC
 {
     public class UserDataType : DataEntity
     {
 
-        #region Protected Properties
+		#region Protected Properties
 
-        protected override string DataHeader { get; } = "STRUCT";
+		protected override string DataHeader { get; } = "STRUCT";
 
         #endregion
 

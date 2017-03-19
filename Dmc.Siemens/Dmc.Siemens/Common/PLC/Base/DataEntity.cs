@@ -7,35 +7,24 @@ using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
 namespace Dmc.Siemens.Common.PLC
 {
-    public abstract class DataEntity : Block, IEnumerable<DataEntry>
+    public abstract class DataEntity : Block, IDataEntry
     {
 
-        #region Public Properties
+		#region Public Properties
 
-        public LinkedList<DataEntry> Data { get; set; } = new LinkedList<DataEntry>();
+		public DataType DataType => DataType.STRUCT;
+
+		public LinkedList<DataEntry> Children { get; set; } = new LinkedList<DataEntry>();
 		
 		#endregion
 
 		#region Public Methods
 		
-		//public int CalculateByteSize(IProject project)
-		//{
-		//	if (this.Data?.Count <= 0)
-		//		return 0;
-
-		//	int size = 0;
-		//	foreach (var entry in this)
-		//	{
-		//		size += entry.CalculateByteSize(project);
-		//	}
-
-		//	return size;
-		//}
-
 		public override IParsableSource ParseSource(TextReader reader)
         {
             string line;
@@ -70,7 +59,7 @@ namespace Dmc.Siemens.Common.PLC
                         }
                         else
                         {
-                            this.Data.AddLast(DataEntry.FromString(line, reader));
+                            this.Children.AddLast(DataEntry.FromString(line, reader));
                         }
                     }
                 }
@@ -83,19 +72,29 @@ namespace Dmc.Siemens.Common.PLC
 
 		public IEnumerator<DataEntry> GetEnumerator()
 		{
-			return ((IEnumerable<DataEntry>)this.Data).GetEnumerator();
+			return ((IEnumerable<DataEntry>)this.Children).GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return ((IEnumerable<DataEntry>)this.Data).GetEnumerator();
+			return ((IEnumerable<DataEntry>)this.Children).GetEnumerator();
+		}
+
+		public IDictionary<DataEntry, Address> CalcluateAddresses(IPlc plc)
+		{
+			return TagHelper.CalcluateAddresses(this, plc);
+		}
+
+		public int CalculateByteSize(IPlc plc)
+		{
+			return TagHelper.CalculateByteSize(this, plc);
 		}
 
 		#endregion
 
 		#region Private Methods
 
-		
+
 
 		#endregion
 
