@@ -25,7 +25,7 @@ namespace Dmc.Siemens.Common.Interfaces
 
 		IDictionary<DataEntry, Address> CalcluateAddresses(IPlc plc);
 
-		int CalculateByteSize(IPlc plc);
+		Address CalculateSize(IPlc plc);
 
 		#endregion
 

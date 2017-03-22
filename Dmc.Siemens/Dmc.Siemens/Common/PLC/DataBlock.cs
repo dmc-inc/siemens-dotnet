@@ -67,11 +67,13 @@ namespace Dmc.Siemens.Common.PLC
             }
         }
 
-        #endregion
+		public override BlockType Type => BlockType.DataBlock;
 
-        #region Protected Properties
+		#endregion
 
-        protected override string DataHeader
+		#region Protected Properties
+
+		protected override string DataHeader
         {
             get
             {
@@ -101,9 +103,7 @@ namespace Dmc.Siemens.Common.PLC
                     break;
                 }
             }
-
-            this.Type = BlockType.DataBlock;
-
+			
             return this;
 
         }

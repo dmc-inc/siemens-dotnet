@@ -83,6 +83,22 @@ namespace Dmc.Siemens.Common
 
 		public static DataType ParseDataType(string dataTypeString)
 		{
+			if (dataTypeString.ToUpper().Replace(" ", string.Empty).Contains("ARRAY["))
+			{
+				return DataType.ARRAY;
+			}
+			else if (dataTypeString.Contains('"'))
+			{
+				return DataType.UDT;
+			}
+			else if (dataTypeString.ToUpper().Contains("STRING"))
+			{
+				return DataType.STRING;
+			}
+			else if (dataTypeString.ToUpper().Contains("STRUCT"))
+			{
+				return DataType.STRUCT;
+			}
 			return (Enum.TryParse(dataTypeString, out DataType type)) ? type : DataType.UNKNOWN;
 		}
 
@@ -92,8 +108,7 @@ namespace Dmc.Siemens.Common
 				return null;
 
 			Dictionary<DataEntry, Address> addresses = new Dictionary<DataEntry, Address>();
-			int currentByte = 0;
-			int currentBit = 0;
+			Address currentAddress = new Address();
 
 			foreach (DataEntry entry in dataEntry)
 			{
@@ -115,19 +130,19 @@ namespace Dmc.Siemens.Common
 					case DataType.TIME_OF_DAY:
 					case DataType.UDT:
 					case DataType.WORD:
-						Increment();
-						entryAddress = new Address(currentByte, currentBit);
-						currentByte += dataEntry.CalculateByteSize(plc);
+						currentAddress = IncrementAddress(currentAddress);
+						entryAddress = currentAddress;
+						currentAddress += dataEntry.CalculateSize(plc);
 						break;
 					case DataType.BOOL:
-						entryAddress = new Address(currentByte, currentBit);
-						Increment(isBit: true);
+						entryAddress = currentAddress;
+						currentAddress = IncrementAddress(currentAddress, isBit: true);
 						break;
 					case DataType.BYTE:
 					case DataType.CHAR:
-						Increment(isByte: true);
-						entryAddress = new Address(currentByte, currentBit);
-						currentByte += dataEntry.CalculateByteSize(null);
+						currentAddress = IncrementAddress(currentAddress, isByte: true);
+						entryAddress = currentAddress;
+						currentAddress += dataEntry.CalculateSize(null);
 						break;
 					default:
 						entryAddress = new Address();
@@ -139,54 +154,22 @@ namespace Dmc.Siemens.Common
 
 			}
 
-			void Increment(bool isBit = false, bool isByte = false)
-			{
-				if (isBit)
-				{
-					if (currentBit >= 7)
-					{
-						currentBit = 0;
-						currentByte++;
-					}
-					else
-					{
-						currentBit++;
-					}
-				}
-				else if (isByte)
-				{
-					if (currentBit != 0)
-					{
-						currentByte += 1;
-					}
-					currentBit = 0;
-				}
-				else
-				{
-					if (currentByte % 2 == 0 && currentBit != 0)
-					{
-						currentByte += 2;
-					}
-					else if (currentByte % 2 == 1)
-					{
-						currentByte += 1;
-					}
-
-					currentBit = 0;
-
-				}
-			}
-
 			return addresses;
 		}
 
-		public static int CalculateByteSize(IDataEntry dataEntry, IPlc plc)
+		public static Address CalculateSize(IDataEntry dataEntry, IPlc plc)
 		{
 			// Check if it is a DataEntry (not a block) then check if it is a primitive
-			int size;
+			int size = 0;
+			Address address;
 			DataEntry entry = (dataEntry as DataEntry);
 			if (entry != null && (size = TagHelper.GetPrimitiveByteSize(entry.DataType, (entry.StringLength.HasValue) ? entry.StringLength.Value : 0)) >= 0)
-				return size;
+			{
+				if (size > 0)
+					return new Address(size, 0);
+				else
+					return new Address(0, 1);
+			}
 
 			// At this point, plc cannot be null because there are non-primitives
 			if (plc == null)
@@ -200,54 +183,107 @@ namespace Dmc.Siemens.Common
 			{
 				case DataType.ARRAY:
 					int arraySize = plc.GetConstantValue(entry.ArrayEndIndex) - plc.GetConstantValue(entry.ArrayStartIndex) + 1;
-					DataType type;
 					IDataEntry newEntry;
-					if (Enum.TryParse(entry.DataTypeName, out type))
+					if (entry.ArrayDataType.HasValue && entry.ArrayDataType != DataType.UDT)
 					{
-						newEntry = new DataEntry() { DataType = type };
+						if (entry.ArrayDataType.Value == DataType.STRING)
+						{
+							newEntry = new DataEntry(dataType: DataType.STRING, stringLength: entry.StringLength);
+						}
+						else
+						{
+							newEntry = new DataEntry() { DataType = entry.ArrayDataType.Value };
+						}
 					}
-					else
+					else if (entry.ArrayDataType == DataType.UDT)
 					{
 						newEntry = plc.GetUdtStructure(entry.DataTypeName);
 					}
-					size = newEntry.CalculateByteSize(plc);
-					if (size == 0)
+					else
+					{
+						throw new SiemensException("Array '" + entry.Name + "' does not have a correct sub-DataType");
+					}
+					address = newEntry.CalculateSize(plc);
+					if (address.Byte == 0)
 					{
 						int overflow = arraySize % 16;
 						if (overflow > 0)
 						{
-							return ((arraySize / 16) * 2 + 2);
+							return new Address((arraySize / 16) * 2 + 2);
 						}
 						else
 						{
-							return (arraySize / 16);
+							return new Address(arraySize / 16);
 						}
 					}
-					else if (size == 1)
+					else if (address.Byte == 1)
 					{
 						if (arraySize % 2 > 0)
 						{
-							return (arraySize / 2 + 1);
+							return new Address(arraySize / 2 + 1);
 						}
 						else
 						{
-							return (arraySize / 2);
+							return new Address(arraySize / 2);
 						}
 					}
 					else
 					{
-						return arraySize * size;
+						return new Address(arraySize * address.Byte);
 					}
 
 				case DataType.STRUCT:
-					int sum = 0;
-					Parallel.ForEach(dataEntry, e => Interlocked.Add(ref sum, e.CalculateByteSize(plc)));
-					return sum;
+					Address sumAddress = new Address();
+					foreach (var subEntry in dataEntry)
+					{
+						sumAddress += subEntry.CalculateSize(plc);
+					}
+					return sumAddress;
 				case DataType.UDT:
-					return plc.GetUdtStructure(entry.DataTypeName).CalculateByteSize(plc);
+					return plc.GetUdtStructure(entry.DataTypeName).CalculateSize(plc);
 				default:
 					throw new SiemensException($"Invalid DataType: {dataEntry.DataType.ToString()}");
 			}
+		}
+
+		public static Address IncrementAddress(Address address, bool isBit = false, bool isByte = false)
+		{
+			if (isBit)
+			{
+				// If this was a bit, check for rollover to byte and if not just increment bit
+				if (address.Bit >= 7)
+				{
+					address = new Address(address.Byte + 1);
+				}
+				else
+				{
+					address = new Address(address.Byte, address.Bit + 1);
+				}
+			}
+			else if (isByte)
+			{
+				// if its a byte, we only need to check for the case where the bit is not zero
+				// in which case just increment the byte by one and reset the bit
+				if (address.Bit != 0)
+				{
+					address = new Address(address.Byte + 1);
+				}
+			}
+			else
+			{
+				// if the byte is an even number, only increment if the bit is not 0
+				if (address.Byte % 2 == 0 && address.Bit != 0)
+				{
+					address = new Address(address.Byte + 2);
+				}
+				// if the byte is an odd number, add 1 byte and clear the bit
+				else if (address.Byte % 2 == 1)
+				{
+					address = new Address(address.Byte + 1);
+				}
+			}
+
+			return address;
 		}
 
 	}

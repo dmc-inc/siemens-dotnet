@@ -72,16 +72,13 @@ namespace Dmc.Siemens.Common.Export
 
 		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, IPlc parentPlc)
 		{
-			Address entryAddress = new Address();
-			int previousSize = 0;
+			Address currentAddress = new Address();
 			foreach (var entry in block)
 			{
-				AddDataEntry(entry, block.Name, entryAddress);
-				previousSize = entry.CalculateByteSize(parentPlc);
-				if (previousSize == 0)
-					entryAddress += new Address(0, 1);
-				else
-					entryAddress += previousSize;
+				AddDataEntry(entry, block.Name, currentAddress);
+				currentAddress += entry.CalculateSize(parentPlc);
+				if (entry.DataType == DataType.UDT || entry.DataType == DataType.STRUCT || entry.DataType == DataType.ARRAY)
+					currentAddress = TagHelper.IncrementAddress(currentAddress);
 			}
 
 			void AddDataEntry(IDataEntry entry, string entryPrefix, Address address)
@@ -97,7 +94,8 @@ namespace Dmc.Siemens.Common.Export
 				switch (entry.DataType)
 				{
 					case DataType.ARRAY:
-						DataType subType = TagHelper.ParseDataType(dataEntry.DataTypeName);
+						address = TagHelper.IncrementAddress(address);
+						DataType subType = dataEntry.ArrayDataType.HasValue ? dataEntry.ArrayDataType.Value : DataType.UDT;
 						bool isNonPrimitive = !TagHelper.IsPrimitive(subType);
 						int primitiveByteSize = TagHelper.GetPrimitiveByteSize(subType);
 						IDataEntry structContents = null;
@@ -132,12 +130,12 @@ namespace Dmc.Siemens.Common.Export
 							LinkedList<DataEntry> arrayEntries = new LinkedList<DataEntry>();
 							for (int i = parentPlc.GetConstantValue(dataEntry.ArrayStartIndex); i <= parentPlc.GetConstantValue(dataEntry.ArrayEndIndex); i++)
 							{
-								arrayEntries.AddLast(new DataEntry($"[{i}]", subType, entry.Comment + i.ToString()));
+								arrayEntries.AddLast(new DataEntry($"{entry.Name}[{i}]", subType, entry.Comment + " (" + i.ToString() + ")", stringLength: dataEntry.StringLength));
 							}
 
 							structContents = new DataEntry(entry.Name, DataType.STRUCT, entry.Comment, arrayEntries);
 
-							AddDataEntry(structContents, $"{entryPrefix}{entry.Name}", address);
+							AddDataEntry(structContents, entryPrefix, address);
 						}
 						break;
 					case DataType.BOOL:
@@ -179,15 +177,12 @@ namespace Dmc.Siemens.Common.Export
 						type = "String";
 						break;
 					case DataType.UDT:
+						structContents = parentPlc.GetUdtStructure(dataEntry.DataTypeName);
+						dataEntry.SetUdtStructure(structContents.Children);
+						AddStruct(dataEntry);
+						break;
 					case DataType.STRUCT:
-						var addresses = entry.CalcluateAddresses(parentPlc);
-
-						string prefix = entryPrefix + ((entry.Children.First.Value.Name.Contains("[")) ? "" : ".");
-						foreach (var subEntry in entry.Children)
-						{
-
-							AddDataEntry(subEntry, prefix, addresses[subEntry] + address);
-						}
+						AddStruct(entry);
 						break;
 					case DataType.WORD:
 						addressPrefix = "DBW";
@@ -195,18 +190,33 @@ namespace Dmc.Siemens.Common.Export
 						break;
 					default:
 						throw new SiemensException("Data type: '" + entry.DataType.ToString() + "' not supported.");
+				}
 
+				// sub function to deal with adding a struct
+				void AddStruct(IDataEntry structEntry)
+				{
+					var addresses = structEntry.CalcluateAddresses(parentPlc);
+					
+					if (!structEntry.Children.First.Value.Name.Contains("["))
+					{
+						entryPrefix += "." + structEntry.Name + ".";
+					}
+
+					foreach (var subEntry in structEntry.Children)
+					{
+						AddDataEntry(subEntry, entryPrefix, addresses[subEntry] + address);
+					}
 				}
 
 				if (TagHelper.IsPrimitive(entry.DataType))
 				{
 					string addressString = "DB" + block.Number + "." + addressPrefix;
 					if (entry.DataType == DataType.BOOL)
-						addressString += address.ByteOffset + "." + address.BitOffset;
+						addressString += address.Byte + "." + address.Bit;
 					else if (entry.DataType == DataType.STRING)
-						addressString += "0." + parentPlc.GetConstantValue(dataEntry.StringLength).ToString();
+						addressString += address.Byte + "." + parentPlc.GetConstantValue(dataEntry.StringLength).ToString();
 					else
-						addressString += address.ByteOffset;
+						addressString += address.Byte;
 
 					string[] entryItems = new string[16]
 					{
@@ -232,6 +242,8 @@ namespace Dmc.Siemens.Common.Export
 				}
 
 			}
+
+
 
 		}
 

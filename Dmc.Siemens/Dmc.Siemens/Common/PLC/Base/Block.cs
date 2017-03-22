@@ -14,19 +14,8 @@ namespace Dmc.Siemens.Common.PLC
     {
 
         #region Public Properties
-
-        private BlockType _Type;
-        public BlockType Type
-        {
-            get
-            {
-                return this._Type;
-            }
-            set
-            {
-                this.SetProperty(ref this._Type, value);
-            }
-        }
+		
+        public abstract BlockType Type { get; }
 
         private BlockLanguage _Language;
         public BlockLanguage Language

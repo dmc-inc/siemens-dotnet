@@ -64,7 +64,20 @@ namespace Dmc.Siemens.Common.PLC
             }
         }
 
-        private string _DataTypeName;
+		private DataType? _ArrayDataType;
+		public DataType? ArrayDataType
+		{
+			get
+			{
+				return this._ArrayDataType;
+			}
+			set
+			{
+				this.SetProperty(ref this._ArrayDataType, value);
+			}
+		}
+
+		private string _DataTypeName;
         public string DataTypeName
         {
             get
@@ -122,25 +135,22 @@ namespace Dmc.Siemens.Common.PLC
             {
                 splitString = trimmedData.Split(':');
                 type = splitString[1].Trim().Trim(';');
-                newEntry.Name = splitString[0].Trim();
+                newEntry.Name = splitString[0].Trim().Trim('"');
 
-                // Check to see if there is a UDT first
-                if (type.Contains("\""))
+				if (type.Contains('"'))
+				{
+					int startUdt = type.IndexOf('"');
+					int endUdt = type.LastIndexOf('"');
+					if (startUdt >= 0 && endUdt >= 0)
+					{
+						newEntry.DataTypeName = type.Substring(startUdt + 1, endUdt - startUdt - 1);
+						isUdt = true;
+					}
+				}
+				if (type.ToUpper().Replace(" ", string.Empty).Contains("ARRAY["))
                 {
-                    Match match = Regex.Match(type, "\"([^\"]*)\"");
-                    // Use Regex to grab the value between the quotes
-                    if (match.Success && match.Groups != null && match.Groups.Count > 1)
-                    {
-                        newEntry.DataTypeName = match.Groups[1].Value;
-                        isUdt = true;
-                    }
-
-                }
-                if (type.ToUpper().Replace(" ", string.Empty).Contains("ARRAY["))
-                {
-                    newEntry.Name = newEntry.Name.Trim('\"');
                     splitString = type.Split(new string[] { "[", "..", "]" }, StringSplitOptions.RemoveEmptyEntries);
-                    if (splitString.Length == 4)
+                    if (splitString.Length >= 4)
                     {
                         if (int.TryParse(splitString[2], out length)) // See if the array end index is an integer
                         {
@@ -161,42 +171,42 @@ namespace Dmc.Siemens.Common.PLC
 
                     }
                     splitString = type.ToUpper().Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
+
+					string arrayType = string.Empty;
                     if (splitString.Length > 1 && !isUdt)
                     {
-                        newEntry.DataTypeName = splitString[1].Trim();
+						arrayType = splitString[1].Trim();
                     }
                     else if (splitString.Length == 1)  // Search the next line for the array type if it hasn't already been defined
                     {
                         string line;
                         line = dataReader.ReadLine();
 
-                        newEntry.DataTypeName = line.Trim().Trim(';').Trim('\"');
+                        arrayType = line.Trim().Trim(';').Trim('\"');
                     }
-                    
 
-                    type = "ARRAY";
+					var parsedType = TagHelper.ParseDataType(arrayType);
+					if (parsedType == DataType.UNKNOWN)
+					{
+						newEntry.ArrayDataType = DataType.UDT;
+						newEntry.DataTypeName = arrayType;
+					}
+					else if (parsedType == DataType.STRING)
+					{
+						newEntry.ArrayDataType = parsedType;
+						newEntry.StringLength = ParseStringLength(arrayType);
+					}
+					else
+					{
+						newEntry.ArrayDataType = parsedType;
+					}
+					
+					type = "ARRAY";
 
                 }
                 else if (type.ToUpper().Contains("STRING"))
                 {
-                    splitString = type.Split(new string[] { "[", "]" }, StringSplitOptions.RemoveEmptyEntries);
-                    if (splitString.Length > 1)
-                    {
-                        if (int.TryParse(splitString[1], out length)) // Check to make sure the string length is an integer
-                        {
-                            newEntry.StringLength = length;
-                        }
-                        else // If not, it's a constant referenced elsewhere
-                        {
-                            newEntry.StringLength = new Constant<int>(splitString[1].Trim('\"'));
-                        }
-
-                    }
-                    else
-                    {
-                        newEntry.StringLength = 254;
-                        newEntry.Name = newEntry.Name.Trim('\"');
-                    }
+					newEntry.StringLength = ParseStringLength(type);
 
                     type = "STRING";
 
@@ -229,6 +239,26 @@ namespace Dmc.Siemens.Common.PLC
 
             return newEntry;
 
+			Constant<int> ParseStringLength(string typeString)
+			{
+				splitString = typeString.Split(new string[] { "[", "]" }, StringSplitOptions.RemoveEmptyEntries);
+				if (splitString.Length > 1)
+				{
+					if (int.TryParse(splitString[1], out length)) // Check to make sure the string length is an integer
+					{
+						return length;
+					}
+					else // If not, it's a constant referenced elsewhere
+					{
+						return new Constant<int>(splitString[1].Trim('\"'));
+					}
+				}
+				else
+				{
+					return 254;
+				}
+			}
+
         }
 
 		public IDictionary<DataEntry, Address> CalcluateAddresses(IPlc plc)
@@ -236,62 +266,17 @@ namespace Dmc.Siemens.Common.PLC
 			return TagHelper.CalcluateAddresses(this, plc);
 		}
 
-		public int CalculateByteSize(IPlc plc)
+		public Address CalculateSize(IPlc plc)
 		{
-			// Check if it is a primitive first
-			int size;
-			if ((size = TagHelper.GetPrimitiveByteSize(this.DataType, (this.StringLength.HasValue) ? this.StringLength.Value : 0)) >= 0)
-				return size;
+			return TagHelper.CalculateSize(this, plc);
+		}
 
-			// Handle the cases where it is not
-			switch (this.DataType)
+		public void SetUdtStructure(IEnumerable<DataEntry> children)
+		{
+			if (this.DataType == DataType.UDT)
 			{
-				case DataType.ARRAY:
-					int arraySize = plc.GetConstantValue(this.ArrayEndIndex) - plc.GetConstantValue(this.ArrayStartIndex) + 1;
-					DataType type;
-					IDataEntry newEntry;
-					if (Enum.TryParse(this.DataTypeName, out type))
-					{
-						newEntry = new DataEntry() { DataType = type };
-					}
-					else
-					{
-						newEntry = plc.GetUdtStructure(this.DataTypeName);
-					}
-					size = newEntry.CalculateByteSize(plc);
-					if (size == 0)
-					{
-						int overflow = arraySize % 16;
-						if (overflow > 0)
-						{
-							return ((arraySize / 16) * 2 + 2);
-						}
-						else
-						{
-							return (arraySize / 16);
-						}
-					}
-					else if (size == 1)
-					{
-						if (arraySize % 2 > 0)
-						{
-							return (arraySize / 2 + 1);
-						}
-						else
-						{
-							return (arraySize / 2);
-						}
-					}
-					else
-					{
-						return arraySize * size;
-					}
-
-				case DataType.STRUCT:
-				case DataType.UDT:
-					return plc.GetUdtStructure(this.DataTypeName).CalculateByteSize(plc);
-				default:
-					throw new SiemensException($"Invalid DataType: {this.DataType.ToString()}");
+				this.Children = new LinkedList<DataEntry>(children);
+				this.DataType = DataType.STRUCT;
 			}
 		}
 

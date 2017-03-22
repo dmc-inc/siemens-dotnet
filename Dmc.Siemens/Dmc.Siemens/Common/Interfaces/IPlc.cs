@@ -11,9 +11,7 @@ namespace Dmc.Siemens.Common.Interfaces
 	public interface IPlc : IAutomationObject
 	{
 
-		IEnumerable<Block> Blocks { get; }
-
-		IEnumerable<UserDataType> UserDataTypes { get; }
+		IDictionary<BlockType, IEnumerable<Block>> Blocks { get; }
 
 		T GetConstantValue<T>(Constant<T> constant) where T : struct;
 

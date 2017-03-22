@@ -85,9 +85,9 @@ namespace Dmc.Siemens.Common.PLC
 			return TagHelper.CalcluateAddresses(this, plc);
 		}
 
-		public int CalculateByteSize(IPlc plc)
+		public Address CalculateSize(IPlc plc)
 		{
-			return TagHelper.CalculateByteSize(this, plc);
+			return TagHelper.CalculateSize(this, plc);
 		}
 
 		#endregion

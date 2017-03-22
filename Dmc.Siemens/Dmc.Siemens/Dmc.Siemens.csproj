@@ -87,6 +87,7 @@
     <Compile Include="Portal\Base\IPlcTag.cs" />
     <Compile Include="Portal\Base\IHmiTagTable.cs" />
     <Compile Include="Portal\Base\IPlcTagTable.cs" />
+    <Compile Include="Portal\Base\IPortalPlc.cs" />
     <Compile Include="Portal\Base\IPortalProject.cs" />
     <Compile Include="Portal\Base\ITag.cs" />
     <Compile Include="Portal\Base\ITagTable.cs" />
