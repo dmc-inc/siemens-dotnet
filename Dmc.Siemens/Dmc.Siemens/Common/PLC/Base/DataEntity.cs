@@ -8,24 +8,78 @@ using System.Threading.Tasks;
 using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
+using Dmc.Siemens.Common.PLC.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
 namespace Dmc.Siemens.Common.PLC
 {
-    public abstract class DataEntity : Block, IDataEntry
+    public abstract class DataEntity : DataObject, IBlock
     {
 
 		#region Public Properties
 
-		public DataType DataType => DataType.STRUCT;
-
-		public LinkedList<DataEntry> Children { get; set; } = new LinkedList<DataEntry>();
+		public override DataType DataType => DataType.STRUCT;
 		
+		public BlockLanguage Language
+		{
+			get
+			{
+				return BlockLanguage.STL;
+			}
+			set
+			{
+				throw new InvalidOperationException("Cannot change the BlockLanguage of a DataEntity");
+			}
+		}
+
+		public abstract BlockType Type { get; }
+
+		private int _Number;
+		public int Number
+		{
+			get
+			{
+				return this._Number;
+			}
+			set
+			{
+				this.SetProperty(ref this._Number, value);
+			}
+		}
+
+		private ProjectFolder _ParentFolder;
+		public ProjectFolder ParentFolder
+		{
+			get
+			{
+				return this._ParentFolder;
+			}
+			set
+			{
+				this.SetProperty(ref this._ParentFolder, value);
+			}
+		}
+
+		public abstract string DataHeader { get; }
+
+		private string _Version;
+		public string Version
+		{
+			get
+			{
+				return this._Version;
+			}
+			set
+			{
+				this.SetProperty(ref this._Version, value);
+			}
+		}
+
 		#endregion
 
 		#region Public Methods
-		
-		public override IParsableSource ParseSource(TextReader reader)
+
+		public virtual IParsableSource ParseSource(TextReader reader)
         {
             string line;
             string[] split;
@@ -69,32 +123,6 @@ namespace Dmc.Siemens.Common.PLC
             return this;
 
         }
-
-		public IEnumerator<DataEntry> GetEnumerator()
-		{
-			return ((IEnumerable<DataEntry>)this.Children).GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return ((IEnumerable<DataEntry>)this.Children).GetEnumerator();
-		}
-
-		public IDictionary<DataEntry, Address> CalcluateAddresses(IPlc plc)
-		{
-			return TagHelper.CalcluateAddresses(this, plc);
-		}
-
-		public Address CalculateSize(IPlc plc)
-		{
-			return TagHelper.CalculateSize(this, plc);
-		}
-
-		#endregion
-
-		#region Private Methods
-
-
 
 		#endregion
 

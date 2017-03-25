@@ -9,6 +9,7 @@ using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.PLC;
+using Dmc.Siemens.Common.PLC.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
 namespace Dmc.Siemens.Common.Export
@@ -18,12 +19,12 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void CreateFromBlocks(IEnumerable<Block> blocks, string path, IPlc owningPlc)
+		public static void CreateFromBlocks(IEnumerable<IBlock> blocks, string path, IPlc owningPlc)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
 			IEnumerable<DataBlock> dataBlocks;
-			if ((dataBlocks = blocks.OfType<DataBlock>()).Count() <= 0)
+			if ((dataBlocks = blocks.OfType<DataBlock>())?.Count() <= 0)
 				throw new ArgumentException("Blocks does not contain any valid DataBlocks.", nameof(blocks));
 
 			CreateFromBlocksInternal(dataBlocks, path, owningPlc);
@@ -95,7 +96,7 @@ namespace Dmc.Siemens.Common.Export
 				{
 					case DataType.ARRAY:
 						address = TagHelper.IncrementAddress(address);
-						DataType subType = dataEntry.ArrayDataType.HasValue ? dataEntry.ArrayDataType.Value : DataType.UDT;
+						DataType subType = dataEntry.ArrayDataEntry.HasValue ? dataEntry.ArrayDataEntry.Value : DataType.UDT;
 						bool isNonPrimitive = !TagHelper.IsPrimitive(subType);
 						int primitiveByteSize = TagHelper.GetPrimitiveByteSize(subType);
 						IDataEntry structContents = null;

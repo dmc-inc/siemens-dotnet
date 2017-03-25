@@ -69,18 +69,14 @@ namespace Dmc.Siemens.Common.PLC
 
 		public override BlockType Type => BlockType.DataBlock;
 
-		#endregion
+		public override string DataHeader
+		{
+			get
+			{
+				return (this.IsOptimized) ? "VAR" : "STRUCT";
+			}
+		}
 
-		#region Protected Properties
-
-		protected override string DataHeader
-        {
-            get
-            {
-                return (this.IsOptimized) ? "VAR" : "STRUCT";
-            }
-        }
-		
 		#endregion
 
 		#region Public Methods

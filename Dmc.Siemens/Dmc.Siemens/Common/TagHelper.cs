@@ -102,7 +102,7 @@ namespace Dmc.Siemens.Common
 			return (Enum.TryParse(dataTypeString, out DataType type)) ? type : DataType.UNKNOWN;
 		}
 
-		public static IDictionary<DataEntry, Address> CalcluateAddresses(IDataEntry dataEntry, IPlc plc)
+		public static IDictionary<DataEntry, Address> CalcluateAddresses(DataEntry dataEntry, IPlc plc)
 		{
 			if (dataEntry.Children?.Count <= 0)
 				return null;
@@ -155,95 +155,6 @@ namespace Dmc.Siemens.Common
 			}
 
 			return addresses;
-		}
-
-		public static Address CalculateSize(IDataEntry dataEntry, IPlc plc)
-		{
-			// Check if it is a DataEntry (not a block) then check if it is a primitive
-			int size = 0;
-			Address address;
-			DataEntry entry = (dataEntry as DataEntry);
-			if (entry != null && (size = TagHelper.GetPrimitiveByteSize(entry.DataType, (entry.StringLength.HasValue) ? entry.StringLength.Value : 0)) >= 0)
-			{
-				if (size > 0)
-					return new Address(size, 0);
-				else
-					return new Address(0, 1);
-			}
-
-			// At this point, plc cannot be null because there are non-primitives
-			if (plc == null)
-				throw new ArgumentNullException(nameof(plc));
-			// If the DataType is not a struct, then dataEntry must be a DataEntry and therefore cannot be null after the cast attempt
-			if (dataEntry.DataType != DataType.STRUCT && entry == null)
-				throw new SiemensException("Cannot have a non-STRUCT IDataEntry that is not of type DataEntry");
-
-			// Handle the cases where it is not
-			switch (dataEntry.DataType)
-			{
-				case DataType.ARRAY:
-					int arraySize = plc.GetConstantValue(entry.ArrayEndIndex) - plc.GetConstantValue(entry.ArrayStartIndex) + 1;
-					IDataEntry newEntry;
-					if (entry.ArrayDataType.HasValue && entry.ArrayDataType != DataType.UDT)
-					{
-						if (entry.ArrayDataType.Value == DataType.STRING)
-						{
-							newEntry = new DataEntry(dataType: DataType.STRING, stringLength: entry.StringLength);
-						}
-						else
-						{
-							newEntry = new DataEntry() { DataType = entry.ArrayDataType.Value };
-						}
-					}
-					else if (entry.ArrayDataType == DataType.UDT)
-					{
-						newEntry = plc.GetUdtStructure(entry.DataTypeName);
-					}
-					else
-					{
-						throw new SiemensException("Array '" + entry.Name + "' does not have a correct sub-DataType");
-					}
-					address = newEntry.CalculateSize(plc);
-					if (address.Byte == 0)
-					{
-						int overflow = arraySize % 16;
-						if (overflow > 0)
-						{
-							return new Address((arraySize / 16) * 2 + 2);
-						}
-						else
-						{
-							return new Address(arraySize / 16);
-						}
-					}
-					else if (address.Byte == 1)
-					{
-						if (arraySize % 2 > 0)
-						{
-							return new Address(arraySize / 2 + 1);
-						}
-						else
-						{
-							return new Address(arraySize / 2);
-						}
-					}
-					else
-					{
-						return new Address(arraySize * address.Byte);
-					}
-
-				case DataType.STRUCT:
-					Address sumAddress = new Address();
-					foreach (var subEntry in dataEntry)
-					{
-						sumAddress += subEntry.CalculateSize(plc);
-					}
-					return sumAddress;
-				case DataType.UDT:
-					return plc.GetUdtStructure(entry.DataTypeName).CalculateSize(plc);
-				default:
-					throw new SiemensException($"Invalid DataType: {dataEntry.DataType.ToString()}");
-			}
 		}
 
 		public static Address IncrementAddress(Address address, bool isBit = false, bool isByte = false)

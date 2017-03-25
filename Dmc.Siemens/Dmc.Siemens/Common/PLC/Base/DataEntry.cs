@@ -15,21 +15,19 @@ using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.PLC
 {
-    public class DataEntry : NotifyPropertyChanged, IDataEntry
+    public class DataEntry : DataObject
     {
 
 		#region Constructors
 
 		public DataEntry(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null,
 			IEnumerable<DataEntry> children = null, string dataTypeName = null, Constant<int> stringLength = default(Constant<int>),
-			Constant<int> arrayStartIndex = default(Constant<int>), Constant<int> arrayEndIndex = default(Constant<int>))
+			DataEntry arrayDataEntry = null, Constant<int> arrayStartIndex = default(Constant<int>), Constant<int> arrayEndIndex = default(Constant<int>))
+			: base(name, dataType, comment, children)
 		{
-			this.Name = name;
-			this.DataType = dataType;
-			this.Comment = comment;
-			this.Children = (children != null) ? new LinkedList<DataEntry>(children) : new LinkedList<DataEntry>();
 			this.DataTypeName = dataTypeName;
 			this.StringLength = stringLength;
+			this.ArrayDataEntry = arrayDataEntry;
 			this.ArrayStartIndex = arrayStartIndex;
 			this.ArrayEndIndex = arrayEndIndex;
 		}
@@ -38,76 +36,22 @@ namespace Dmc.Siemens.Common.PLC
 
 		#region Public Properties
 
-		private string _Name;
-        public string Name
-        {
-            get
-            {
-                return this._Name;
-            }
-            set
-            {
-                this.SetProperty(ref this._Name, value);
-            }
-        }
-
-        private DataType _DataType;
-        public DataType DataType
-        {
-            get
-            {
-                return this._DataType;
-            }
-            set
-            {
-                this.SetProperty(ref this._DataType, value);
-            }
-        }
-
-		private DataType? _ArrayDataType;
-		public DataType? ArrayDataType
+		private DataEntry _ArrayDataEntry;
+		public DataEntry ArrayDataEntry
 		{
 			get
 			{
-				return this._ArrayDataType;
+				return this._ArrayDataEntry;
 			}
 			set
 			{
-				this.SetProperty(ref this._ArrayDataType, value);
+				this.SetProperty(ref this._ArrayDataEntry, value);
 			}
 		}
-
-		private string _DataTypeName;
-        public string DataTypeName
-        {
-            get
-            {
-                return this._DataTypeName;
-            }
-            set
-            {
-                this.SetProperty(ref this._DataTypeName, value);
-            }
-        }
-
+		
         public Constant<int> ArrayStartIndex { get; set; }
         public Constant<int> ArrayEndIndex { get; set; }
         public Constant<int> StringLength { get; set; }
-
-        private string _Comment;
-        public string Comment
-        {
-            get
-            {
-                return this._Comment;
-            }
-            set
-            {
-                this.SetProperty(ref this._Comment, value);
-            }
-        }
-
-        public LinkedList<DataEntry> Children { get; set; }
 		
 		#endregion
 
@@ -188,17 +132,15 @@ namespace Dmc.Siemens.Common.PLC
 					var parsedType = TagHelper.ParseDataType(arrayType);
 					if (parsedType == DataType.UNKNOWN)
 					{
-						newEntry.ArrayDataType = DataType.UDT;
-						newEntry.DataTypeName = arrayType;
+						newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.UDT, dataTypeName: arrayType);
 					}
 					else if (parsedType == DataType.STRING)
 					{
-						newEntry.ArrayDataType = parsedType;
-						newEntry.StringLength = ParseStringLength(arrayType);
+						newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.STRING, stringLength: ParseStringLength(arrayType));
 					}
 					else
 					{
-						newEntry.ArrayDataType = parsedType;
+						newEntry.ArrayDataEntry = new DataEntry(dataType: parsedType);
 					}
 					
 					type = "ARRAY";
@@ -261,33 +203,73 @@ namespace Dmc.Siemens.Common.PLC
 
         }
 
-		public IDictionary<DataEntry, Address> CalcluateAddresses(IPlc plc)
+		public override Address CalculateSize(IPlc plc)
 		{
-			return TagHelper.CalcluateAddresses(this, plc);
-		}
-
-		public Address CalculateSize(IPlc plc)
-		{
-			return TagHelper.CalculateSize(this, plc);
-		}
-
-		public void SetUdtStructure(IEnumerable<DataEntry> children)
-		{
-			if (this.DataType == DataType.UDT)
+			// we only need to override size calculations on string and array
+			// DataObject knows how to calculate the size of everything else
+			switch (this.DataType)
 			{
-				this.Children = new LinkedList<DataEntry>(children);
-				this.DataType = DataType.STRUCT;
+				case DataType.ARRAY:
+					// check to make sure we have a valid ArrayDataEntry
+					if (this.ArrayDataEntry == null || this.ArrayDataEntry.DataType == DataType.UNKNOWN)
+						throw new SiemensException("Array '" + this.Name + "' does not have a valid ArrayDataType");
+
+					// 2D arrays are not yet supported by Siemens
+					if (this.ArrayDataEntry.DataType == DataType.ARRAY)
+						throw new SiemensException("Siemens does not support 2D arrays. Array '" + this.Name + "' is invalid.");
+
+					// check to make sure we are able to get the indices of the array
+					if ((!this.ArrayStartIndex.HasValue || !this.ArrayEndIndex.HasValue) && plc == null)
+						throw new ArgumentNullException(nameof(plc), "PLC cannot be null when the indices of an array are user defined constant values");
+
+					// resolve the actual start and end indices
+					int arrayStart = plc?.GetConstantValue(this.ArrayStartIndex) ?? this.ArrayStartIndex.Value;
+					int arrayEnd = plc?.GetConstantValue(this.ArrayEndIndex) ?? this.ArrayEndIndex.Value;
+
+					// calculate the array dimension and the size of each index
+					int arraySize = arrayEnd - arrayStart + 1;
+					Address arraySubTypeSize = this.ArrayDataEntry.CalculateSize(plc);
+					// check for the case that this is an array of bools
+					if (arraySubTypeSize.Byte == 0)
+					{
+						int overflow = arraySize % 16;
+						if (overflow > 0)
+						{
+							return new Address((arraySize / 16) * 2);
+						}
+						else
+						{
+							return new Address(arraySize / 16);
+						}
+					}
+					// check for the case that this is an array of bytes
+					else if (arraySubTypeSize.Byte == 1)
+					{
+						if (arraySize % 2 > 0)
+						{
+							return new Address(arraySize / 2 + 1);
+						}
+						else
+						{
+							return new Address(arraySize / 2);
+						}
+					}
+					// all other cases are types of size larger than a word
+					else
+					{
+						return new Address(arraySize * arraySubTypeSize.Byte);
+					}
+
+				case DataType.STRING:
+					// first to check to make sure we are able to get the size of the string
+					if (!this.StringLength.HasValue && plc == null)
+						throw new ArgumentNullException(nameof(plc), "PLC cannot be null if the string length is a user defined constant value");
+
+					return new Address(TagHelper.GetPrimitiveByteSize(this.DataType, plc?.GetConstantValue(this.StringLength) ?? this.StringLength.Value));
+
+				default:
+					return base.CalculateSize(plc);
 			}
-		}
-
-		IEnumerator<DataEntry> IEnumerable<DataEntry>.GetEnumerator()
-		{
-			return this.Children.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.Children.GetEnumerator();
 		}
 
 		#endregion

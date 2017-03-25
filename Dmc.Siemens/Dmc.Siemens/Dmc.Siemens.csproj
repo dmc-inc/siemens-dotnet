@@ -62,14 +62,14 @@
     <Compile Include="Base\SiemensException.cs" />
     <Compile Include="Common\Base\ProjectBase.cs" />
     <Compile Include="Common\Interfaces\IAutomationObject.cs" />
-    <Compile Include="Common\Interfaces\IDataEntry.cs" />
     <Compile Include="Common\Interfaces\IHmi.cs" />
     <Compile Include="Common\Interfaces\IParsableSource.cs" />
     <Compile Include="Common\Interfaces\IPlc.cs" />
     <Compile Include="Common\Interfaces\IProject.cs" />
     <Compile Include="Common\Export\KepwareConfiguration.cs" />
+    <Compile Include="Common\PLC\Base\DataObject.cs" />
     <Compile Include="Common\SourceParser.cs" />
-    <Compile Include="Common\PLC\Base\Block.cs" />
+    <Compile Include="Common\PLC\Interfaces\IBlock.cs" />
     <Compile Include="Common\PLC\Base\ConstantsEntry.cs" />
     <Compile Include="Common\PLC\Base\Converter.cs" />
     <Compile Include="Common\PLC\Base\DataEntity.cs" />

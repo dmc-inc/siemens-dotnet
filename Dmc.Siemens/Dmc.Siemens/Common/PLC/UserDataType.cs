@@ -16,17 +16,15 @@ namespace Dmc.Siemens.Common.PLC
 
 		public override BlockType Type => BlockType.UserDataType;
 
+		public override bool IsPrimitiveDataType => false;
+
+		public override string DataHeader { get; } = "STRUCT";
+
 		#endregion
 
-		#region Protected Properties
+		#region Public Methods
 
-		protected override string DataHeader { get; } = "STRUCT";
-
-        #endregion
-
-        #region Public Methods
-
-        public override IParsableSource ParseSource(TextReader reader)
+		public override IParsableSource ParseSource(TextReader reader)
         {
             return base.ParseSource(reader);
         }
