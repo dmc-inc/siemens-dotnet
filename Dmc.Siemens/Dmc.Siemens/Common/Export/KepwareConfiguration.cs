@@ -76,7 +76,7 @@ namespace Dmc.Siemens.Common.Export
 			block.CalcluateAddresses(parentPlc);
 			foreach (var entry in block)
 			{
-				AddDataEntry(entry, block.Name, new Address());
+				AddDataEntry(entry, block.Name + ".", new Address());
 			}
 
 			void AddDataEntry(DataEntry entry, string entryPrefix, Address parentOffset)
@@ -105,7 +105,7 @@ namespace Dmc.Siemens.Common.Export
 						// write a new entry for each of the children
 						foreach (var child in entry.Children)
 						{
-							AddDataEntry(child, entryPrefix, entry.AddressOffset.Value);
+							AddDataEntry(child, entryPrefix, (entry.AddressOffset.Value + parentOffset));
 						}
 						break;
 					case DataType.BOOL:
@@ -151,7 +151,7 @@ namespace Dmc.Siemens.Common.Export
 						entry.CalcluateAddresses(parentPlc);
 						foreach (var child in entry)
 						{
-							AddDataEntry(child, entryPrefix + entry.Name + ".", entry.AddressOffset.Value);
+							AddDataEntry(child, entryPrefix + entry.Name + ".", (entry.AddressOffset.Value + parentOffset));
 						}
 						break;
 					case DataType.WORD:
@@ -164,13 +164,13 @@ namespace Dmc.Siemens.Common.Export
 
 				if (TagHelper.IsPrimitive(entry.DataType))
 				{
-					string addressString = "DB" + block.Number + "." + addressPrefix;
+					Address absoluteAddress = parentOffset + entry.AddressOffset.Value;
+
+					string addressString = "DB" + block.Number + "." + addressPrefix + absoluteAddress.Byte;
 					if (entry.DataType == DataType.BOOL)
-						addressString += entry.AddressOffset.Value.Byte + "." + entry.AddressOffset.Value.Bit;
+						addressString += "." + absoluteAddress.Bit;
 					else if (entry.DataType == DataType.STRING)
-						addressString += entry.AddressOffset.Value.Byte + "." + (parentPlc?.GetConstantValue(entry.StringLength) ?? entry.StringLength.Value).ToString();
-					else
-						addressString += entry.AddressOffset.Value.Byte;
+						addressString += "." + (parentPlc?.GetConstantValue(entry.StringLength) ?? entry.StringLength.Value).ToString();
 
 					string[] entryItems = new string[16]
 					{

@@ -16,7 +16,7 @@ namespace Dmc.Siemens.Common.Interfaces
 
 		T GetConstantValue<T>(Constant<T> constant) where T : struct;
 
-		DataEntry GetUdtStructure(string udtName);
+		UserDataType GetUdtStructure(string udtName);
 
 	}
 }

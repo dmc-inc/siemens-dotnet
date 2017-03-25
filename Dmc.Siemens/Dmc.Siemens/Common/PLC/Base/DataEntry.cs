@@ -235,7 +235,7 @@ namespace Dmc.Siemens.Common.PLC
 						int overflow = arraySize % 16;
 						if (overflow > 0)
 						{
-							return new Address((arraySize / 16) * 2);
+							return TagHelper.IncrementAddress(new Address(arraySize / 16, overflow));
 						}
 						else
 						{
