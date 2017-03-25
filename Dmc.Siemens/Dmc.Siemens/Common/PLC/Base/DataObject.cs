@@ -15,17 +15,17 @@ using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.PLC
 {
-    public abstract class DataObject : NotifyPropertyChanged, IEnumerable<DataObject>
+    public abstract class DataObject : NotifyPropertyChanged, IEnumerable<DataEntry>
     {
 
 		#region Constructors
 
-		public DataObject(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null, IEnumerable<DataObject> children = null)
+		public DataObject(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null, IEnumerable<DataEntry> children = null)
 		{
 			this.Name = name;
 			this.DataType = dataType;
 			this.Comment = comment;
-			this.Children = (children != null) ? new LinkedList<DataObject>(children) : new LinkedList<DataObject>();
+			this.Children = (children != null) ? new LinkedList<DataEntry>(children) : new LinkedList<DataEntry>();
 		}
 
 		#endregion
@@ -105,7 +105,7 @@ namespace Dmc.Siemens.Common.PLC
 			}
 		}
 
-        public LinkedList<DataObject> Children { get; private set; }
+        public LinkedList<DataEntry> Children { get; private set; }
 
 		#endregion
 
@@ -121,7 +121,7 @@ namespace Dmc.Siemens.Common.PLC
 				return;
 
 			// start at with the first child and offset 0
-			LinkedListNode<DataObject> currentObject = this.Children.First;
+			LinkedListNode<DataEntry> currentObject = this.Children.First;
 			Address addressOffset = new Address();
 			do
 			{
@@ -161,7 +161,7 @@ namespace Dmc.Siemens.Common.PLC
 					throw new SiemensException("Struct does not have any valid children: " + this.Name);
 
 				// now we loop through all of the Children and add them together
-				LinkedListNode<DataObject> currentObject = this.Children.First;
+				LinkedListNode<DataEntry> currentObject = this.Children.First;
 				Address sumAddress = new Address();
 				do
 				{
@@ -182,15 +182,15 @@ namespace Dmc.Siemens.Common.PLC
 			}
 		}
 
-		public void SetUdtStructure(IEnumerable<DataObject> children)
+		public void SetUdtStructure(IEnumerable<DataEntry> children)
 		{
 			if (this.DataType == DataType.UDT)
 			{
-				this.Children = new LinkedList<DataObject>(children);
+				this.Children = new LinkedList<DataEntry>(children);
 			}
 		}
 
-		IEnumerator<DataObject> IEnumerable<DataObject>.GetEnumerator()
+		IEnumerator<DataEntry> IEnumerable<DataEntry>.GetEnumerator()
 		{
 			return this.Children.GetEnumerator();
 		}
@@ -204,7 +204,7 @@ namespace Dmc.Siemens.Common.PLC
 
 		#region Private Methods
 
-		private static Address IncrementAddressOfChild(Address currentAddress, LinkedListNode<DataObject> child)
+		private static Address IncrementAddressOfChild(Address currentAddress, LinkedListNode<DataEntry> child)
 		{
 			Address nextAddress = currentAddress;
 

@@ -73,70 +73,39 @@ namespace Dmc.Siemens.Common.Export
 
 		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, IPlc parentPlc)
 		{
-			Address currentAddress = new Address();
+			block.CalcluateAddresses(parentPlc);
 			foreach (var entry in block)
 			{
-				AddDataEntry(entry, block.Name, currentAddress);
-				currentAddress += entry.CalculateSize(parentPlc);
-				if (entry.DataType == DataType.UDT || entry.DataType == DataType.STRUCT || entry.DataType == DataType.ARRAY)
-					currentAddress = TagHelper.IncrementAddress(currentAddress);
+				AddDataEntry(entry, block.Name, new Address());
 			}
 
-			void AddDataEntry(IDataEntry entry, string entryPrefix, Address address)
+			void AddDataEntry(DataEntry entry, string entryPrefix, Address parentOffset)
 			{
 				string addressPrefix = "";
 				string type = "";
 
-				DataEntry dataEntry = (entry as DataEntry);
-				// Check to make sure if it is not a DataEntry then it is a STRUCT
-				if (dataEntry == null && entry.DataType != DataType.STRUCT)
-					throw new SiemensException("Cannot have a non-DataEntry IDataEntry that is not a STRUCT");
-
 				switch (entry.DataType)
 				{
 					case DataType.ARRAY:
-						address = TagHelper.IncrementAddress(address);
-						DataType subType = dataEntry.ArrayDataEntry.HasValue ? dataEntry.ArrayDataEntry.Value : DataType.UDT;
-						bool isNonPrimitive = !TagHelper.IsPrimitive(subType);
-						int primitiveByteSize = TagHelper.GetPrimitiveByteSize(subType);
-						IDataEntry structContents = null;
-						if (isNonPrimitive)
-						{
-							switch (subType)
-							{
-								case DataType.ARRAY:
-									throw new SiemensException("2D arrays not supported: " + entry.Name);
-								case DataType.STRUCT:
-									structContents = entry;
-									break;
-								default:
-									try
-									{
-										structContents = parentPlc.GetUdtStructure(dataEntry.DataTypeName);
-										break;
-									}
-									catch (Exception e)
-									{
-										throw new SiemensException("Unsupported array type of '" + entry.Name + "', type: " + dataEntry.DataTypeName, e);
-									}
-							}
+						int arrayStart = parentPlc?.GetConstantValue(entry.ArrayStartIndex) ?? entry.ArrayStartIndex.Value;
+						int arrayEnd = parentPlc?.GetConstantValue(entry.ArrayEndIndex) ?? entry.ArrayEndIndex.Value;
+						Address arraySubTypeSize = entry.ArrayDataEntry.CalculateSize(parentPlc);
+						entry.Children.Clear();
 
-							for (int i = parentPlc.GetConstantValue(dataEntry.ArrayStartIndex); i <= parentPlc.GetConstantValue(dataEntry.ArrayEndIndex); i++)
-							{
-								AddDataEntry(structContents, $"{entryPrefix}{entry.Name}[{i}].", address);
-							}
+						// First populate the array Children with the correct number and type of children
+						for (int i = arrayStart; i <= arrayEnd; i++)
+						{
+							entry.Children.AddLast(new DataEntry(entry.Name + $"[{i}]", entry.ArrayDataEntry.DataType, entry.Comment + $" ({i})", entry.ArrayDataEntry.Children,
+								entry.ArrayDataEntry.DataTypeName, entry.ArrayDataEntry.StringLength));
 						}
-						else // if it is a primitive, create a temporary data entry to make recurison/address generation simpler
+
+						// re-calculate the addresses of the children
+						entry.CalcluateAddresses(parentPlc);
+
+						// write a new entry for each of the children
+						foreach (var child in entry.Children)
 						{
-							LinkedList<DataEntry> arrayEntries = new LinkedList<DataEntry>();
-							for (int i = parentPlc.GetConstantValue(dataEntry.ArrayStartIndex); i <= parentPlc.GetConstantValue(dataEntry.ArrayEndIndex); i++)
-							{
-								arrayEntries.AddLast(new DataEntry($"{entry.Name}[{i}]", subType, entry.Comment + " (" + i.ToString() + ")", stringLength: dataEntry.StringLength));
-							}
-
-							structContents = new DataEntry(entry.Name, DataType.STRUCT, entry.Comment, arrayEntries);
-
-							AddDataEntry(structContents, entryPrefix, address);
+							AddDataEntry(child, entryPrefix, entry.AddressOffset.Value);
 						}
 						break;
 					case DataType.BOOL:
@@ -178,12 +147,12 @@ namespace Dmc.Siemens.Common.Export
 						type = "String";
 						break;
 					case DataType.UDT:
-						structContents = parentPlc.GetUdtStructure(dataEntry.DataTypeName);
-						dataEntry.SetUdtStructure(structContents.Children);
-						AddStruct(dataEntry);
-						break;
 					case DataType.STRUCT:
-						AddStruct(entry);
+						entry.CalcluateAddresses(parentPlc);
+						foreach (var child in entry)
+						{
+							AddDataEntry(child, entryPrefix + entry.Name + ".", entry.AddressOffset.Value);
+						}
 						break;
 					case DataType.WORD:
 						addressPrefix = "DBW";
@@ -193,31 +162,15 @@ namespace Dmc.Siemens.Common.Export
 						throw new SiemensException("Data type: '" + entry.DataType.ToString() + "' not supported.");
 				}
 
-				// sub function to deal with adding a struct
-				void AddStruct(IDataEntry structEntry)
-				{
-					var addresses = structEntry.CalcluateAddresses(parentPlc);
-					
-					if (!structEntry.Children.First.Value.Name.Contains("["))
-					{
-						entryPrefix += "." + structEntry.Name + ".";
-					}
-
-					foreach (var subEntry in structEntry.Children)
-					{
-						AddDataEntry(subEntry, entryPrefix, addresses[subEntry] + address);
-					}
-				}
-
 				if (TagHelper.IsPrimitive(entry.DataType))
 				{
 					string addressString = "DB" + block.Number + "." + addressPrefix;
 					if (entry.DataType == DataType.BOOL)
-						addressString += address.Byte + "." + address.Bit;
+						addressString += entry.AddressOffset.Value.Byte + "." + entry.AddressOffset.Value.Bit;
 					else if (entry.DataType == DataType.STRING)
-						addressString += address.Byte + "." + parentPlc.GetConstantValue(dataEntry.StringLength).ToString();
+						addressString += entry.AddressOffset.Value.Byte + "." + (parentPlc?.GetConstantValue(entry.StringLength) ?? entry.StringLength.Value).ToString();
 					else
-						addressString += address.Byte;
+						addressString += entry.AddressOffset.Value.Byte;
 
 					string[] entryItems = new string[16]
 					{

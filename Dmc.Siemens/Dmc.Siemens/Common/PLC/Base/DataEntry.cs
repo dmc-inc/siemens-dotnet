@@ -173,7 +173,7 @@ namespace Dmc.Siemens.Common.PLC
             {
                 if (!Enum.TryParse<DataType>(type, true, out t))
                 {
-                    // Invalid type detected
+					throw new SiemensException("Invalid type detected: " + type);
                 }
             }
 
