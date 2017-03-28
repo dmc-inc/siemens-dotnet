@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Common.Interfaces;
+using Dmc.Siemens.Common.PLC.Types;
 
 namespace Dmc.Siemens.Portal.Base
 {
@@ -11,6 +12,8 @@ namespace Dmc.Siemens.Portal.Base
 	{
 
 		IEnumerable<IPlcTagTable> TagTables { get; }
+
+		T GetConstantValue<T>(Constant<T> constant) where T : struct;
 
 	}
 }

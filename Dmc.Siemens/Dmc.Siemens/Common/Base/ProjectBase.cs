@@ -44,17 +44,21 @@ namespace Dmc.Siemens.Common.Base
 
 		#endregion
 
+		#region Private Properties
+
+		private IEnumerable<IPlc> Plcs
+		{
+			get
+			{
+				return this.AutomationObjects?.OfType<IPlc>();
+			}
+		}
+
+		#endregion
+
 		#region Public Methods
 
-		public T GetConstantValue<T>(Constant<T> constant) where T : struct
-		{
-			throw new NotImplementedException();
-		}
-
-		public DataEntry GetUdtStructure(string udtName)
-		{
-			throw new NotImplementedException();
-		}
+		
 
 		#endregion
 

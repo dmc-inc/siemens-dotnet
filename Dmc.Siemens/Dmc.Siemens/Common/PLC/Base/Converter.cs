@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Dmc.Siemens.Common.PLC.Base
 
         #region Public Properties
 
-        public static Dictionary<DataType, Type> DataTypeConversionTable { get; } = new Dictionary<DataType, Type>()
+        public static ReadOnlyDictionary<DataType, Type> DataTypeConversionTable { get; } = new ReadOnlyDictionary<DataType, Type>(new Dictionary<DataType, Type>()
         {
             { DataType.BOOL, typeof(bool) },
             { DataType.BYTE, typeof(byte) },
@@ -27,7 +28,7 @@ namespace Dmc.Siemens.Common.PLC.Base
             { DataType.TIME, typeof(int) },
             { DataType.TIME_OF_DAY, typeof(DateTime) },
             { DataType.WORD, typeof(ushort) }
-        };
+        });
 
         #endregion
 

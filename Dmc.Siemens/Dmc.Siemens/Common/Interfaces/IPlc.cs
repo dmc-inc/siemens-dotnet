@@ -13,9 +13,7 @@ namespace Dmc.Siemens.Common.Interfaces
 	{
 
 		IDictionary<BlockType, IEnumerable<IBlock>> Blocks { get; }
-
-		T GetConstantValue<T>(Constant<T> constant) where T : struct;
-
+		
 		UserDataType GetUdtStructure(string udtName);
 
 	}

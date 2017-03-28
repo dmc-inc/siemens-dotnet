@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Base\SiemensException.cs" />
     <Compile Include="Common\Base\ProjectBase.cs" />
+    <Compile Include="Common\Export\AlarmWorxConfiguration.cs" />
     <Compile Include="Common\Interfaces\IAutomationObject.cs" />
     <Compile Include="Common\Interfaces\IHmi.cs" />
     <Compile Include="Common\Interfaces\IParsableSource.cs" />

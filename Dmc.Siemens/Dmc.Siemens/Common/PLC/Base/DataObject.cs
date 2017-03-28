@@ -111,7 +111,7 @@ namespace Dmc.Siemens.Common.PLC
 
 		#region Public Methods
 
-		public void CalcluateAddresses(IPlc plc)
+		public void CalcluateAddresses(IPortalPlc plc)
 		{
 			// make sure we have a valid structure if we are a UDT
 			this.ResolveUdt(plc);
@@ -134,7 +134,7 @@ namespace Dmc.Siemens.Common.PLC
 			} while ((currentObject = currentObject.Next) != null);
 		}
 
-		public virtual Address CalculateSize(IPlc plc)
+		public virtual Address CalculateSize(IPortalPlc plc)
 		{
 			bool isPrimitive = this.IsPrimitiveDataType;
 			// If we are a pimitive, return the size directly

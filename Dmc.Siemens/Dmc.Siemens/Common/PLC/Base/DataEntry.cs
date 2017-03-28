@@ -80,17 +80,7 @@ namespace Dmc.Siemens.Common.PLC
                 splitString = trimmedData.Split(':');
                 type = splitString[1].Trim().Trim(';');
                 newEntry.Name = splitString[0].Trim().Trim('"');
-
-				if (type.Contains('"'))
-				{
-					int startUdt = type.IndexOf('"');
-					int endUdt = type.LastIndexOf('"');
-					if (startUdt >= 0 && endUdt >= 0)
-					{
-						newEntry.DataTypeName = type.Substring(startUdt + 1, endUdt - startUdt - 1);
-						isUdt = true;
-					}
-				}
+				
 				if (type.ToUpper().Replace(" ", string.Empty).Contains("ARRAY["))
                 {
                     splitString = type.Split(new string[] { "[", "..", "]" }, StringSplitOptions.RemoveEmptyEntries);
@@ -114,12 +104,12 @@ namespace Dmc.Siemens.Common.PLC
                         }
 
                     }
-                    splitString = type.ToUpper().Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
+                    splitString = type.Replace(" of ", " OF ").Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
 
 					string arrayType = string.Empty;
-                    if (splitString.Length > 1 && !isUdt)
+                    if (splitString.Length > 1)
                     {
-						arrayType = splitString[1].Trim();
+						arrayType = splitString[1].Trim().Trim('"');
                     }
                     else if (splitString.Length == 1)  // Search the next line for the array type if it hasn't already been defined
                     {
@@ -146,7 +136,17 @@ namespace Dmc.Siemens.Common.PLC
 					type = "ARRAY";
 
                 }
-                else if (type.ToUpper().Contains("STRING"))
+				else if (type.Contains('"'))
+				{
+					int startUdt = type.IndexOf('"');
+					int endUdt = type.LastIndexOf('"');
+					if (startUdt >= 0 && endUdt >= 0)
+					{
+						newEntry.DataTypeName = type.Substring(startUdt + 1, endUdt - startUdt - 1);
+						isUdt = true;
+					}
+				}
+				else if (type.ToUpper().Contains("STRING"))
                 {
 					newEntry.StringLength = ParseStringLength(type);
 
@@ -203,7 +203,7 @@ namespace Dmc.Siemens.Common.PLC
 
         }
 
-		public override Address CalculateSize(IPlc plc)
+		public override Address CalculateSize(IPortalPlc plc)
 		{
 			// we only need to override size calculations on string and array
 			// DataObject knows how to calculate the size of everything else

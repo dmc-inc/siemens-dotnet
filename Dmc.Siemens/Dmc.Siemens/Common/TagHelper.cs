@@ -99,64 +99,9 @@ namespace Dmc.Siemens.Common
 			{
 				return DataType.STRUCT;
 			}
-			return (Enum.TryParse(dataTypeString, out DataType type)) ? type : DataType.UNKNOWN;
+			return (Enum.TryParse(dataTypeString, true, out DataType type)) ? type : DataType.UNKNOWN;
 		}
-
-		public static IDictionary<DataEntry, Address> CalcluateAddresses(DataEntry dataEntry, IPlc plc)
-		{
-			if (dataEntry.Children?.Count <= 0)
-				return null;
-
-			Dictionary<DataEntry, Address> addresses = new Dictionary<DataEntry, Address>();
-			Address currentAddress = new Address();
-
-			foreach (DataEntry entry in dataEntry)
-			{
-				Address entryAddress;
-				switch (entry.DataType)
-				{
-					case DataType.ANY:
-					case DataType.ARRAY:
-					case DataType.DATE:
-					case DataType.DATE_AND_TIME:
-					case DataType.DINT:
-					case DataType.DWORD:
-					case DataType.INT:
-					case DataType.POINTER:
-					case DataType.REAL:
-					case DataType.STRING:
-					case DataType.STRUCT:
-					case DataType.TIME:
-					case DataType.TIME_OF_DAY:
-					case DataType.UDT:
-					case DataType.WORD:
-						currentAddress = IncrementAddress(currentAddress);
-						entryAddress = currentAddress;
-						currentAddress += dataEntry.CalculateSize(plc);
-						break;
-					case DataType.BOOL:
-						entryAddress = currentAddress;
-						currentAddress = IncrementAddress(currentAddress, isBit: true);
-						break;
-					case DataType.BYTE:
-					case DataType.CHAR:
-						currentAddress = IncrementAddress(currentAddress, isByte: true);
-						entryAddress = currentAddress;
-						currentAddress += dataEntry.CalculateSize(null);
-						break;
-					default:
-						entryAddress = new Address();
-						break;
-				}
-
-				// Add or overwrite the current address
-				addresses[entry] = entryAddress;
-
-			}
-
-			return addresses;
-		}
-
+		
 		public static Address IncrementAddress(Address address, bool isBit = false, bool isByte = false)
 		{
 			if (isBit)

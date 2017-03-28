@@ -19,7 +19,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void CreateFromBlocks(IEnumerable<IBlock> blocks, string path, IPlc owningPlc)
+		public static void CreateFromBlocks(IEnumerable<IBlock> blocks, string path, IPortalPlc owningPlc)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -27,19 +27,19 @@ namespace Dmc.Siemens.Common.Export
 			if ((dataBlocks = blocks.OfType<DataBlock>())?.Count() <= 0)
 				throw new ArgumentException("Blocks does not contain any valid DataBlocks.", nameof(blocks));
 
-			CreateFromBlocksInternal(dataBlocks, path, owningPlc);
+			KepwareConfiguration.CreateFromBlocksInternal(dataBlocks, path, owningPlc);
 		}
 
-		public static void CreateFromBlocks(DataBlock block, string path, IPlc owningPlc)
+		public static void CreateFromBlocks(DataBlock block, string path, IPortalPlc owningPlc)
 		{
-			CreateFromBlocksInternal(new[] { block }, path, owningPlc);
+			KepwareConfiguration.CreateFromBlocksInternal(new[] { block }, path, owningPlc);
 		}
 
 		#endregion
 
 		#region Private Methods
 
-		private static void CreateFromBlocksInternal(IEnumerable<DataBlock> blocks, string path, IPlc parentPlc)
+		private static void CreateFromBlocksInternal(IEnumerable<DataBlock> blocks, string path, IPortalPlc parentPlc)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -52,7 +52,7 @@ namespace Dmc.Siemens.Common.Export
 				{
 					StreamWriter writer = new StreamWriter(file);
 
-					WriteHeaders(writer);
+					KepwareConfiguration.WriteHeaders(writer);
 
 					foreach (var block in blocks)
 					{
@@ -61,8 +61,10 @@ namespace Dmc.Siemens.Common.Export
 						if (block.Children?.Count <= 0)
 							throw new ArgumentException("Block '" + block.Name + "' contains no data", nameof(block));
 
-						ExportDataBlockToFile(block, writer, parentPlc);
+						KepwareConfiguration.ExportDataBlockToFile(block, writer, parentPlc);
 					}
+
+					writer.Flush();
 				}
 			}
 			catch (Exception e)
@@ -71,7 +73,7 @@ namespace Dmc.Siemens.Common.Export
 			}
 		}
 
-		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, IPlc parentPlc)
+		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, IPortalPlc parentPlc)
 		{
 			block.CalcluateAddresses(parentPlc);
 			foreach (var entry in block)
