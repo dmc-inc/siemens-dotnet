@@ -10,9 +10,9 @@ namespace Dmc.Siemens.Portal.Base
     public interface IPlcTagTable : ITagTable
     {
 
-        IEnumerable<IPlcTag> PlcTags { get; }
+        ICollection<IPlcTag> PlcTags { get; }
 
-        IEnumerable<ConstantsEntry> Constants { get; }
+        ICollection<ConstantsEntry> Constants { get; }
 
     }
 }

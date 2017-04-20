@@ -8,6 +8,10 @@ using Dmc.Siemens.Common.PLC.Base;
 using Dmc.Siemens.Portal.Base;
 using Dmc.IO;
 using SpreadsheetLight;
+using Dmc.Siemens.Base;
+using Dmc.Siemens.Portal.PLC;
+using Dmc.Siemens.Common;
+using Dmc.Siemens.Common.PLC;
 
 namespace Dmc.Siemens.Portal
 {
@@ -67,10 +71,67 @@ namespace Dmc.Siemens.Portal
             HashSet<IPlcTagTable> tagTables = new HashSet<IPlcTagTable>();
             Dictionary<string, IPlcTagTable> tagTableLookup = new Dictionary<string, IPlcTagTable>();
 
+			// Check for and navigate to PLC tag tab
+			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.PLC_TAG_WORKSHEET_NAME))
+				throw new SiemensException("File does not contain " + ExcelEngine.PLC_TAG_WORKSHEET_NAME + " tab.");
 
+			// Parse all tags, starting at the row after the headers
+			int row = 1;
+			IPlcTag tag;
+			string parentTableName;
+			IPlcTagTable tagTable;
+			while (!string.IsNullOrWhiteSpace(document.GetCellValueAsString(row, 0)))
+			{
+				// Get or create the parent tag table
+				parentTableName = document.GetCellValueAsString(row, 1);
+				if (tagTableLookup.ContainsKey(parentTableName))
+					tagTable = tagTableLookup[parentTableName];
+				else
+				{
+					tagTable = new PlcTagTable(parentTableName);
+					tagTableLookup.Add(parentTableName, tagTable);
+					tagTables.Add(tagTable);
+				}
 
+				// Create a new tag
+				tag = new PlcTag(tagTable, document.GetCellValueAsString(row, 0), document.GetCellValueAsString(row, 3), document.GetCellValueAsString(row, 4),
+					TagHelper.ParseDataType(document.GetCellValueAsString(row, 2)), Convert.ToBoolean(document.GetCellValueAsString(row, 5)), Convert.ToBoolean(document.GetCellValueAsString(row, 6)));
 
-            return tagTables;
+				// Add the tag to the tables collection of tags
+				tagTable?.PlcTags?.Add(tag);
+			}
+
+			// Check for and navigate to Constants tab
+			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.CONSTANT_WORKSHEET_NAME))
+				throw new SiemensException("File does not contain " + ExcelEngine.CONSTANT_WORKSHEET_NAME + " tab.");
+
+			// Parse all constants
+			row = 1;
+			ConstantsEntry constant;
+			while (!string.IsNullOrWhiteSpace(document.GetCellValueAsString(row, 0)))
+			{
+				// Get or create the parent tag table
+				parentTableName = document.GetCellValueAsString(row, 1);
+				if (tagTableLookup.ContainsKey(parentTableName))
+					tagTable = tagTableLookup[parentTableName];
+				else
+				{
+					tagTable = new PlcTagTable(parentTableName);
+					tagTableLookup.Add(parentTableName, tagTable);
+					tagTables.Add(tagTable);
+				}
+
+				// Parse constant value
+				DataType dataType = TagHelper.ParseDataType(document.GetCellValueAsString(row, 2));
+				Converter.TryParse(document.GetCellValueAsString(row, 3), dataType, out object value);
+
+				// Create a new constants entry
+				constant = new ConstantsEntry(document.GetCellValueAsString(row, 0), value, dataType);
+
+				tagTable?.Constants?.Add(constant);
+			}
+
+			return tagTables;
         }
 
         #endregion
@@ -140,7 +201,7 @@ namespace Dmc.Siemens.Portal
 
         #region Setup Methods
 
-        private static void ChangeActiveWorksheet(SLDocument document, string worksheetName, bool renameCurrentWorksheet = false)
+        private static bool ChangeActiveWorksheet(SLDocument document, string worksheetName, bool renameCurrentWorksheet = false)
         {
             string name = document.GetCurrentWorksheetName();
             // If the current worksheet name is the one we want, dont do anything
@@ -150,19 +211,23 @@ namespace Dmc.Siemens.Portal
                 if (renameCurrentWorksheet)
                 {
                     document.RenameWorksheet(name, worksheetName);
-                    document.SelectWorksheet(worksheetName);
+                    return document.SelectWorksheet(worksheetName);
                 }
                 // If not rename, then check to see if the worksheet already exists in the document
                 // If it doesn't exist, create it.  If it does, change to it
                 else if (!document.GetWorksheetNames().Contains(worksheetName))
                 {
-                    document.AddWorksheet(worksheetName);
+                    return document.AddWorksheet(worksheetName);
                 }
                 else 
                 {
-                    document.SelectWorksheet(worksheetName);
+                    return document.SelectWorksheet(worksheetName);
                 }
             }
+			else
+			{
+				return true;
+			}
         }
 
         private static void WritePlcTagHeaders(SLDocument document, bool renameCurrentWorksheet)

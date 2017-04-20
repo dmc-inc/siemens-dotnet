@@ -142,5 +142,26 @@ namespace Dmc.Siemens.Common
 			return address;
 		}
 
+		public static void ResolveArrayChildren(DataEntry entry, IPortalPlc parentPlc)
+		{
+			if (entry.DataType != DataType.ARRAY)
+				return;
+
+			int arrayStart = parentPlc?.GetConstantValue(entry.ArrayStartIndex) ?? entry.ArrayStartIndex.Value;
+			int arrayEnd = parentPlc?.GetConstantValue(entry.ArrayEndIndex) ?? entry.ArrayEndIndex.Value;
+			Address arraySubTypeSize = entry.ArrayDataEntry.CalculateSize(parentPlc);
+			entry.Children.Clear();
+
+			// First populate the array Children with the correct number and type of children
+			for (int i = arrayStart; i <= arrayEnd; i++)
+			{
+				entry.Children.AddLast(new DataEntry(entry.Name + $"[{i}]", entry.ArrayDataEntry.DataType, entry.Comment + $" ({i})", entry.ArrayDataEntry.Children,
+					entry.ArrayDataEntry.DataTypeName, entry.ArrayDataEntry.StringLength));
+			}
+
+			// re-calculate the addresses of the children
+			entry.CalcluateAddresses(parentPlc);
+		}
+
 	}
 }

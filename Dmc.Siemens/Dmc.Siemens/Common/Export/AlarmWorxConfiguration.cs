@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dmc.IO;
 using Dmc.Siemens.Base;
+using Dmc.Siemens.Common.Export.Base;
 using Dmc.Siemens.Common.PLC;
 using Dmc.Siemens.Common.PLC.Interfaces;
 using Dmc.Siemens.Portal.Base;
@@ -15,9 +16,15 @@ namespace Dmc.Siemens.Common.Export
 	public static class AlarmWorxConfiguration
 	{
 
+		#region Constants
+
+		private const string ALARM_FOLDER = "ImportConfiguration";
+
+		#endregion
+
 		#region Public Methods
 
-		public static void CreateFromBlocks(IEnumerable<IBlock> blocks, string path, string opcServerPrefix, IPortalPlc parentPlc)
+		public static void Create(IEnumerable<IBlock> blocks, string path, string opcServerPrefix, IPortalPlc parentPlc)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -25,14 +32,19 @@ namespace Dmc.Siemens.Common.Export
 			if ((dataBlocks = blocks.OfType<DataBlock>())?.Count() <= 0)
 				throw new ArgumentException("Blocks does not contain any valid DataBlocks.", nameof(blocks));
 
-			AlarmWorxConfiguration.CreateFromBlocksInternal(blocks, path, opcServerPrefix, parentPlc);
+			AlarmWorxConfiguration.CreateInternal(dataBlocks, path, opcServerPrefix, parentPlc);
+		}
+
+		public static void Create(DataBlock block, string path, string opcServerPrefix, IPortalPlc parentPlc)
+		{
+			AlarmWorxConfiguration.Create(new[] { block }, path, opcServerPrefix, parentPlc);
 		}
 
 		#endregion
 
 		#region Private Methods
 
-		private static void CreateFromBlocksInternal(IEnumerable<IBlock> blocks, string path, string opcServerPrefix, IPortalPlc parentPlc)
+		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, string opcServerPrefix, IPortalPlc parentPlc)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -42,19 +54,21 @@ namespace Dmc.Siemens.Common.Export
 			try
 			{
 				using (var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read))
+				using (StreamWriter writer = new StreamWriter(file))
 				{
-					StreamWriter writer = new StreamWriter(file);
-
 					AlarmWorxConfiguration.WriteHeaders(writer);
 
-					foreach (var block in blocks)
+					foreach (var block in dataBlocks)
 					{
 						if (block == null)
 							throw new ArgumentNullException(nameof(block));
-						//if (block.Children?.Count <= 0)
-						//	throw new ArgumentException("Block '" + block.Name + "' contains no data", nameof(block));
-
-						//AlarmWorxConfiguration.ExportDataBlockToFile(block, writer, parentPlc);
+						if (block.Children?.Count <= 0)
+							throw new ArgumentException("Block '" + block.Name + "' contains no data", nameof(block));
+						
+						foreach (var child in block)
+						{
+							WriteAlarmRow(writer, child, block.Name + ".", block.Comment);
+						}
 					}
 
 					writer.Flush();
@@ -64,6 +78,23 @@ namespace Dmc.Siemens.Common.Export
 			{
 				throw new SiemensException("Could not write Kepware configuration", e);
 			}
+
+			void WriteAlarmRow(StreamWriter writer, DataEntry entry, string prependNameText, string prependCommentText)
+			{
+				AlarmWorxRow row = new AlarmWorxRow();
+				row.LocationPath = "\"" + @"\\Alarm Configurations\" + ALARM_FOLDER + "\"";
+				row.Name = "\"" + ALARM_FOLDER + "." + prependNameText + entry.Name + "\"";
+				row.Description = "\"" + entry.Comment + "\"";
+				row.LastModified = DateTime.Now.ToString();
+				row.Input1 = "\"" + opcServerPrefix + "." + prependNameText + "." + entry.Name + "\"";
+				row.BaseText = "\"" + prependCommentText + " - " + entry.Comment + "\"";  // Message text 
+				row.DigMessageText = " ";   // Prevents 'Digital Alarm' text at the end of each message
+				row.DigLimit = "1";     // Alarm state value needs to be 1 for a digital
+				row.DigSeverity = "500"; // Default severity is 500
+				row.DigRequiresAck = "1"; // Require an acknowledge by default
+				writer.WriteLine(row.ToString());
+			}
+
 		}
 
 		private static void WriteHeaders(TextWriter writer)
