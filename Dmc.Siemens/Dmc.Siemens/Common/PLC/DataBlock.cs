@@ -4,11 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
-namespace Dmc.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.Plc
 {
     public class DataBlock : DataEntity
     {
@@ -104,8 +105,23 @@ namespace Dmc.Siemens.Common.PLC
 
         }
 
-        #endregion
-        
+		public override void ReadXml(XmlReader reader)
+		{
+			throw new NotImplementedException();
+		}
 
-    }
+		public override void WriteXml(XmlWriter writer)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void Export(string path)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+
+	}
 }

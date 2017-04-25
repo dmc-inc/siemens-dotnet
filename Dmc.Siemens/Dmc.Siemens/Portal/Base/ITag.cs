@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dmc.Siemens.Common.PLC;
+using Dmc.Siemens.Common.Plc;
 
 namespace Dmc.Siemens.Portal.Base
 {

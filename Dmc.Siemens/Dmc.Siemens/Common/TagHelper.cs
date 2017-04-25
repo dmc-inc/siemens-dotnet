@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Interfaces;
-using Dmc.Siemens.Common.PLC;
+using Dmc.Siemens.Common.Plc;
+using Dmc.Siemens.Common.Plc.Base;
 using Dmc.Siemens.Portal.Base;
+using Dmc.Siemens.Portal.Plc;
 
 namespace Dmc.Siemens.Common
 {
@@ -142,7 +143,7 @@ namespace Dmc.Siemens.Common
 			return address;
 		}
 
-		public static void ResolveArrayChildren(DataEntry entry, IPortalPlc parentPlc)
+		public static void ResolveArrayChildren(DataEntry entry, PortalPlc parentPlc)
 		{
 			if (entry.DataType != DataType.ARRAY)
 				return;

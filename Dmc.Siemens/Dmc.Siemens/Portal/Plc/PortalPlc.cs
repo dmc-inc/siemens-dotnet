@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Interfaces;
+using Dmc.Siemens.Common.Plc;
+using Dmc.Siemens.Common.Plc.Base;
+using Dmc.Siemens.Common.Plc.Interfaces;
+using Dmc.Siemens.Common.Plc.Types;
+
+namespace Dmc.Siemens.Portal.Plc
+{
+	public class PortalPlc : IPlc
+	{
+
+		#region Public Properties
+
+		public string Name { get; set; }
+
+		public IDictionary<BlockType, IEnumerable<IBlock>> Blocks { get; }
+
+		IEnumerable<PlcTagTable> TagTables { get; }
+
+		#endregion
+
+		#region Public Methods
+
+		public UserDataType GetUdtStructure(string udtName)
+		{
+			if (this.Blocks?.ContainsKey(BlockType.UserDataType) != true)
+				return null;
+
+			return (this.Blocks[BlockType.UserDataType]?.FirstOrDefault(b => b.Name == udtName) as UserDataType);
+		}
+
+		public T GetConstantValue<T>(Constant<T> constant)
+			where T : struct
+		{
+			if (constant.HasValue)
+				return constant.Value;
+			else
+			{
+				var resolvedConstant = this.TagTables.SelectMany(t => t.Constants).FirstOrDefault(c => c.Name == constant.Name);
+				if (resolvedConstant == null)
+					throw new SiemensException("Cannot resolve constant '" + constant.Name + "'");
+				else
+				{
+					try
+					{
+						if (SiemensConverter.TryParse(resolvedConstant.Value.ToString(), resolvedConstant.DataType, out object parsedValue))
+						{
+							return (T)Convert.ChangeType(parsedValue, typeof(T));
+						}
+						else
+						{
+							throw new SiemensException("Constant value for '" + constant.Name + "' is not the correct type: " + resolvedConstant.DataType.ToString());
+						}
+					}
+					catch (Exception e)
+					{
+						throw new SiemensException("Cannot convert constant value '" + constant.Name + "' to type: " + resolvedConstant.DataType.ToString(), e);
+					}
+				}
+			}
+		}
+
+		#endregion
+		
+	}
+}

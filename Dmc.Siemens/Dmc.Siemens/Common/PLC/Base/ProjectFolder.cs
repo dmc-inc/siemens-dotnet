@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dmc.Wpf.Base;
 
-namespace Dmc.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.Plc
 {
     public class ProjectFolder : NotifyPropertyChanged
     {

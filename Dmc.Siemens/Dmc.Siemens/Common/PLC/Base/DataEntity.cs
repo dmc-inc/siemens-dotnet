@@ -5,13 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dmc.Siemens.Base;
+using System.Xml;
+using System.Xml.Schema;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
-using Dmc.Siemens.Common.PLC.Interfaces;
+using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
-namespace Dmc.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.Plc
 {
     public abstract class DataEntity : DataObject, IBlock
     {
@@ -123,6 +124,21 @@ namespace Dmc.Siemens.Common.PLC
             return this;
 
         }
+
+		public abstract void Export(string path);
+
+		#region IXmlSerializable
+
+		public XmlSchema GetSchema()
+		{
+			return null;
+		}
+
+		public abstract void ReadXml(XmlReader reader);
+
+		public abstract void WriteXml(XmlWriter writer);
+
+		#endregion
 
 		#endregion
 

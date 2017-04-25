@@ -6,14 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
-using Dmc.Siemens.Common.PLC.Types;
+using Dmc.Siemens.Common.Plc.Base;
+using Dmc.Siemens.Common.Plc.Types;
 using Dmc.Siemens.Portal.Base;
+using Dmc.Siemens.Portal.Plc;
 using Dmc.Wpf.Base;
 
-namespace Dmc.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.Plc
 {
     public abstract class DataObject : NotifyPropertyChanged, IEnumerable<DataEntry>
     {
@@ -111,7 +112,7 @@ namespace Dmc.Siemens.Common.PLC
 
 		#region Public Methods
 
-		public void CalcluateAddresses(IPortalPlc plc)
+		public void CalcluateAddresses(PortalPlc plc)
 		{
 			// make sure we have a valid structure if we are a UDT
 			this.ResolveUdt(plc);
@@ -134,7 +135,7 @@ namespace Dmc.Siemens.Common.PLC
 			} while ((currentObject = currentObject.Next) != null);
 		}
 
-		public virtual Address CalculateSize(IPortalPlc plc)
+		public virtual Address CalculateSize(PortalPlc plc)
 		{
 			bool isPrimitive = this.IsPrimitiveDataType;
 			// If we are a pimitive, return the size directly
@@ -253,9 +254,9 @@ namespace Dmc.Siemens.Common.PLC
 			// only do this if we are a UDT
 			if (this.DataType == DataType.UDT)
 			{
-				// PLC cannot be null for a UDT whose structure has not been defined
+				// Plc cannot be null for a UDT whose structure has not been defined
 				if (plc == null)
-					throw new ArgumentNullException(nameof(plc), "PLC cannot be null when calculating the size of a UDT");
+					throw new ArgumentNullException(nameof(plc), "Plc cannot be null when calculating the size of a UDT");
 
 				this.SetUdtStructure(plc.GetUdtStructure(this.DataTypeName));
 			}

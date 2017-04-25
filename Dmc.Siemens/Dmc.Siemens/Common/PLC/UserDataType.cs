@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
 
-namespace Dmc.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.Plc
 {
     public class UserDataType : DataEntity
     {
@@ -19,7 +20,7 @@ namespace Dmc.Siemens.Common.PLC
 		public override bool IsPrimitiveDataType => false;
 
 		public override string DataHeader { get; } = "STRUCT";
-
+		
 		#endregion
 
 		#region Public Methods
@@ -29,7 +30,22 @@ namespace Dmc.Siemens.Common.PLC
             return base.ParseSource(reader);
         }
 
-        #endregion
-        
-    }
+		public override void Export(string path)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void ReadXml(XmlReader reader)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void WriteXml(XmlWriter writer)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+
+	}
 }

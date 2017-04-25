@@ -6,14 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
-using Dmc.Siemens.Common.PLC.Types;
+using Dmc.Siemens.Common.Plc.Base;
+using Dmc.Siemens.Common.Plc.Types;
 using Dmc.Siemens.Portal.Base;
+using Dmc.Siemens.Portal.Plc;
 using Dmc.Wpf.Base;
 
-namespace Dmc.Siemens.Common.PLC
+namespace Dmc.Siemens.Common.Plc
 {
     public class DataEntry : DataObject
     {
@@ -203,7 +204,7 @@ namespace Dmc.Siemens.Common.PLC
 
         }
 
-		public override Address CalculateSize(IPortalPlc plc)
+		public override Address CalculateSize(PortalPlc plc)
 		{
 			// we only need to override size calculations on string and array
 			// DataObject knows how to calculate the size of everything else
@@ -220,7 +221,7 @@ namespace Dmc.Siemens.Common.PLC
 
 					// check to make sure we are able to get the indices of the array
 					if ((!this.ArrayStartIndex.HasValue || !this.ArrayEndIndex.HasValue) && plc == null)
-						throw new ArgumentNullException(nameof(plc), "PLC cannot be null when the indices of an array are user defined constant values");
+						throw new ArgumentNullException(nameof(plc), "Plc cannot be null when the indices of an array are user defined constant values");
 
 					// resolve the actual start and end indices
 					int arrayStart = plc?.GetConstantValue(this.ArrayStartIndex) ?? this.ArrayStartIndex.Value;
@@ -263,7 +264,7 @@ namespace Dmc.Siemens.Common.PLC
 				case DataType.STRING:
 					// first to check to make sure we are able to get the size of the string
 					if (!this.StringLength.HasValue && plc == null)
-						throw new ArgumentNullException(nameof(plc), "PLC cannot be null if the string length is a user defined constant value");
+						throw new ArgumentNullException(nameof(plc), "Plc cannot be null if the string length is a user defined constant value");
 
 					return new Address(TagHelper.GetPrimitiveByteSize(this.DataType, plc?.GetConstantValue(this.StringLength) ?? this.StringLength.Value));
 

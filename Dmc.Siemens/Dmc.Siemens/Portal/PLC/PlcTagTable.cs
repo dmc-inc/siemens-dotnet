@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.Wpf.Base;
-using Dmc.Siemens.Common.PLC.Base;
+using Dmc.Siemens.Common.Plc.Base;
 using Dmc.Siemens.Portal.Base;
 using Dmc.IO;
 using System.IO;
-using Dmc.Siemens.Base;
 using SpreadsheetLight;
 
-namespace Dmc.Siemens.Portal.PLC
+namespace Dmc.Siemens.Portal.Plc
 {
-	public class PlcTagTable : NotifyPropertyChanged, IPlcTagTable
+	public class PlcTagTable : NotifyPropertyChanged, ITagTable
 	{
 
 		#region Constructors
@@ -40,7 +39,7 @@ namespace Dmc.Siemens.Portal.PLC
 			}
 		}
 
-		public ICollection<IPlcTag> PlcTags { get; } = new HashSet<IPlcTag>();
+		public ICollection<PlcTag> PlcTags { get; } = new HashSet<PlcTag>();
 
 		public ICollection<ConstantsEntry> Constants { get; } = new HashSet<ConstantsEntry>();
 
@@ -48,7 +47,7 @@ namespace Dmc.Siemens.Portal.PLC
 
 		#region Public Methods
 
-		public static IEnumerable<IPlcTagTable> FromFile(string path)
+		public static IEnumerable<PlcTagTable> FromFile(string path)
 		{
 			return ExcelEngine.PlcTagTableFromFile(path);
 		}

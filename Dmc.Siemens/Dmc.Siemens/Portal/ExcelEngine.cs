@@ -4,14 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dmc.Siemens.Common.PLC.Base;
+using Dmc.Siemens.Common.Plc.Base;
 using Dmc.Siemens.Portal.Base;
 using Dmc.IO;
 using SpreadsheetLight;
-using Dmc.Siemens.Base;
-using Dmc.Siemens.Portal.PLC;
+using Dmc.Siemens.Portal.Plc;
 using Dmc.Siemens.Common;
-using Dmc.Siemens.Common.PLC;
+using Dmc.Siemens.Common.Plc;
+using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Portal.Hmi;
 
 namespace Dmc.Siemens.Portal
 {
@@ -20,7 +21,7 @@ namespace Dmc.Siemens.Portal
 
         #region Private Fields
 
-        private const string PLC_TAG_WORKSHEET_NAME = "PLC Tags";
+        private const string Plc_TAG_WORKSHEET_NAME = "Plc Tags";
         private const string CONSTANT_WORKSHEET_NAME = "Constants";
         private const string ALARM_WORKSHEET_NAME = "DiscreteAlarms";
         private const string HMI_TAG_WORKSHEET_NAME = "Hmi Tags";
@@ -29,7 +30,7 @@ namespace Dmc.Siemens.Portal
 
         #region Public Methods
 
-        public static IEnumerable<IPlcTagTable> PlcTagTableFromFile(string filePath)
+        public static IEnumerable<PlcTagTable> PlcTagTableFromFile(string filePath)
         {
 
             if (!File.Exists(filePath))
@@ -45,7 +46,7 @@ namespace Dmc.Siemens.Portal
                 
         }
 
-        public static void PlcTagTableToFile(string path, IEnumerable<IPlcTagTable> tagTables)
+        public static void PlcTagTableToFile(string path, IEnumerable<PlcTagTable> tagTables)
         {
             if (!FileHelpers.CheckValidFilePath(path, "xlsx"))
                 throw new ArgumentException($"{nameof(path)} ({path}) is not a valid file path");
@@ -55,7 +56,7 @@ namespace Dmc.Siemens.Portal
             ExportToFile(path, tagTables);
         }
 
-        public static void PlcTagTableToFile(string path, IPlcTagTable tagTable)
+        public static void PlcTagTableToFile(string path, PlcTagTable tagTable)
         {
             PlcTagTableToFile(path, new[] { tagTable });
         }
@@ -64,22 +65,22 @@ namespace Dmc.Siemens.Portal
 
         #region Private Methods
 
-        #region Import PLC Tag Table
+        #region Import Plc Tag Table
 
-        private static IEnumerable<IPlcTagTable> ImportSpreadsheet(SLDocument document)
+        private static IEnumerable<PlcTagTable> ImportSpreadsheet(SLDocument document)
         {
-            HashSet<IPlcTagTable> tagTables = new HashSet<IPlcTagTable>();
-            Dictionary<string, IPlcTagTable> tagTableLookup = new Dictionary<string, IPlcTagTable>();
+            HashSet<PlcTagTable> tagTables = new HashSet<PlcTagTable>();
+            Dictionary<string, PlcTagTable> tagTableLookup = new Dictionary<string, PlcTagTable>();
 
-			// Check for and navigate to PLC tag tab
-			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.PLC_TAG_WORKSHEET_NAME))
-				throw new SiemensException("File does not contain " + ExcelEngine.PLC_TAG_WORKSHEET_NAME + " tab.");
+			// Check for and navigate to Plc tag tab
+			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.Plc_TAG_WORKSHEET_NAME))
+				throw new SiemensException("File does not contain " + ExcelEngine.Plc_TAG_WORKSHEET_NAME + " tab.");
 
 			// Parse all tags, starting at the row after the headers
 			int row = 1;
-			IPlcTag tag;
+			PlcTag tag;
 			string parentTableName;
-			IPlcTagTable tagTable;
+			PlcTagTable tagTable;
 			while (!string.IsNullOrWhiteSpace(document.GetCellValueAsString(row, 0)))
 			{
 				// Get or create the parent tag table
@@ -123,7 +124,7 @@ namespace Dmc.Siemens.Portal
 
 				// Parse constant value
 				DataType dataType = TagHelper.ParseDataType(document.GetCellValueAsString(row, 2));
-				Converter.TryParse(document.GetCellValueAsString(row, 3), dataType, out object value);
+				SiemensConverter.TryParse(document.GetCellValueAsString(row, 3), dataType, out object value);
 
 				// Create a new constants entry
 				constant = new ConstantsEntry(document.GetCellValueAsString(row, 0), value, dataType);
@@ -145,10 +146,10 @@ namespace Dmc.Siemens.Portal
             {
                 foreach (ITagTable tagTable in tagTables)
                 {
-                    if (tagTable is IPlcTagTable)
-                        ExportPlcTagTableToFile(document, tagTable as IPlcTagTable);
-                    else if (tagTable is IHmiTagTable)
-                        ExportHmiTagTableToFile(document, tagTable as IHmiTagTable);
+                    if (tagTable is PlcTagTable)
+                        ExportPlcTagTableToFile(document, tagTable as PlcTagTable);
+                    else if (tagTable is HmiTagTable)
+                        ExportHmiTagTableToFile(document, tagTable as HmiTagTable);
                 }
 
                 using (FileStream file = File.Open(path, FileMode.Create))
@@ -158,11 +159,11 @@ namespace Dmc.Siemens.Portal
             }
         }
 
-        private static void ExportPlcTagTableToFile(SLDocument document, IPlcTagTable tagTable)
+        private static void ExportPlcTagTableToFile(SLDocument document, PlcTagTable tagTable)
         {
             if (tagTable?.PlcTags?.Count() > 0)
             {
-                foreach (IPlcTag tag in tagTable.PlcTags)
+                foreach (PlcTag tag in tagTable.PlcTags)
                 {
                     AddTagToDocument(document, tag);
                 }
@@ -176,18 +177,18 @@ namespace Dmc.Siemens.Portal
             }
         }
 
-        private static void ExportHmiTagTableToFile(SLDocument document, IHmiTagTable tagTable)
+        private static void ExportHmiTagTableToFile(SLDocument document, HmiTagTable tagTable)
         {
             if (tagTable?.HmiTags?.Count() > 0)
             {
-                foreach (IHmiTag tag in tagTable.HmiTags)
+                foreach (HmiTag tag in tagTable.HmiTags)
                 {
                     //AddTagToDocument(document, tag);
                 }
             }
         }
 
-        private static void AddTagToDocument(SLDocument document, IPlcTag tag)
+        private static void AddTagToDocument(SLDocument document, PlcTag tag)
         {
 
         }
@@ -233,13 +234,13 @@ namespace Dmc.Siemens.Portal
         private static void WritePlcTagHeaders(SLDocument document, bool renameCurrentWorksheet)
         {
 
-            ChangeActiveWorksheet(document, PLC_TAG_WORKSHEET_NAME, renameCurrentWorksheet);
+            ChangeActiveWorksheet(document, Plc_TAG_WORKSHEET_NAME, renameCurrentWorksheet);
 
             // Write headers
             document.SetCellValue(1, 1, "Name");
             document.SetCellValue(1, 2, "Path");
             document.SetCellValue(1, 3, "Connection");
-            document.SetCellValue(1, 4, "PLC tag");
+            document.SetCellValue(1, 4, "Plc tag");
             document.SetCellValue(1, 5, "DataType");
             document.SetCellValue(1, 6, "Length");
             document.SetCellValue(1, 7, "Coding");
@@ -258,8 +259,8 @@ namespace Dmc.Siemens.Portal
             document.SetCellValue(1, 20, "Range Minimum Type");
             document.SetCellValue(1, 21, "Range Minimum");
             document.SetCellValue(1, 22, "Linear scaling");
-            document.SetCellValue(1, 23, "End value PLC");
-            document.SetCellValue(1, 24, "Start value PLC");
+            document.SetCellValue(1, 23, "End value Plc");
+            document.SetCellValue(1, 24, "Start value Plc");
             document.SetCellValue(1, 25, "End value HMI");
             document.SetCellValue(1, 26, "Start value HMI");
             document.SetCellValue(1, 27, "Gmp relevant");
@@ -281,8 +282,8 @@ namespace Dmc.Siemens.Portal
             document.SetCellValue(1, 7, "Trigger bit");
             document.SetCellValue(1, 8, "Acknowledgement tag");
             document.SetCellValue(1, 9, "Acknowledgement bit");
-            document.SetCellValue(1, 10, "PLC acknowledgement tag");
-            document.SetCellValue(1, 11, "PLC acknowledgement bit");
+            document.SetCellValue(1, 10, "Plc acknowledgement tag");
+            document.SetCellValue(1, 11, "Plc acknowledgement bit");
             document.SetCellValue(1, 12, "Group");
             document.SetCellValue(1, 13, "Report");
             document.SetCellValue(1, 14, "Info text [en-US], Info text");

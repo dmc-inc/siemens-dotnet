@@ -1,4 +1,4 @@
-﻿using Dmc.Siemens.Common.PLC;
+﻿using Dmc.Siemens.Common.Plc;
 using System;
 using System.Collections.Generic;
 using System.IO;

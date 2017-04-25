@@ -5,11 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.IO;
-using Dmc.Siemens.Base;
+using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Export.Base;
-using Dmc.Siemens.Common.PLC;
-using Dmc.Siemens.Common.PLC.Interfaces;
+using Dmc.Siemens.Common.Plc;
+using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Portal.Base;
+using Dmc.Siemens.Portal.Plc;
 
 namespace Dmc.Siemens.Common.Export
 {
@@ -24,7 +25,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void Create(IEnumerable<IBlock> blocks, string path, string opcServerPrefix, IPortalPlc parentPlc)
+		public static void Create(IEnumerable<IBlock> blocks, string path, string opcServerPrefix, PortalPlc parentPlc)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -35,7 +36,7 @@ namespace Dmc.Siemens.Common.Export
 			AlarmWorxConfiguration.CreateInternal(dataBlocks, path, opcServerPrefix, parentPlc);
 		}
 
-		public static void Create(DataBlock block, string path, string opcServerPrefix, IPortalPlc parentPlc)
+		public static void Create(DataBlock block, string path, string opcServerPrefix, PortalPlc parentPlc)
 		{
 			AlarmWorxConfiguration.Create(new[] { block }, path, opcServerPrefix, parentPlc);
 		}
@@ -44,7 +45,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Private Methods
 
-		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, string opcServerPrefix, IPortalPlc parentPlc)
+		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, string opcServerPrefix, PortalPlc parentPlc)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));

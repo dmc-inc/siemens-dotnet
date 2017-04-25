@@ -8,10 +8,11 @@ using Dmc.Wpf.Base;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
-namespace Dmc.Siemens.Common.PLC.Interfaces
+namespace Dmc.Siemens.Common.Plc.Interfaces
 {
-    public interface IBlock : INotifyPropertyChanged, IParsableSource
+    public interface IBlock : INotifyPropertyChanged, IParsableSource, IExportable, IXmlSerializable
     {
 
         #region Public Properties
@@ -23,8 +24,6 @@ namespace Dmc.Siemens.Common.PLC.Interfaces
         int Number { get; set; }
 		
 		string Comment { get; set; }
-		
-        ProjectFolder ParentFolder { get; set; }
 
 		string DataHeader { get; }
 

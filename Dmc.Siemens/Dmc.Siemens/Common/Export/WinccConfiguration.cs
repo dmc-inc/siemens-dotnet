@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.IO;
-using Dmc.Siemens.Base;
-using Dmc.Siemens.Common.PLC;
-using Dmc.Siemens.Common.PLC.Interfaces;
+using Dmc.Siemens.Common.Base;
+using Dmc.Siemens.Common.Plc;
+using Dmc.Siemens.Common.Plc.Base;
+using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Portal.Base;
+using Dmc.Siemens.Portal.Plc;
 using SpreadsheetLight;
 
 namespace Dmc.Siemens.Common.Export
@@ -25,7 +27,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void Create(IEnumerable<IBlock> blocks, string path, IPortalPlc parentPlc)
+		public static void Create(IEnumerable<IBlock> blocks, string path, PortalPlc parentPlc)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -36,7 +38,7 @@ namespace Dmc.Siemens.Common.Export
 			WinccConfiguration.CreateInternal(dataBlocks, path, parentPlc);
 		}
 
-		public static void Create(IBlock block, string path, IPortalPlc parentPlc)
+		public static void Create(IBlock block, string path, PortalPlc parentPlc)
 		{
 			WinccConfiguration.Create(new[] { block }, path, parentPlc);
 		}
@@ -45,7 +47,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Private Methods
 
-		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, IPortalPlc parentPlc)
+		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, PortalPlc parentPlc)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -223,7 +225,7 @@ namespace Dmc.Siemens.Common.Export
 			document.SetCellValue(1, 1, "Name");
 			document.SetCellValue(1, 2, "Path");
 			document.SetCellValue(1, 3, "Connection");
-			document.SetCellValue(1, 4, "PLC tag");
+			document.SetCellValue(1, 4, "Plc tag");
 			document.SetCellValue(1, 5, "DataType");
 			document.SetCellValue(1, 6, "Length");
 			document.SetCellValue(1, 7, "Coding");
@@ -242,8 +244,8 @@ namespace Dmc.Siemens.Common.Export
 			document.SetCellValue(1, 20, "Range Minimum Type");
 			document.SetCellValue(1, 21, "Range Minimum");
 			document.SetCellValue(1, 22, "Linear scaling");
-			document.SetCellValue(1, 23, "End value PLC");
-			document.SetCellValue(1, 24, "Start value PLC");
+			document.SetCellValue(1, 23, "End value Plc");
+			document.SetCellValue(1, 24, "Start value Plc");
 			document.SetCellValue(1, 25, "End value HMI");
 			document.SetCellValue(1, 26, "Start value HMI");
 			document.SetCellValue(1, 27, "Gmp relevant");
@@ -261,8 +263,8 @@ namespace Dmc.Siemens.Common.Export
 			document.SetCellValue(1, 7, "Trigger bit");
 			document.SetCellValue(1, 8, "Acknowledgement tag");
 			document.SetCellValue(1, 9, "Acknowledgement bit");
-			document.SetCellValue(1, 10, "PLC acknowledgement tag");
-			document.SetCellValue(1, 11, "PLC acknowledgement bit");
+			document.SetCellValue(1, 10, "Plc acknowledgement tag");
+			document.SetCellValue(1, 11, "Plc acknowledgement bit");
 			document.SetCellValue(1, 12, "Group");
 			document.SetCellValue(1, 13, "Report");
 			document.SetCellValue(1, 14, "Info text [en-US], Info text");

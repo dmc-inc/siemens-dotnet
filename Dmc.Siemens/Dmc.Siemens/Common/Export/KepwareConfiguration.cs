@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dmc.IO;
-using Dmc.Siemens.Base;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
-using Dmc.Siemens.Common.PLC;
-using Dmc.Siemens.Common.PLC.Interfaces;
+using Dmc.Siemens.Common.Plc;
+using Dmc.Siemens.Common.Plc.Base;
+using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Portal.Base;
+using Dmc.Siemens.Portal.Plc;
 
 namespace Dmc.Siemens.Common.Export
 {
@@ -19,7 +20,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void Create(IEnumerable<IBlock> blocks, string path, IPortalPlc owningPlc)
+		public static void Create(IEnumerable<IBlock> blocks, string path, PortalPlc owningPlc)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -30,7 +31,7 @@ namespace Dmc.Siemens.Common.Export
 			KepwareConfiguration.CreateInternal(dataBlocks, path, owningPlc);
 		}
 
-		public static void Create(DataBlock block, string path, IPortalPlc owningPlc)
+		public static void Create(DataBlock block, string path, PortalPlc owningPlc)
 		{
 			KepwareConfiguration.CreateInternal(new[] { block }, path, owningPlc);
 		}
@@ -39,7 +40,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Private Methods
 
-		private static void CreateInternal(IEnumerable<DataBlock> blocks, string path, IPortalPlc parentPlc)
+		private static void CreateInternal(IEnumerable<DataBlock> blocks, string path, PortalPlc parentPlc)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -73,7 +74,7 @@ namespace Dmc.Siemens.Common.Export
 			}
 		}
 
-		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, IPortalPlc parentPlc)
+		private static void ExportDataBlockToFile(DataBlock block, TextWriter writer, PortalPlc parentPlc)
 		{
 			block.CalcluateAddresses(parentPlc);
 			foreach (var entry in block)

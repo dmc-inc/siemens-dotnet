@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dmc.Siemens.Common.PLC.Base
+namespace Dmc.Siemens.Common.Plc.Base
 {
-    public static class Converter
+    public static class SiemensConverter
     {
 
         #region Public Properties

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dmc.Wpf.Base;
 
-namespace Dmc.Siemens.Common.PLC.Base
+namespace Dmc.Siemens.Common.Plc.Base
 {
     public class ConstantsEntry : NotifyPropertyChanged
     {
