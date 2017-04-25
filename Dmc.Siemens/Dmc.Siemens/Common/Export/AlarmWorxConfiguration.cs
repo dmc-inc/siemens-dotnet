@@ -82,18 +82,44 @@ namespace Dmc.Siemens.Common.Export
 
 			void WriteAlarmRow(StreamWriter writer, DataEntry entry, string prependNameText, string prependCommentText)
 			{
-				AlarmWorxRow row = new AlarmWorxRow();
-				row.LocationPath = "\"" + @"\\Alarm Configurations\" + ALARM_FOLDER + "\"";
-				row.Name = "\"" + ALARM_FOLDER + "." + prependNameText + entry.Name + "\"";
-				row.Description = "\"" + entry.Comment + "\"";
-				row.LastModified = DateTime.Now.ToString();
-				row.Input1 = "\"" + opcServerPrefix + "." + prependNameText + "." + entry.Name + "\"";
-				row.BaseText = "\"" + prependCommentText + " - " + entry.Comment + "\"";  // Message text 
-				row.DigMessageText = " ";   // Prevents 'Digital Alarm' text at the end of each message
-				row.DigLimit = "1";     // Alarm state value needs to be 1 for a digital
-				row.DigSeverity = "500"; // Default severity is 500
-				row.DigRequiresAck = "1"; // Require an acknowledge by default
-				writer.WriteLine(row.ToString());
+				switch (entry.DataType)
+				{
+					case DataType.ARRAY:
+						TagHelper.ResolveArrayChildren(entry, parentPlc);
+						foreach (var child in entry.Children)
+						{
+							WriteAlarmRow(writer, child, prependNameText, prependNameText);
+						}
+						break;
+					case DataType.STRUCT:
+						foreach (var child in entry.Children)
+						{
+							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - "));
+						}
+						break;
+					case DataType.UDT:
+						foreach (var child in parentPlc.GetUdtStructure(entry.DataTypeName))
+						{
+							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - "));
+						}
+						break;
+					case DataType.BOOL:
+						AlarmWorxRow row = new AlarmWorxRow();
+						row.LocationPath = @"\\Alarm Configurations\" + ALARM_FOLDER;
+						row.Name = ALARM_FOLDER + "." + prependNameText + entry.Name;
+						row.Description = entry.Comment;
+						row.LastModified = DateTime.Now.ToString();
+						row.Input1 = opcServerPrefix + "." + prependNameText + "." + entry.Name;
+						row.BaseText = (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - ") + entry.Comment;  // Message text 
+						row.DigMessageText = " ";   // Prevents 'Digital Alarm' text at the end of each message
+						row.DigLimit = "1";     // Alarm state value needs to be 1 for a digital
+						row.DigSeverity = "500"; // Default severity is 500
+						row.DigRequiresAck = "1"; // Require an acknowledge by default
+						writer.WriteLine(row.ToString());
+						break;
+					default:
+						throw new ArgumentException("Cannot export datatype: " + entry.DataType.ToString() + " to AlarmWorX configuration");
+				}
 			}
 
 		}

@@ -134,7 +134,7 @@ namespace Dmc.Siemens.Common.Export.Base
 
 		#endregion
 
-		#region Public Properties
+		#region Public Methods
 
 		// Fuck alarmworx.  Seriously... worst CSV format ever
 		public override string ToString()

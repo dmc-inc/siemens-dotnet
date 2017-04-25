@@ -10,6 +10,16 @@ namespace Tester
 	{
 		static void Main(string[] args)
 		{
+
+			ITester[] testArray = new ITester[]
+			{
+				new AlarmworxTester()
+			};
+
+			foreach (var tester in testArray)
+			{
+				tester.Run();
+			}
 		}
 	}
 }
