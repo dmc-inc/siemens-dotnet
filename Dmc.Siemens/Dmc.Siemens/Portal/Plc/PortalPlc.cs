@@ -9,17 +9,26 @@ using Dmc.Siemens.Common.Plc;
 using Dmc.Siemens.Common.Plc.Base;
 using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Common.Plc.Types;
+using Dmc.Wpf.Base;
+using Dmc.Wpf.Collections;
 
 namespace Dmc.Siemens.Portal.Plc
 {
-	public class PortalPlc : IPlc
+	public class PortalPlc : NotifyPropertyChanged, IPlc
 	{
 
 		#region Public Properties
 
 		public string Name { get; set; }
 
-		public IDictionary<BlockType, IEnumerable<IBlock>> Blocks { get; }
+		public IDictionary<BlockType, ICollection<IBlock>> Blocks { get; } = new ObservableDictionary<BlockType, ICollection<IBlock>>()
+		{
+			{ BlockType.DataBlock, new ObservableHashSet<IBlock>()},
+			{ BlockType.Function, new ObservableHashSet<IBlock>()},
+			{ BlockType.FunctionBlock, new ObservableHashSet<IBlock>()},
+			{ BlockType.OrganizationBlock, new ObservableHashSet<IBlock>()},
+			{ BlockType.UserDataType, new ObservableHashSet<IBlock>()}
+		};
 
 		IEnumerable<PlcTagTable> TagTables { get; }
 

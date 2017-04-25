@@ -12,7 +12,7 @@ namespace Dmc.Siemens.Common.Interfaces
 	public interface IPlc : IAutomationObject
 	{
 
-		IDictionary<BlockType, IEnumerable<IBlock>> Blocks { get; }
+		IDictionary<BlockType, ICollection<IBlock>> Blocks { get; }
 		
 		UserDataType GetUdtStructure(string udtName);
 

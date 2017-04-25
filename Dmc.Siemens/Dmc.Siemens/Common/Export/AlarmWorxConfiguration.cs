@@ -77,7 +77,7 @@ namespace Dmc.Siemens.Common.Export
 			}
 			catch (Exception e)
 			{
-				throw new SiemensException("Could not write Kepware configuration", e);
+				throw new SiemensException("Could not write AlarmWorX configuration", e);
 			}
 
 			void WriteAlarmRow(StreamWriter writer, DataEntry entry, string prependNameText, string prependCommentText)
