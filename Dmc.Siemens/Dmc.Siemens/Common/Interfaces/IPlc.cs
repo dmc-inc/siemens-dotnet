@@ -13,8 +13,8 @@ namespace Dmc.Siemens.Common.Interfaces
 	{
 
 		IDictionary<BlockType, ICollection<IBlock>> Blocks { get; }
-		
-		UserDataType GetUdtStructure(string udtName);
+
+		ICollection<UserDataType> UserDataTypes { get; }
 
 	}
 }

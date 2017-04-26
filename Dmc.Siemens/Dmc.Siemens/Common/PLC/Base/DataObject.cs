@@ -16,7 +16,7 @@ using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.Plc
 {
-    public abstract class DataObject : NotifyPropertyChanged, IEnumerable<DataEntry>
+    public abstract class DataObject : NotifyPropertyChanged, IAutomationObject, IEnumerable<DataEntry>
     {
 
 		#region Constructors
@@ -26,7 +26,7 @@ namespace Dmc.Siemens.Common.Plc
 			this.Name = name;
 			this.DataType = dataType;
 			this.Comment = comment;
-			this.Children = (children != null) ? new LinkedList<DataEntry>(children) : new LinkedList<DataEntry>();
+			this.Children = (children != null) ? new LinkedList<DataEntry>(children) : null;
 		}
 
 		#endregion
@@ -72,16 +72,16 @@ namespace Dmc.Siemens.Common.Plc
 			}
 		}
 
-		private Address? _AddressOffset;
-		public Address? AddressOffset
+		private Address? _Address;
+		public Address? Address
 		{
 			get
 			{
-				return this._AddressOffset;
+				return this._Address;
 			}
 			set
 			{
-				this.SetProperty(ref this._AddressOffset, value);
+				this.SetProperty(ref this._Address, value);
 			}
 		}
 
@@ -127,7 +127,7 @@ namespace Dmc.Siemens.Common.Plc
 			do
 			{
 				// set the next child's address
-				currentObject.Value.AddressOffset = addressOffset;
+				currentObject.Value.Address = addressOffset;
 				// add the currentObject size to the current offset
 				addressOffset += currentObject.Value.CalculateSize(plc);
 				// increment the next address offset if necessary
@@ -258,7 +258,11 @@ namespace Dmc.Siemens.Common.Plc
 				if (plc == null)
 					throw new ArgumentNullException(nameof(plc), "Plc cannot be null when calculating the size of a UDT");
 
-				this.SetUdtStructure(plc.GetUdtStructure(this.DataTypeName));
+				UserDataType udt = plc.UserDataTypes.FirstOrDefault(u => u.Name == this.DataTypeName);
+				if (udt == null)
+					throw new SiemensException("Specified PLC does not contain UDT \"" + this.DataTypeName + "\"");
+
+				this.SetUdtStructure(udt);
 			}
 		}
 

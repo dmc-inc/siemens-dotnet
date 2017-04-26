@@ -14,7 +14,7 @@ using Dmc.Siemens.Portal.Base;
 
 namespace Dmc.Siemens.Common.Plc
 {
-    public abstract class DataEntity : DataObject, IBlock
+    public abstract class DataEntity : DataObject, IParsableSource
     {
 
 		#region Public Properties
@@ -32,8 +32,6 @@ namespace Dmc.Siemens.Common.Plc
 				throw new InvalidOperationException("Cannot change the BlockLanguage of a DataEntity");
 			}
 		}
-
-		public abstract BlockType Type { get; }
 
 		private int _Number;
 		public int Number

@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using System.Xml;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
+using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Portal.Base;
 
 namespace Dmc.Siemens.Common.Plc
 {
-    public class DataBlock : DataEntity
+    public class DataBlock : DataEntity, IBlock
     {
 
         #region Public Properties
@@ -68,7 +69,7 @@ namespace Dmc.Siemens.Common.Plc
             }
         }
 
-		public override BlockType Type => BlockType.DataBlock;
+		public BlockType Type => BlockType.DataBlock;
 
 		public override string DataHeader
 		{

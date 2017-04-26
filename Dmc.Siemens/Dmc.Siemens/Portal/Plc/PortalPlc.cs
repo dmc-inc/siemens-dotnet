@@ -26,24 +26,17 @@ namespace Dmc.Siemens.Portal.Plc
 			{ BlockType.DataBlock, new ObservableHashSet<IBlock>()},
 			{ BlockType.Function, new ObservableHashSet<IBlock>()},
 			{ BlockType.FunctionBlock, new ObservableHashSet<IBlock>()},
-			{ BlockType.OrganizationBlock, new ObservableHashSet<IBlock>()},
-			{ BlockType.UserDataType, new ObservableHashSet<IBlock>()}
+			{ BlockType.OrganizationBlock, new ObservableHashSet<IBlock>()}
 		};
 
-		IEnumerable<PlcTagTable> TagTables { get; }
+		public ICollection<UserDataType> UserDataTypes { get; } = new ObservableHashSet<UserDataType>();
 
+		public ICollection<PlcTagTable> TagTables { get; } = new ObservableHashSet<PlcTagTable>();
+		
 		#endregion
 
 		#region Public Methods
-
-		public UserDataType GetUdtStructure(string udtName)
-		{
-			if (this.Blocks?.ContainsKey(BlockType.UserDataType) != true)
-				return null;
-
-			return (this.Blocks[BlockType.UserDataType]?.FirstOrDefault(b => b.Name == udtName) as UserDataType);
-		}
-
+		
 		public T GetConstantValue<T>(Constant<T> constant)
 			where T : struct
 		{

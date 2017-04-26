@@ -15,8 +15,6 @@ namespace Dmc.Siemens.Common.Plc
 
 		#region Public Properties
 
-		public override BlockType Type => BlockType.UserDataType;
-
 		public override bool IsPrimitiveDataType => false;
 
 		public override string DataHeader { get; } = "STRUCT";

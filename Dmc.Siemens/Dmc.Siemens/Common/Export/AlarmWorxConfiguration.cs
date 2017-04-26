@@ -98,7 +98,7 @@ namespace Dmc.Siemens.Common.Export
 						}
 						break;
 					case DataType.UDT:
-						foreach (var child in parentPlc.GetUdtStructure(entry.DataTypeName))
+						foreach (var child in parentPlc.UserDataTypes.FirstOrDefault(u => u.Name == entry.DataTypeName))
 						{
 							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - "));
 						}

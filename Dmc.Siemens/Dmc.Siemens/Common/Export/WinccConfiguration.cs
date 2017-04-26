@@ -100,7 +100,7 @@ namespace Dmc.Siemens.Common.Export
 						document.SetCellValue(currentAlarmRow, 4, "<No value>");
 						document.SetCellValue(currentAlarmRow, 5, "Errors");
 						document.SetCellValue(currentAlarmRow, 6, dataBlockName);
-						document.SetCellValue(currentAlarmRow, 7, AddressToTriggerBit(addressOffset + entry.AddressOffset.Value).ToString());
+						document.SetCellValue(currentAlarmRow, 7, AddressToTriggerBit(addressOffset + entry.Address.Value).ToString());
 						document.SetCellValue(currentAlarmRow, 8, "<No value>");
 						document.SetCellValue(currentAlarmRow, 9, "0");
 						document.SetCellValue(currentAlarmRow, 10, "<No value>");
@@ -115,7 +115,7 @@ namespace Dmc.Siemens.Common.Export
 						entry.CalcluateAddresses(parentPlc);
 						foreach (DataEntry newEntry in entry.Children)
 						{
-							ProcessDataEntry(document, newEntry, prependText + " - " + entry.Comment, addressOffset + entry.AddressOffset.Value);
+							ProcessDataEntry(document, newEntry, prependText + " - " + entry.Comment, addressOffset + entry.Address.Value);
 						}
 						break;
 					case DataType.ARRAY:
@@ -124,7 +124,7 @@ namespace Dmc.Siemens.Common.Export
 						// write a new entry for each of the children
 						foreach (var child in entry.Children)
 						{
-							ProcessDataEntry(document, child, prependText, (entry.AddressOffset.Value + addressOffset));
+							ProcessDataEntry(document, child, prependText, (entry.Address.Value + addressOffset));
 						}
 						break;
 					default:

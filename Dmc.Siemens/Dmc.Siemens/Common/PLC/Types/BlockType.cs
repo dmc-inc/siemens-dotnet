@@ -11,7 +11,6 @@ namespace Dmc.Siemens.Common.Plc
         OrganizationBlock,
         DataBlock,
         Function,
-        FunctionBlock,
-        UserDataType
+        FunctionBlock
     }
 }

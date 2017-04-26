@@ -95,7 +95,7 @@ namespace Dmc.Siemens.Common.Export
 						// write a new entry for each of the children
 						foreach (var child in entry.Children)
 						{
-							AddDataEntry(child, entryPrefix, (entry.AddressOffset.Value + parentOffset));
+							AddDataEntry(child, entryPrefix, (entry.Address.Value + parentOffset));
 						}
 						break;
 					case DataType.BOOL:
@@ -141,7 +141,7 @@ namespace Dmc.Siemens.Common.Export
 						entry.CalcluateAddresses(parentPlc);
 						foreach (var child in entry)
 						{
-							AddDataEntry(child, entryPrefix + entry.Name + ".", (entry.AddressOffset.Value + parentOffset));
+							AddDataEntry(child, entryPrefix + entry.Name + ".", (entry.Address.Value + parentOffset));
 						}
 						break;
 					case DataType.WORD:
@@ -154,7 +154,7 @@ namespace Dmc.Siemens.Common.Export
 
 				if (TagHelper.IsPrimitive(entry.DataType))
 				{
-					Address absoluteAddress = parentOffset + entry.AddressOffset.Value;
+					Address absoluteAddress = parentOffset + entry.Address.Value;
 
 					string addressString = "DB" + block.Number + "." + addressPrefix + absoluteAddress.Byte;
 					if (entry.DataType == DataType.BOOL)

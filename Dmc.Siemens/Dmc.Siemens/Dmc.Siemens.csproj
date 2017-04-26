@@ -99,6 +99,8 @@
     <Compile Include="Portal\Plc\PortalPlc.cs" />
     <Compile Include="Portal\Project\PortalProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimaticManager\Plc\Symbol.cs" />
+    <Compile Include="SimaticManager\Plc\Types\SymbolTableType.cs" />
     <Compile Include="Xml\PortalXmlDocument.cs" />
     <Compile Include="Xml\XmlHelpers.cs" />
     <Compile Include="Xml\XmlStringType.cs" />
@@ -108,6 +110,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SimaticManager\Base\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
