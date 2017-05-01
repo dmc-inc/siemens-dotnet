@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
+using System.Collections.ObjectModel;
 
 namespace Dmc.Siemens.Common
 {
@@ -15,11 +16,11 @@ namespace Dmc.Siemens.Common
 
         #region Private Fields
 
-        private static readonly Dictionary<string, Type> ParsableTypes = new Dictionary<string, Type>()
+        private static readonly ReadOnlyDictionary<string, Type> ParsableTypes = new ReadOnlyDictionary<string, Type>(new Dictionary<string, Type>()
         {
             { "DATA_BLOCK", typeof(DataBlock)},
             { "TYPE", typeof(UserDataType)}
-        };
+        });
 
         #endregion
 

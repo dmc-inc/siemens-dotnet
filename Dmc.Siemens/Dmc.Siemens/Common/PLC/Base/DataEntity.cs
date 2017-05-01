@@ -21,11 +21,11 @@ namespace Dmc.Siemens.Common.Plc
 
 		public override DataType DataType => DataType.STRUCT;
 		
-		public BlockLanguage Language
+		public ProgramLanguage Language
 		{
 			get
 			{
-				return BlockLanguage.STL;
+				return ProgramLanguage.STL;
 			}
 			set
 			{

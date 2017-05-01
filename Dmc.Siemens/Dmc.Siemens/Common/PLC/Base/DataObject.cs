@@ -98,6 +98,19 @@ namespace Dmc.Siemens.Common.Plc
             }
         }
 
+		private object _StartValue;
+		public object StartValue
+		{
+			get
+			{
+				return this._StartValue;
+			}
+			set
+			{
+				this.SetProperty(ref this._StartValue, value);
+			}
+		}
+
 		public virtual bool IsPrimitiveDataType
 		{
 			get
@@ -106,7 +119,7 @@ namespace Dmc.Siemens.Common.Plc
 			}
 		}
 
-        public LinkedList<DataEntry> Children { get; private set; }
+        public LinkedList<DataEntry> Children { get; set; }
 
 		#endregion
 

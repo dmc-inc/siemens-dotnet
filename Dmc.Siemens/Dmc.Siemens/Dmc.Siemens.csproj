@@ -71,9 +71,12 @@
     <Compile Include="Common\Interfaces\IPlc.cs" />
     <Compile Include="Common\Interfaces\IProject.cs" />
     <Compile Include="Common\Export\KepwareConfiguration.cs" />
+    <Compile Include="Common\Plc\Base\BlockBase.cs" />
     <Compile Include="Common\Plc\Base\DataObject.cs" />
     <Compile Include="Common\Plc\Interfaces\IFunction.cs" />
     <Compile Include="Common\Plc\Interfaces\IFunctionBlock.cs" />
+    <Compile Include="Common\Plc\LadderFunction.cs" />
+    <Compile Include="Common\Plc\Logic\Network.cs" />
     <Compile Include="Common\SourceParser.cs" />
     <Compile Include="Common\Plc\Interfaces\IBlock.cs" />
     <Compile Include="Common\Plc\Base\ConstantsEntry.cs" />
@@ -85,7 +88,7 @@
     <Compile Include="Common\Plc\Types\BlockType.cs" />
     <Compile Include="Common\Plc\Types\Constant.cs" />
     <Compile Include="Common\Plc\Types\DataType.cs" />
-    <Compile Include="Common\Plc\Types\BlockLanguage.cs" />
+    <Compile Include="Common\Plc\Types\ProgramLanguage.cs" />
     <Compile Include="Common\Plc\UserDataType.cs" />
     <Compile Include="Common\TagHelper.cs" />
     <Compile Include="Common\Plc\Base\Address.cs" />

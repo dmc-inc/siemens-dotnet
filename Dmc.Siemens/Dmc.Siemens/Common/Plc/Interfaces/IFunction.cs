@@ -16,7 +16,7 @@ namespace Dmc.Siemens.Common.Plc.Interfaces
 
 		IList<DataEntry> InputOutputs { get; }
 
-		IList<DataEntry> Temporary { get; }
+		IList<DataEntry> TemporaryData { get; }
 
 	}
 }

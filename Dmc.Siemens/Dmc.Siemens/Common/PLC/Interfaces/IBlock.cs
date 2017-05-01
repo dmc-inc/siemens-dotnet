@@ -18,8 +18,8 @@ namespace Dmc.Siemens.Common.Plc.Interfaces
         #region Public Properties
 		
         BlockType Type { get; }
-		
-        BlockLanguage Language { get; set; }
+
+		ProgramLanguage Language { get; set; }
 		
         int Number { get; set; }
 		

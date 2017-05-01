@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace Dmc.Siemens.Common.Interfaces
 {
-    public interface IParsableSource
+    public interface IParsableSource : IAutomationObject
     {
-
-        string Name { get; set; }
+		
         string Version { get; set; }
 
         IParsableSource ParseSource(TextReader reader);
