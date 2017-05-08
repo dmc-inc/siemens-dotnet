@@ -11,24 +11,11 @@ using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.Base
 {
-	public abstract class ProjectBase : NotifyPropertyChanged, IProject
+	public abstract class ProjectBase : AutomationObjectBase, IProject
 	{
 
 		#region Public Properties
-
-		private string _Name;
-		public string Name
-		{
-			get
-			{
-				return this._Name;
-			}
-			set
-			{
-				this.SetProperty(ref this._Name, value);
-			}
-		}
-
+		
 		private IEnumerable<IAutomationObject> _AutomationObjects;
 		public IEnumerable<IAutomationObject> AutomationObjects
 		{

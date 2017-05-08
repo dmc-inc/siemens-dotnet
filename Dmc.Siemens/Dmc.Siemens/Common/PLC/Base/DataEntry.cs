@@ -54,6 +54,60 @@ namespace Dmc.Siemens.Common.Plc
         public Constant<int> ArrayEndIndex { get; set; }
         public Constant<int> StringLength { get; set; }
 		
+		public string DataTypeString
+		{
+			get
+			{
+				switch (this.DataType)
+				{
+					case DataType.ANY:
+						return "Any";
+					case DataType.ARRAY:
+						string arrayStart = (this.ArrayStartIndex.HasValue) ? this.ArrayStartIndex.Value.ToString() : $"\"{this.ArrayStartIndex.Name}\"";
+						string arrayEnd = (this.ArrayEndIndex.HasValue) ? this.ArrayEndIndex.Value.ToString() : $"\"{this.ArrayEndIndex.Name}\"";
+						return $"Array[{arrayStart}..{arrayEnd}] of {this.ArrayDataEntry.DataTypeString}";
+					case DataType.BOOL:
+						return "Bool";
+					case DataType.BYTE:
+						return "Byte";
+					case DataType.CHAR:
+						return "Char";
+					case DataType.DATE:
+						return "Date";
+					case DataType.DATE_AND_TIME:
+						return "Date_And_Time";
+					case DataType.DINT:
+						return "Dint";
+					case DataType.DWORD:
+						return "DWord";
+					case DataType.INT:
+						return "Int";
+					case DataType.REAL:
+						return "Real";
+					case DataType.STRING:
+						if (this.StringLength.HasValue)
+							if (this.StringLength.Value == 254)
+								return "String";
+							else
+								return $"String[{this.StringLength.Value}]";
+						else
+							return $"String[\"{this.StringLength.Name}\"";
+					case DataType.STRUCT:
+						return "Struct";
+					case DataType.TIME:
+						return "Time";
+					case DataType.TIME_OF_DAY:
+						return "Time_Of_Day";
+					case DataType.UDT:
+						return $"\"{this.DataTypeName}\"";
+					case DataType.WORD:
+						return "Word";
+					default:
+						throw new NotSupportedException("Data type: " + this.DataType.ToString() + " is not supported");
+				}
+			}
+		}
+
 		#endregion
 
 		#region Public Methods
@@ -158,7 +212,7 @@ namespace Dmc.Siemens.Common.Plc
 					return base.CalculateSize(plc);
 			}
 		}
-
+		
 		#endregion
 
 	}

@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Base\AutomationObjectBase.cs" />
     <Compile Include="Common\Base\SiemensException.cs" />
     <Compile Include="Common\Base\ProjectBase.cs" />
     <Compile Include="Common\Export\AlarmWorxConfiguration.cs" />
@@ -75,8 +76,11 @@
     <Compile Include="Common\Plc\Base\DataObject.cs" />
     <Compile Include="Common\Plc\Interfaces\IFunction.cs" />
     <Compile Include="Common\Plc\Interfaces\IFunctionBlock.cs" />
+    <Compile Include="Portal\Plc\Logic\Base\InstructionBase.cs" />
+    <Compile Include="Portal\Plc\Logic\Base\ReferenceBase.cs" />
     <Compile Include="Common\Plc\LadderFunction.cs" />
     <Compile Include="Common\Plc\Logic\Network.cs" />
+    <Compile Include="Common\Plc\Types\ReferenceScope.cs" />
     <Compile Include="Common\SourceParser.cs" />
     <Compile Include="Common\Plc\Interfaces\IBlock.cs" />
     <Compile Include="Common\Plc\Base\ConstantsEntry.cs" />
@@ -96,6 +100,7 @@
     <Compile Include="Portal\Base\ITagTable.cs" />
     <Compile Include="Portal\Hmi\HmiTag.cs" />
     <Compile Include="Portal\Hmi\HmiTagTable.cs" />
+    <Compile Include="Portal\Plc\Logic\Instructions\Move.cs" />
     <Compile Include="Portal\Plc\PlcTag.cs" />
     <Compile Include="Portal\Plc\PlcTagTable.cs" />
     <Compile Include="Portal\ExcelEngine.cs" />
