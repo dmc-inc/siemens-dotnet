@@ -7,9 +7,10 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Dmc.Siemens.Common.Interfaces;
+using Dmc.Siemens.Common.Plc;
 using Dmc.Wpf.Base;
 
-namespace Dmc.Siemens.Portal.Plc.Logic.Base
+namespace Dmc.Siemens.Common.Plc.Logic.Base
 {
 	public abstract class InstructionBase : NotifyPropertyChanged, IXmlSerializable, IAutomationObject
 	{
@@ -28,7 +29,16 @@ namespace Dmc.Siemens.Portal.Plc.Logic.Base
 				throw new InvalidOperationException("Cannot set the name of an instruction/");
 			}
 		}
-		
+
+		protected abstract Dictionary<string, ReferenceBase> _Interface { get; }
+		public Dictionary<string, ReferenceBase> Interface
+		{
+			get
+			{
+				return this._Interface;
+			}
+		}
+
 		#endregion
 
 		#region Public Methods
@@ -38,12 +48,12 @@ namespace Dmc.Siemens.Portal.Plc.Logic.Base
 			return null;
 		}
 
-		public void ReadXml(XmlReader reader)
+		public virtual void ReadXml(XmlReader reader)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void WriteXml(XmlWriter writer)
+		public virtual void WriteXml(XmlWriter writer)
 		{
 			throw new NotImplementedException();
 		}

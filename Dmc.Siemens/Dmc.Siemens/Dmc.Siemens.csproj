@@ -76,8 +76,8 @@
     <Compile Include="Common\Plc\Base\DataObject.cs" />
     <Compile Include="Common\Plc\Interfaces\IFunction.cs" />
     <Compile Include="Common\Plc\Interfaces\IFunctionBlock.cs" />
-    <Compile Include="Portal\Plc\Logic\Base\InstructionBase.cs" />
-    <Compile Include="Portal\Plc\Logic\Base\ReferenceBase.cs" />
+    <Compile Include="Common\Plc\Logic\Base\InstructionBase.cs" />
+    <Compile Include="Common\Plc\Logic\Base\ReferenceBase.cs" />
     <Compile Include="Common\Plc\LadderFunction.cs" />
     <Compile Include="Common\Plc\Logic\Network.cs" />
     <Compile Include="Common\Plc\Types\ReferenceScope.cs" />
@@ -100,7 +100,10 @@
     <Compile Include="Portal\Base\ITagTable.cs" />
     <Compile Include="Portal\Hmi\HmiTag.cs" />
     <Compile Include="Portal\Hmi\HmiTagTable.cs" />
-    <Compile Include="Portal\Plc\Logic\Instructions\Move.cs" />
+    <Compile Include="Common\Plc\Logic\Instructions\Contact.cs" />
+    <Compile Include="Common\Plc\Logic\Instructions\Or.cs" />
+    <Compile Include="Common\Plc\Logic\Instructions\And.cs" />
+    <Compile Include="Common\Plc\Logic\Instructions\Move.cs" />
     <Compile Include="Portal\Plc\PlcTag.cs" />
     <Compile Include="Portal\Plc\PlcTagTable.cs" />
     <Compile Include="Portal\ExcelEngine.cs" />
@@ -120,6 +123,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Portal\Plc\Logic\" />
     <Folder Include="SimaticManager\Base\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -12,13 +12,22 @@ using Dmc.Siemens.Common.Plc;
 using Dmc.Siemens.Common.Plc.Types;
 using Dmc.Wpf.Base;
 
-namespace Dmc.Siemens.Portal.Plc.Logic.Base
+namespace Dmc.Siemens.Common.Plc.Logic.Base
 {
 	public abstract class ReferenceBase : AutomationObjectBase, IXmlSerializable, IAutomationObject
 	{
 
+		#region Constructors
+
+		public ReferenceBase(DataEntry entry)
+		{
+			this.DataEntry = entry;
+		}
+
+		#endregion
+
 		#region Public Properties
-		
+
 		private ReferenceScope _Scope;
 		public ReferenceScope Scope
 		{
@@ -32,20 +41,18 @@ namespace Dmc.Siemens.Portal.Plc.Logic.Base
 			}
 		}
 
-		private DataType _DataType;
-		public DataType DataType
+		private DataEntry _DataEntry;
+		public DataEntry DataEntry
 		{
 			get
 			{
-				return this._DataType;
+				return this._DataEntry;
 			}
 			set
 			{
-				this.SetProperty(ref this._DataType, value);
+				this.SetProperty(ref this._DataEntry, value);
 			}
 		}
-		
-		public LinkedList<DataEntry> Components { get; } = new LinkedList<DataEntry>();
 
 		#endregion
 

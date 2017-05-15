@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dmc.Siemens.Common.Plc.Logic.Base;
 using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Common.Plc.Logic
@@ -57,6 +59,15 @@ namespace Dmc.Siemens.Common.Plc.Logic
 			set
 			{
 				this.SetProperty(ref this._Language, value);
+			}
+		}
+
+		private ObservableCollection<InstructionBase> _Instructions = new ObservableCollection<InstructionBase>();
+		public ObservableCollection<InstructionBase> Instructions
+		{
+			get
+			{
+				return this._Instructions;
 			}
 		}
 
