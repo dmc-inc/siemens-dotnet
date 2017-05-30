@@ -47,6 +47,7 @@ namespace Dmc.Siemens.Common
 				case DataType.POINTER:
 					return 6;
 				case DataType.DATE_AND_TIME:
+				case DataType.LREAL:
 					return 8;
 				case DataType.ANY:
 					return 10;
@@ -74,6 +75,7 @@ namespace Dmc.Siemens.Common
 				case DataType.DINT:
 				case DataType.TIME:
 				case DataType.REAL:
+				case DataType.LREAL:
 				case DataType.TIME_OF_DAY:
 				case DataType.POINTER:
 				case DataType.DATE_AND_TIME:
@@ -190,6 +192,7 @@ namespace Dmc.Siemens.Common
 			}
 			else if (type.ToUpper().Contains("STRUCT") && reader != null)
 			{
+				newEntry.Children = new LinkedList<DataEntry>();
 				string line;
 				while ((line = reader.ReadLine()) != null && !line.Contains("END_STRUCT"))
 				{
@@ -284,7 +287,7 @@ namespace Dmc.Siemens.Common
 			int arrayStart = parentPlc?.GetConstantValue(entry.ArrayStartIndex) ?? entry.ArrayStartIndex.Value;
 			int arrayEnd = parentPlc?.GetConstantValue(entry.ArrayEndIndex) ?? entry.ArrayEndIndex.Value;
 			Address arraySubTypeSize = entry.ArrayDataEntry.CalculateSize(parentPlc);
-			entry.Children.Clear();
+			entry.Children = new LinkedList<DataEntry>();
 
 			// First populate the array Children with the correct number and type of children
 			for (int i = arrayStart; i <= arrayEnd; i++)

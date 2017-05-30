@@ -136,7 +136,7 @@ namespace Dmc.Siemens.Common.Plc
                 name = splitString[0].Trim().Trim('"');
             }
 
-			newEntry = TagHelper.ParseDataEntry(type);
+			newEntry = TagHelper.ParseDataEntry(type, dataReader);
 			newEntry.Name = name;
 			newEntry.Comment = comment;
 

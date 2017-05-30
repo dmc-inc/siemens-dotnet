@@ -21,7 +21,7 @@ namespace Dmc.Siemens.Portal
 
         #region Private Fields
 
-        private const string Plc_TAG_WORKSHEET_NAME = "Plc Tags";
+        private const string PLC_TAG_WORKSHEET_NAME = "PLC Tags";
         private const string CONSTANT_WORKSHEET_NAME = "Constants";
         private const string ALARM_WORKSHEET_NAME = "DiscreteAlarms";
         private const string HMI_TAG_WORKSHEET_NAME = "Hmi Tags";
@@ -73,8 +73,8 @@ namespace Dmc.Siemens.Portal
             Dictionary<string, PlcTagTable> tagTableLookup = new Dictionary<string, PlcTagTable>();
 
 			// Check for and navigate to Plc tag tab
-			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.Plc_TAG_WORKSHEET_NAME))
-				throw new SiemensException("File does not contain " + ExcelEngine.Plc_TAG_WORKSHEET_NAME + " tab.");
+			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.PLC_TAG_WORKSHEET_NAME))
+				throw new SiemensException("File does not contain " + ExcelEngine.PLC_TAG_WORKSHEET_NAME + " tab.");
 
 			// Parse all tags, starting at the row after the headers
 			int row = 1;
@@ -234,7 +234,7 @@ namespace Dmc.Siemens.Portal
         private static void WritePlcTagHeaders(SLDocument document, bool renameCurrentWorksheet)
         {
 
-            ChangeActiveWorksheet(document, Plc_TAG_WORKSHEET_NAME, renameCurrentWorksheet);
+            ChangeActiveWorksheet(document, PLC_TAG_WORKSHEET_NAME, renameCurrentWorksheet);
 
             // Write headers
             document.SetCellValue(1, 1, "Name");

@@ -17,6 +17,16 @@ namespace Dmc.Siemens.Common.Plc
     public abstract class DataEntity : DataObject, IParsableSource
     {
 
+		#region Constructors
+
+		public DataEntity(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null, IEnumerable<DataEntry> children = null) : base(name, dataType, comment, children)
+		{
+			if (this.Children == null)
+				this.Children = new LinkedList<DataEntry>();
+		}
+
+		#endregion
+
 		#region Public Properties
 
 		public override DataType DataType => DataType.STRUCT;

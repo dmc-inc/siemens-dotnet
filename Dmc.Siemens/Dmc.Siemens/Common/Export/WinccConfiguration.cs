@@ -69,7 +69,7 @@ namespace Dmc.Siemens.Common.Export
 
 					foreach (DataEntry entry in db.Children)
 					{
-						ProcessDataEntry(document, entry, db.Name, new Address());
+						ProcessDataEntry(document, entry, string.Empty, new Address());
 					}
 
 					WriteTagRow(document, db, "HMI_Connection_1");
@@ -84,6 +84,14 @@ namespace Dmc.Siemens.Common.Export
 
 			void ProcessDataEntry(SLDocument document, DataEntry entry, string prependText, Address addressOffset)
 			{
+				string stackedComment;
+				if (string.IsNullOrWhiteSpace(prependText))
+					stackedComment = entry.Comment;
+				else if (prependText.EndsWith(" - "))
+					stackedComment = prependText + entry.Comment;
+				else
+					stackedComment = prependText + " - " + entry.Comment;
+
 				switch (entry.DataType)
 				{
 					case DataType.BOOL:
@@ -96,7 +104,7 @@ namespace Dmc.Siemens.Common.Export
 
 						document.SetCellValue(currentAlarmRow, 1, alarmNumber.ToString());
 						document.SetCellValue(currentAlarmRow, 2, $"Discrete_alarm_{alarmNumber}");
-						document.SetCellValue(currentAlarmRow, 3, prependText + entry.Comment);
+						document.SetCellValue(currentAlarmRow, 3, stackedComment);
 						document.SetCellValue(currentAlarmRow, 4, "<No value>");
 						document.SetCellValue(currentAlarmRow, 5, "Errors");
 						document.SetCellValue(currentAlarmRow, 6, dataBlockName);
@@ -108,14 +116,16 @@ namespace Dmc.Siemens.Common.Export
 						document.SetCellValue(currentAlarmRow, 12, "<No value>");
 						document.SetCellStyle(currentAlarmRow, 13, new SLStyle() { FormatCode = "@" });
 						document.SetCellValue(currentAlarmRow, 13, "False");
-						document.SetCellValue(currentAlarmRow, 14, prependText + entry.Comment);
+						document.SetCellValue(currentAlarmRow, 14, stackedComment);
+
+						currentAlarmRow++;
 						break;
 					case DataType.UDT:
 					case DataType.STRUCT:
 						entry.CalcluateAddresses(parentPlc);
 						foreach (DataEntry newEntry in entry.Children)
 						{
-							ProcessDataEntry(document, newEntry, prependText + " - " + entry.Comment, addressOffset + entry.Address.Value);
+							ProcessDataEntry(document, newEntry, stackedComment, addressOffset + entry.Address.Value);
 						}
 						break;
 					case DataType.ARRAY:

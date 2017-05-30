@@ -20,11 +20,11 @@ namespace Dmc.Siemens.Common.Plc
         TIME_OF_DAY = 0x0A,
         TIME = 0x0b,
         S5TIME = 0x0c,
+		LREAL = 0x0d,
         DATE_AND_TIME = 0x0e,
         ARRAY = 0x10,
         STRUCT = 0x11,
         STRING = 0x13,
-
         POINTER = 0x14,
         ANY = 0x16,
 

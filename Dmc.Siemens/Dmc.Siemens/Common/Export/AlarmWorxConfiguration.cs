@@ -82,6 +82,14 @@ namespace Dmc.Siemens.Common.Export
 
 			void WriteAlarmRow(StreamWriter writer, DataEntry entry, string prependNameText, string prependCommentText)
 			{
+				string stackedComment;
+				if (string.IsNullOrWhiteSpace(prependCommentText))
+					stackedComment = entry.Comment;
+				else if (prependCommentText.EndsWith(" - "))
+					stackedComment = prependCommentText + entry.Comment;
+				else
+					stackedComment = prependCommentText + " - " + entry.Comment;
+
 				switch (entry.DataType)
 				{
 					case DataType.ARRAY:
@@ -94,23 +102,23 @@ namespace Dmc.Siemens.Common.Export
 					case DataType.STRUCT:
 						foreach (var child in entry.Children)
 						{
-							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - "));
+							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", stackedComment);
 						}
 						break;
 					case DataType.UDT:
 						foreach (var child in parentPlc.UserDataTypes.FirstOrDefault(u => u.Name == entry.DataTypeName))
 						{
-							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - "));
+							WriteAlarmRow(writer, child, prependNameText + entry.Name + ".", stackedComment);
 						}
 						break;
 					case DataType.BOOL:
 						AlarmWorxRow row = new AlarmWorxRow();
 						row.LocationPath = @"\\Alarm Configurations\" + ALARM_FOLDER;
 						row.Name = ALARM_FOLDER + "." + prependNameText + entry.Name;
-						row.Description = entry.Comment;
+						row.Description = stackedComment;
 						row.LastModified = DateTime.Now.ToString();
-						row.Input1 = opcServerPrefix + "." + prependNameText + "." + entry.Name;
-						row.BaseText = (string.IsNullOrWhiteSpace(prependCommentText) ? string.Empty : prependCommentText + " - ") + entry.Comment;  // Message text 
+						row.Input1 = opcServerPrefix + "\\" + prependNameText + entry.Name;
+						row.BaseText = stackedComment;  // Message text 
 						row.DigMessageText = " ";   // Prevents 'Digital Alarm' text at the end of each message
 						row.DigLimit = "1";     // Alarm state value needs to be 1 for a digital
 						row.DigSeverity = "500"; // Default severity is 500
