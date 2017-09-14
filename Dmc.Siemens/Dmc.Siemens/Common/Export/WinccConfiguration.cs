@@ -161,7 +161,7 @@ namespace Dmc.Siemens.Common.Export
 
 				if (dbLength > 2)
 				{
-					dataType = $"Array [0..{wordLength}] of Word";
+					dataType = $"Array [0..{wordLength - 1}] of Word";
 					address = $"%DB{dataBlock.Number}.DBX0.0";
 				}
 				else
