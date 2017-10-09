@@ -129,7 +129,12 @@ namespace Dmc.Siemens.Common.Plc
                 comment = splitString[1].Trim();
                 trimmedData = splitString[0];
             }
-            if (trimmedData.Contains(":"))
+			if (trimmedData.Contains('{'))
+			{
+				// This removes anything in between {} characters
+				trimmedData = Regex.Replace(trimmedData, "\\{.*\\}", "");
+			}
+            if (trimmedData.Contains(':'))
             {
                 splitString = trimmedData.Split(':');
                 type = splitString[1].Trim().Trim(';');
