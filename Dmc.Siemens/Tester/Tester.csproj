@@ -55,10 +55,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Dmc.Siemens.Openness\Dmc.Siemens.Openness.csproj">
-      <Project>{6f3601bf-b892-4d67-9a16-74ce00deb87f}</Project>
-      <Name>Dmc.Siemens.Openness</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Dmc.Siemens\Dmc.Siemens.csproj">
       <Project>{e731abd1-c72b-455f-b942-5caf183d5bac}</Project>
       <Name>Dmc.Siemens</Name>

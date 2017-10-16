@@ -11,6 +11,7 @@ using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Common.Plc.Types;
 using Dmc.Wpf.Base;
 using Dmc.Wpf.Collections;
+using System.Collections.ObjectModel;
 
 namespace Dmc.Siemens.Portal.Plc
 {

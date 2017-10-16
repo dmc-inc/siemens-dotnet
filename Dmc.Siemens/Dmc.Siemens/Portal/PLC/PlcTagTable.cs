@@ -9,6 +9,8 @@ using Dmc.Siemens.Portal.Base;
 using Dmc.IO;
 using System.IO;
 using SpreadsheetLight;
+using Dmc.Wpf.Collections;
+using System.Collections.ObjectModel;
 
 namespace Dmc.Siemens.Portal.Plc
 {
@@ -39,9 +41,9 @@ namespace Dmc.Siemens.Portal.Plc
 			}
 		}
 
-		public ICollection<PlcTag> PlcTags { get; } = new HashSet<PlcTag>();
+		public ICollection<PlcTag> PlcTags { get; } = new ObservableHashSet<PlcTag>();
 
-		public ICollection<ConstantsEntry> Constants { get; } = new HashSet<ConstantsEntry>();
+		public ICollection<ConstantsEntry> Constants { get; } = new ObservableHashSet<ConstantsEntry>();
 
 		#endregion
 
