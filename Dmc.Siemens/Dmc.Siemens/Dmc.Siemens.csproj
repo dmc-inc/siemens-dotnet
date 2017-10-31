@@ -33,8 +33,8 @@
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dmc">
-      <HintPath>..\_Include\Dmc.dll</HintPath>
+    <Reference Include="Dmc, Version=3.0.1.61, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dmc.3.0.1.61\lib\net461\Dmc.dll</HintPath>
     </Reference>
     <Reference Include="Dmc.Wpf, Version=3.0.1.61, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dmc.Wpf.3.0.1.61\lib\net461\Dmc.Wpf.dll</HintPath>
