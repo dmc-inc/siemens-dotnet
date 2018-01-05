@@ -4,6 +4,23 @@
         <name>Dmc</name>
     </assembly>
     <members>
+        <member name="T:Dmc.Collections.ArrayExtensions">
+            <summary>
+            Holds extension methods for arrays
+            </summary>
+        </member>
+        <member name="M:Dmc.Collections.ArrayExtensions.SwapBytes(System.Byte[])">
+            <summary>
+            Swaps the bytes in each byte pair of a byte array.  The last byte in an odd-length byte array is ignored.
+            </summary>
+            <param name="array">The byte array.</param>
+        </member>
+        <member name="M:Dmc.Collections.ArrayExtensions.SwapWords(System.Byte[])">
+            <summary>
+            Swaps the words in each word pair of a byte array.  The last 1 to 3 bytes in an odd-length byte array are ignored.
+            </summary>
+            <param name="array">The byte array.</param>
+        </member>
         <member name="T:Dmc.IO.InstalledApplicationLauncher">
             <summary>
             Launches an external executable based on its installation path

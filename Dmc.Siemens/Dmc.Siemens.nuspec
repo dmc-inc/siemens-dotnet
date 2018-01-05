@@ -1,0 +1,18 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>DMC, Inc.</authors>
+    <owners>DMC, Inc.</owners>
+    <licenseUrl>http://www.dmcinfo.com</licenseUrl>
+    <projectUrl>http://www.dmcinfo.com</projectUrl>
+    <iconUrl>https://www.dmcinfo.com/Portals/0/Icons/DmcDisc.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags></tags>
+  </metadata>
+</package>

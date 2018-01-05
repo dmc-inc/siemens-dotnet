@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Dmc.Siemens.Xml
 {
-	public enum XmlTokenFileOptions
+	public enum PortalXmlFileOptions
 	{
 		InMemory,
-		Reference
+		Reference,
+		CopyLocal
 	}
 }

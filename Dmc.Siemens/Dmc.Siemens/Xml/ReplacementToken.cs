@@ -7,7 +7,7 @@ using Dmc.Wpf.Base;
 
 namespace Dmc.Siemens.Xml
 {
-	public class XmlTokenReplacement : NotifyPropertyChanged
+	public class ReplacementToken : NotifyPropertyChanged
 	{
 
 		#region Public Properties
@@ -25,6 +25,19 @@ namespace Dmc.Siemens.Xml
 			}
 		}
 
+		private string _Key;
+		public string Key
+		{
+			get
+			{
+				return this._Key;
+			}
+			set
+			{
+				this.SetProperty(ref this._Key, value);
+			}
+		}
+
 		private string _Value;
 		public string Value
 		{
@@ -36,6 +49,26 @@ namespace Dmc.Siemens.Xml
 			{
 				this.SetProperty(ref this._Value, value);
 			}
+		}
+
+		#endregion
+
+		#region Constructors
+
+		public ReplacementToken(string key, string value = null, string name = null)
+		{
+			this.Key = key;
+			this.Name = name;
+			this.Value = value;
+		}
+
+		#endregion
+
+		#region Methods
+		
+		public override int GetHashCode()
+		{
+			return this.Key.GetHashCode();
 		}
 
 		#endregion
