@@ -16,8 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Openness\**" />
+    <Compile Remove="packages\**" />
     <Compile Remove="_LatestBuild\**" />
+    <EmbeddedResource Remove="Openness\**" />
+    <EmbeddedResource Remove="packages\**" />
     <EmbeddedResource Remove="_LatestBuild\**" />
+    <None Remove="Openness\**" />
+    <None Remove="packages\**" />
     <None Remove="_LatestBuild\**" />
   </ItemGroup>
 
