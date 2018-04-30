@@ -23,6 +23,10 @@ namespace Dmc.Siemens.Common.Export
 
 		private const string ALARM_WORKSHEET_NAME = "DiscreteAlarms";
 		private const string TAG_WORKSHEET_NAME = "Hmi Tags";
+		private static string WINCC_NO_VALUE = "<No value>";
+		private static string WINCC_ZERO = "0";
+		private static string WINCC_FALSE = "False";
+		private static string WINCC_NONE = "None";
 
 		#endregion
 
@@ -58,6 +62,8 @@ namespace Dmc.Siemens.Common.Export
 			int currentAlarmRow = 2;
 			int currentTagRow = 2;
 			string dataBlockName = string.Empty;
+			SLStyle booleanStyle = new SLStyle() { FormatCode = "@" };
+			List<string> proTags = new List<string>();
 
 			using (SLDocument document = new SLDocument())
 			{
@@ -76,6 +82,14 @@ namespace Dmc.Siemens.Common.Export
 					if (exportType != WinccExportType.Professional)
 						WriteComfortAdvancedTagRow(document, db, "HMI_Connection_1");
 
+				}
+
+				if (exportType == WinccExportType.Professional)
+				{
+					foreach (var tag in proTags)
+					{
+						WriteProfessionalTagRow(document, tag, "HMI_Connection_1");
+					}
 				}
 
 				using (Stream file = new FileStream(path, FileMode.Create))
@@ -116,62 +130,62 @@ namespace Dmc.Siemens.Common.Export
 						document.SetCellValue(currentAlarmRow, 1, alarmNumber.ToString());
 						document.SetCellValue(currentAlarmRow, 2, $"Discrete_alarm_{alarmNumber}");
 						document.SetCellValue(currentAlarmRow, 3, stackedComment);
-						document.SetCellValue(currentAlarmRow, 4, "<No value>");
+						document.SetCellValue(currentAlarmRow, 4, WINCC_NO_VALUE);
 						document.SetCellValue(currentAlarmRow, 5, "Errors");
 						
 
 						if (exportType == WinccExportType.Professional)
 						{
 							document.SetCellValue(currentAlarmRow, 6, stackedTag.Replace('.', '_'));
-							document.SetCellValue(currentAlarmRow, 7, "0");
+							document.SetCellValue(currentAlarmRow, 7, WINCC_ZERO);
 							document.SetCellValue(currentAlarmRow, 8, "On rising edge");
-							document.SetCellValue(currentAlarmRow, 9, "<No value>");
-							document.SetCellValue(currentAlarmRow, 10, "0");
-							document.SetCellValue(currentAlarmRow, 11, "<No value>");
-							document.SetCellValue(currentAlarmRow, 12, "0");
-							document.SetCellValue(currentAlarmRow, 13, "<No value>");
-							document.SetCellValue(currentAlarmRow, 14, "0");
-							document.SetCellStyle(currentAlarmRow, 15, new SLStyle() { FormatCode = "@" });
-							document.SetCellValue(currentAlarmRow, 15, "False");
+							document.SetCellValue(currentAlarmRow, 9, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 10, WINCC_ZERO);
+							document.SetCellValue(currentAlarmRow, 11, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 12, WINCC_ZERO);
+							document.SetCellValue(currentAlarmRow, 13, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 14, WINCC_ZERO);
+							document.SetCellStyle(currentAlarmRow, 15, booleanStyle);
+							document.SetCellValue(currentAlarmRow, 15, WINCC_FALSE);
 							document.SetCellValue(currentAlarmRow, 16, stackedComment);
-							document.SetCellValue(currentAlarmRow, 17, "<No value>");
-							document.SetCellValue(currentAlarmRow, 19, "<No value>");
-							document.SetCellValue(currentAlarmRow, 21, "<No value>");
-							document.SetCellValue(currentAlarmRow, 23, "<No value>");
-							document.SetCellValue(currentAlarmRow, 25, "<No value>");
-							document.SetCellValue(currentAlarmRow, 27, "<No value>");
-							document.SetCellValue(currentAlarmRow, 29, "<No value>");
-							document.SetCellValue(currentAlarmRow, 31, "<No value>");
-							document.SetCellValue(currentAlarmRow, 33, "<No value>");
-							document.SetCellValue(currentAlarmRow, 35, "<No value>");
-							document.SetCellValue(currentAlarmRow, 36, "<No value>");
-							document.SetCellValue(currentAlarmRow, 37, "<No value>");
-							document.SetCellValue(currentAlarmRow, 38, "<No value>");
-							document.SetCellValue(currentAlarmRow, 39, "<No value>");
-							document.SetCellValue(currentAlarmRow, 40, "<No value>");
-							document.SetCellValue(currentAlarmRow, 41, "<No value>");
-							document.SetCellValue(currentAlarmRow, 42, "<No value>");
-							document.SetCellValue(currentAlarmRow, 43, "<No value>");
-							document.SetCellValue(currentAlarmRow, 44, "<No value>");
-							document.SetCellStyle(currentAlarmRow, 45, new SLStyle() { FormatCode = "@" });
-							document.SetCellValue(currentAlarmRow, 45, "False");
-							document.SetCellValue(currentAlarmRow, 46, "0");
-							document.SetCellValue(currentAlarmRow, 47, "0");
-							document.SetCellValue(currentAlarmRow, 48, "0");
+							document.SetCellValue(currentAlarmRow, 17, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 19, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 21, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 23, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 25, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 27, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 29, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 31, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 33, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 35, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 36, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 37, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 38, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 39, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 40, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 41, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 42, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 43, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 44, WINCC_NO_VALUE);
+							document.SetCellStyle(currentAlarmRow, 45, booleanStyle);
+							document.SetCellValue(currentAlarmRow, 45, WINCC_FALSE);
+							document.SetCellValue(currentAlarmRow, 46, WINCC_ZERO);
+							document.SetCellValue(currentAlarmRow, 47, WINCC_ZERO);
+							document.SetCellValue(currentAlarmRow, 48, WINCC_ZERO);
 
-							WriteProfessionalTagRow(document, stackedTag, "HMI_Connection_1");
+							proTags.Add(stackedTag);
 						}
 						else // WinCC Comfort/Advanced
 						{
 							document.SetCellValue(currentAlarmRow, 6, dataBlockName);
 							document.SetCellValue(currentAlarmRow, 7, AddressToTriggerBit(addressOffset + entry.Address.Value).ToString());
-							document.SetCellValue(currentAlarmRow, 8, "<No value>");
-							document.SetCellValue(currentAlarmRow, 9, "0");
-							document.SetCellValue(currentAlarmRow, 10, "<No value>");
-							document.SetCellValue(currentAlarmRow, 11, "0");
-							document.SetCellValue(currentAlarmRow, 12, "<No value>");
-							document.SetCellStyle(currentAlarmRow, 13, new SLStyle() { FormatCode = "@" });
-							document.SetCellValue(currentAlarmRow, 13, "False");
+							document.SetCellValue(currentAlarmRow, 8, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 9, WINCC_ZERO);
+							document.SetCellValue(currentAlarmRow, 10, WINCC_NO_VALUE);
+							document.SetCellValue(currentAlarmRow, 11, WINCC_ZERO);
+							document.SetCellValue(currentAlarmRow, 12, WINCC_NO_VALUE);
+							document.SetCellStyle(currentAlarmRow, 13, booleanStyle);
+							document.SetCellValue(currentAlarmRow, 13, WINCC_FALSE);
 							document.SetCellValue(currentAlarmRow, 14, stackedComment);
 						}
 
@@ -211,7 +225,7 @@ namespace Dmc.Siemens.Common.Export
 				}
 
 				string dataType, address;
-
+				
 				int dbLength = dataBlock.CalculateSize(parentPlc).Byte;
 
 				int wordLength = (int)Math.Ceiling(dbLength / 2.0);
@@ -231,36 +245,36 @@ namespace Dmc.Siemens.Common.Export
 				document.SetCellValue(currentTagRow, 1, dataBlock.Name);
 				document.SetCellValue(currentTagRow, 2, "Default tag table");
 				document.SetCellValue(currentTagRow, 3, connectionName);
-				document.SetCellValue(currentTagRow, 4, "<No Value>");
+				document.SetCellValue(currentTagRow, 4, WINCC_NO_VALUE);
 				document.SetCellValue(currentTagRow, 5, dataType);
 				document.SetCellValue(currentTagRow, 6, (wordLength + 1) * 2);
 				document.SetCellValue(currentTagRow, 7, "Binary");
 				document.SetCellValue(currentTagRow, 8, "Absolute access");
 				document.SetCellValue(currentTagRow, 9, address);
-				document.SetCellStyle(currentTagRow, 10, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 10, "False");
-				document.SetCellValue(currentTagRow, 11, "<No Value>");
-				document.SetCellValue(currentTagRow, 12, "<No Value>");
+				document.SetCellStyle(currentTagRow, 10, booleanStyle);
+				document.SetCellValue(currentTagRow, 10, WINCC_FALSE);
+				document.SetCellValue(currentTagRow, 11, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 12, WINCC_NO_VALUE);
 				document.SetCellValue(currentTagRow, 13, 0);
-				document.SetCellValue(currentTagRow, 14, "<No Value>");
-				document.SetCellValue(currentTagRow, 15, "<No Value>");
+				document.SetCellValue(currentTagRow, 14, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 15, WINCC_NO_VALUE);
 				document.SetCellValue(currentTagRow, 16, "Continuous");
 				document.SetCellValue(currentTagRow, 17, "1 s");
-				document.SetCellValue(currentTagRow, 18, "None");
-				document.SetCellValue(currentTagRow, 19, "<No Value>");
-				document.SetCellValue(currentTagRow, 20, "None");
-				document.SetCellValue(currentTagRow, 21, "<No Value>");
-				document.SetCellStyle(currentTagRow, 22, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 22, "False");
+				document.SetCellValue(currentTagRow, 18, WINCC_NONE);
+				document.SetCellValue(currentTagRow, 19, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 20, WINCC_NONE);
+				document.SetCellValue(currentTagRow, 21, WINCC_NO_VALUE);
+				document.SetCellStyle(currentTagRow, 22, booleanStyle);
+				document.SetCellValue(currentTagRow, 22, WINCC_FALSE);
 				document.SetCellValue(currentTagRow, 23, 10);
 				document.SetCellValue(currentTagRow, 24, 0);
 				document.SetCellValue(currentTagRow, 25, 100);
 				document.SetCellValue(currentTagRow, 26, 0);
-				document.SetCellStyle(currentTagRow, 27, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 27, "False");
-				document.SetCellValue(currentTagRow, 28, "None");
-				document.SetCellStyle(currentTagRow, 29, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 29, "False");
+				document.SetCellStyle(currentTagRow, 27, booleanStyle);
+				document.SetCellValue(currentTagRow, 27, WINCC_FALSE);
+				document.SetCellValue(currentTagRow, 28, WINCC_NONE);
+				document.SetCellStyle(currentTagRow, 29, booleanStyle);
+				document.SetCellValue(currentTagRow, 29, WINCC_FALSE);
 				
 				currentTagRow++;
 
@@ -280,31 +294,31 @@ namespace Dmc.Siemens.Common.Export
 				document.SetCellValue(currentTagRow, 4, tag);
 				document.SetCellValue(currentTagRow, 5, "Bool");
 				document.SetCellValue(currentTagRow, 6, "Bool");
-				document.SetCellValue(currentTagRow, 7, "1");
+				document.SetCellValue(currentTagRow, 7, 1);
 				document.SetCellValue(currentTagRow, 8, "Binary");
 				document.SetCellValue(currentTagRow, 9, "Symbolic access");
-				document.SetCellValue(currentTagRow, 10, "<No Value>");
-				document.SetCellValue(currentTagRow, 11, "<No Value>");
-				document.SetCellStyle(currentTagRow, 12, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 12, "False");
-				document.SetCellStyle(currentTagRow, 13, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 13, "False");
-				document.SetCellValue(currentTagRow, 14, "<No Value>");
-				document.SetCellValue(currentTagRow, 15, "<No Value>");
+				document.SetCellValue(currentTagRow, 10, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 11, WINCC_NO_VALUE);
+				document.SetCellStyle(currentTagRow, 12, booleanStyle);
+				document.SetCellValue(currentTagRow, 12, WINCC_FALSE);
+				document.SetCellStyle(currentTagRow, 13, booleanStyle);
+				document.SetCellValue(currentTagRow, 13, WINCC_FALSE);
+				document.SetCellValue(currentTagRow, 14, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 15, WINCC_NO_VALUE);
 				document.SetCellValue(currentTagRow, 16, "Client'=/Server wide");
-				document.SetCellValue(currentTagRow, 17, "<No Value>");
-				document.SetCellValue(currentTagRow, 18, "None");
-				document.SetCellValue(currentTagRow, 19, "<No Value>");
-				document.SetCellValue(currentTagRow, 20, "None");
-				document.SetCellValue(currentTagRow, 21, "<No Value>");
-				document.SetCellStyle(currentTagRow, 22, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 22, "False");
-				document.SetCellValue(currentTagRow, 23, "10");
-				document.SetCellValue(currentTagRow, 24, "0");
-				document.SetCellValue(currentTagRow, 25, "100");
-				document.SetCellValue(currentTagRow, 26, "0");
-				document.SetCellStyle(currentTagRow, 27, new SLStyle() { FormatCode = "@" });
-				document.SetCellValue(currentTagRow, 27, "False");
+				document.SetCellValue(currentTagRow, 17, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 18, WINCC_NONE);
+				document.SetCellValue(currentTagRow, 19, WINCC_NO_VALUE);
+				document.SetCellValue(currentTagRow, 20, WINCC_NONE);
+				document.SetCellValue(currentTagRow, 21, WINCC_NO_VALUE);
+				document.SetCellStyle(currentTagRow, 22, booleanStyle);
+				document.SetCellValue(currentTagRow, 22, WINCC_FALSE);
+				document.SetCellValue(currentTagRow, 23, 10);
+				document.SetCellValue(currentTagRow, 24, WINCC_ZERO);
+				document.SetCellValue(currentTagRow, 25, 100);
+				document.SetCellValue(currentTagRow, 26, WINCC_ZERO);
+				document.SetCellStyle(currentTagRow, 27, booleanStyle);
+				document.SetCellValue(currentTagRow, 27, WINCC_FALSE);
 
 				currentTagRow++;
 
