@@ -16,6 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="_LatestBuild\**" />
+    <EmbeddedResource Remove="_LatestBuild\**" />
+    <None Remove="_LatestBuild\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Common\" />
     <Folder Include="Portal\" />
     <Folder Include="SimaticManager\" />
