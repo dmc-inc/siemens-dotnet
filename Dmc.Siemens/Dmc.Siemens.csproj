@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net471</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>.\_LatestBuild</OutputPath>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>.\_LatestBuild</OutputPath>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\" />
+    <Folder Include="Portal\" />
+    <Folder Include="SimaticManager\" />
+	<Folder Include="Xml\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dmc" Version="3.0.2.71" />
+    <PackageReference Include="Dmc.Wpf" Version="3.0.2.71" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.5.0" />
+    <PackageReference Include="NLog" Version="4.5.3" />
+	<PackageReference Include="SpreadsheetLight" Version="3.4.9.0" />
+  </ItemGroup>
+  
+</Project>

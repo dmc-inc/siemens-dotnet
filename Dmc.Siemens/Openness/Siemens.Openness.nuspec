@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Siemens</authors>
+    <owners>Siemens</owners>
+    <iconUrl>https://training.plm.automation.siemens.com/resp/resources/wwwapp/images/Global/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src=".\Siemens.Engineering.dll" target="lib\net40" />
+    <file src=".\Siemens.Engineering.Hmi.dll" target="lib\net40" />
+  </files>
+</package>
