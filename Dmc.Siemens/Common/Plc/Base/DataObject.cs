@@ -12,7 +12,7 @@ using Dmc.Siemens.Common.Plc.Base;
 using Dmc.Siemens.Common.Plc.Types;
 using Dmc.Siemens.Portal.Base;
 using Dmc.Siemens.Portal.Plc;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 
 namespace Dmc.Siemens.Common.Plc
 {

@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Dmc.IO;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 using Dmc.Wpf.Collections;
 
 namespace Dmc.Siemens.Xml

@@ -35,10 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dmc" Version="3.0.2.71" />
-    <PackageReference Include="Dmc.Wpf" Version="3.0.2.71" />
+    <PackageReference Include="Dmc" Version="3.4.0" />
+    <PackageReference Include="Dmc.Wpf" Version="3.4.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.5.0" />
-    <PackageReference Include="NLog" Version="4.5.3" />
+    <PackageReference Include="NLog" Version="4.5.6" />
 	<PackageReference Include="SpreadsheetLight" Version="3.4.9.0" />
   </ItemGroup>
   

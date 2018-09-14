@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.Plc;
 using Dmc.Siemens.SimaticManager.Plc.Types;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 
 namespace Dmc.Siemens.SimaticManager.Plc
 {

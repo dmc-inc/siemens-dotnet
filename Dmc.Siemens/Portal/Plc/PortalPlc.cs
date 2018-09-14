@@ -9,7 +9,7 @@ using Dmc.Siemens.Common.Plc;
 using Dmc.Siemens.Common.Plc.Base;
 using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Common.Plc.Types;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 using Dmc.Wpf.Collections;
 using System.Collections.ObjectModel;
 

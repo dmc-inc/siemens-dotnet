@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.Plc;
 using Dmc.Siemens.Common.Plc.Types;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 
 namespace Dmc.Siemens.Common.Base
 {

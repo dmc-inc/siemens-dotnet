@@ -8,7 +8,7 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.Plc;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 
 namespace Dmc.Siemens.Common.Plc.Logic.Base
 {

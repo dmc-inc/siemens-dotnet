@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
 using System.ComponentModel;

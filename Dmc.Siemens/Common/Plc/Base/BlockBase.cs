@@ -11,7 +11,7 @@ using System.Xml;
 using System.Xml.Schema;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.Plc.Interfaces;
-using Dmc.Wpf.Base;
+using Dmc.Wpf;
 
 namespace Dmc.Siemens.Common.Plc.Base
 {
