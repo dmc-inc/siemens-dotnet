@@ -28,8 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\" />
-    <Folder Include="Portal\" />
     <Folder Include="SimaticManager\" />
 	<Folder Include="Xml\" />
   </ItemGroup>

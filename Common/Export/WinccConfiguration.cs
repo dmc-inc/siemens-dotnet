@@ -13,6 +13,8 @@ using Dmc.Siemens.Portal.Base;
 using Dmc.Siemens.Portal.Plc;
 using SpreadsheetLight;
 using Dmc.Siemens.Common.Export.Base;
+using Dmc.Siemens.Portal;
+using System.Collections;
 
 namespace Dmc.Siemens.Common.Export
 {
@@ -62,7 +64,7 @@ namespace Dmc.Siemens.Common.Export
 			int currentAlarmRow = 2;
 			int currentTagRow = 2;
 			string dataBlockName = string.Empty;
-			SLStyle booleanStyle = new SLStyle() { FormatCode = "@" };
+			SLStyle genericStyle = new SLStyle() { FormatCode = "@" };
 			List<string> proTags = new List<string>();
 
 			using (SLDocument document = new SLDocument())
@@ -126,70 +128,32 @@ namespace Dmc.Siemens.Common.Export
 							document.SelectWorksheet(ALARM_WORKSHEET_NAME);
 						}
 
-						// Common data between versions
-						document.SetCellValue(currentAlarmRow, 1, alarmNumber.ToString());
-						document.SetCellValue(currentAlarmRow, 2, $"Discrete_alarm_{alarmNumber}");
-						document.SetCellValue(currentAlarmRow, 3, stackedComment);
-						document.SetCellValue(currentAlarmRow, 4, WINCC_NO_VALUE);
-						document.SetCellValue(currentAlarmRow, 5, "Errors");
-						
+                        var row = WinccConstants.GetAlarmRow(exportType, TiaPortalVersion.V15);
+                        row[WinccExportField.Id] = alarmNumber.ToString();
+                        row[WinccExportField.Name] = $"Discrete_alarm_{alarmNumber}";
+                        row[WinccExportField.AlarmText] = stackedComment;
+                        row[WinccExportField.InfoText] = stackedComment;
 
-						if (exportType == WinccExportType.Professional)
+                        if (exportType == WinccExportType.Professional)
 						{
-							document.SetCellValue(currentAlarmRow, 6, stackedTag.Replace('.', '_'));
-							document.SetCellValue(currentAlarmRow, 7, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 8, "On rising edge");
-							document.SetCellValue(currentAlarmRow, 9, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 10, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 11, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 12, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 13, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 14, WINCC_ZERO);
-							document.SetCellStyle(currentAlarmRow, 15, booleanStyle);
-							document.SetCellValue(currentAlarmRow, 15, WINCC_FALSE);
-							document.SetCellValue(currentAlarmRow, 16, stackedComment);
-							document.SetCellValue(currentAlarmRow, 17, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 19, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 21, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 23, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 25, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 27, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 29, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 31, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 33, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 35, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 36, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 37, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 38, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 39, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 40, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 41, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 42, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 43, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 44, WINCC_NO_VALUE);
-							document.SetCellStyle(currentAlarmRow, 45, booleanStyle);
-							document.SetCellValue(currentAlarmRow, 45, WINCC_FALSE);
-							document.SetCellValue(currentAlarmRow, 46, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 47, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 48, WINCC_ZERO);
+                            row[WinccExportField.TriggerTag] = stackedTag.Replace('.', '_');
 
 							proTags.Add(stackedTag);
 						}
 						else // WinCC Comfort/Advanced
 						{
-							document.SetCellValue(currentAlarmRow, 6, dataBlockName);
-							document.SetCellValue(currentAlarmRow, 7, AddressToTriggerBit(addressOffset + entry.Address.Value).ToString());
-							document.SetCellValue(currentAlarmRow, 8, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 9, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 10, WINCC_NO_VALUE);
-							document.SetCellValue(currentAlarmRow, 11, WINCC_ZERO);
-							document.SetCellValue(currentAlarmRow, 12, WINCC_NO_VALUE);
-							document.SetCellStyle(currentAlarmRow, 13, booleanStyle);
-							document.SetCellValue(currentAlarmRow, 13, WINCC_FALSE);
-							document.SetCellValue(currentAlarmRow, 14, stackedComment);
+                            row[WinccExportField.TriggerTag] = dataBlockName;
+                            row[WinccExportField.TriggerBit] = AddressToTriggerBit(addressOffset + entry.Address.Value).ToString();
 						}
 
-						currentAlarmRow++;
+                        int column = 1;
+                        foreach (var item in row)
+                        {
+                            document.SetCellStyle(currentAlarmRow, column, genericStyle);
+                            document.SetCellValue(currentAlarmRow, column++, item);
+                        }
+
+                        currentAlarmRow++;
 						break;
 					case DataType.UDT:
 					case DataType.STRUCT:
@@ -242,39 +206,19 @@ namespace Dmc.Siemens.Common.Export
 					wordLength = 0;
 				}
 
-				document.SetCellValue(currentTagRow, 1, dataBlock.Name);
-				document.SetCellValue(currentTagRow, 2, "Default tag table");
-				document.SetCellValue(currentTagRow, 3, connectionName);
-				document.SetCellValue(currentTagRow, 4, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 5, dataType);
-				document.SetCellValue(currentTagRow, 6, (wordLength + 1) * 2);
-				document.SetCellValue(currentTagRow, 7, "Binary");
-				document.SetCellValue(currentTagRow, 8, "Absolute access");
-				document.SetCellValue(currentTagRow, 9, address);
-				document.SetCellStyle(currentTagRow, 10, booleanStyle);
-				document.SetCellValue(currentTagRow, 10, WINCC_FALSE);
-				document.SetCellValue(currentTagRow, 11, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 12, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 13, 0);
-				document.SetCellValue(currentTagRow, 14, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 15, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 16, "Continuous");
-				document.SetCellValue(currentTagRow, 17, "1 s");
-				document.SetCellValue(currentTagRow, 18, WINCC_NONE);
-				document.SetCellValue(currentTagRow, 19, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 20, WINCC_NONE);
-				document.SetCellValue(currentTagRow, 21, WINCC_NO_VALUE);
-				document.SetCellStyle(currentTagRow, 22, booleanStyle);
-				document.SetCellValue(currentTagRow, 22, WINCC_FALSE);
-				document.SetCellValue(currentTagRow, 23, 10);
-				document.SetCellValue(currentTagRow, 24, 0);
-				document.SetCellValue(currentTagRow, 25, 100);
-				document.SetCellValue(currentTagRow, 26, 0);
-				document.SetCellStyle(currentTagRow, 27, booleanStyle);
-				document.SetCellValue(currentTagRow, 27, WINCC_FALSE);
-				document.SetCellValue(currentTagRow, 28, WINCC_NONE);
-				document.SetCellStyle(currentTagRow, 29, booleanStyle);
-				document.SetCellValue(currentTagRow, 29, WINCC_FALSE);
+                var row = WinccConstants.GetTagRow(exportType, TiaPortalVersion.V15);
+                row[WinccExportField.Name] = dataBlock.Name;
+                row[WinccExportField.Connection] = connectionName;
+                row[WinccExportField.DataType] = dataType;
+                row[WinccExportField.Length] = ((wordLength + 1) * 2).ToString();
+                row[WinccExportField.Address] = address;
+
+                int column = 1;
+                foreach (var item in row)
+                {
+                    document.SetCellStyle(currentTagRow, column, genericStyle);
+                    document.SetCellValue(currentTagRow, column++, item);
+                }
 				
 				currentTagRow++;
 
@@ -288,37 +232,17 @@ namespace Dmc.Siemens.Common.Export
 					document.SelectWorksheet(TAG_WORKSHEET_NAME);
 				}
 
-				document.SetCellValue(currentTagRow, 1, tag.Replace('.', '_'));
-				document.SetCellValue(currentTagRow, 2, "Default tag table");
-				document.SetCellValue(currentTagRow, 3, connectionName);
-				document.SetCellValue(currentTagRow, 4, tag);
-				document.SetCellValue(currentTagRow, 5, "Bool");
-				document.SetCellValue(currentTagRow, 6, "Bool");
-				document.SetCellValue(currentTagRow, 7, 1);
-				document.SetCellValue(currentTagRow, 8, "Binary");
-				document.SetCellValue(currentTagRow, 9, "Symbolic access");
-				document.SetCellValue(currentTagRow, 10, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 11, WINCC_NO_VALUE);
-				document.SetCellStyle(currentTagRow, 12, booleanStyle);
-				document.SetCellValue(currentTagRow, 12, WINCC_FALSE);
-				document.SetCellStyle(currentTagRow, 13, booleanStyle);
-				document.SetCellValue(currentTagRow, 13, WINCC_FALSE);
-				document.SetCellValue(currentTagRow, 14, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 15, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 16, "Client'=/Server wide");
-				document.SetCellValue(currentTagRow, 17, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 18, WINCC_NONE);
-				document.SetCellValue(currentTagRow, 19, WINCC_NO_VALUE);
-				document.SetCellValue(currentTagRow, 20, WINCC_NONE);
-				document.SetCellValue(currentTagRow, 21, WINCC_NO_VALUE);
-				document.SetCellStyle(currentTagRow, 22, booleanStyle);
-				document.SetCellValue(currentTagRow, 22, WINCC_FALSE);
-				document.SetCellValue(currentTagRow, 23, 10);
-				document.SetCellValue(currentTagRow, 24, WINCC_ZERO);
-				document.SetCellValue(currentTagRow, 25, 100);
-				document.SetCellValue(currentTagRow, 26, WINCC_ZERO);
-				document.SetCellStyle(currentTagRow, 27, booleanStyle);
-				document.SetCellValue(currentTagRow, 27, WINCC_FALSE);
+                var row = WinccConstants.GetTagRow(exportType, TiaPortalVersion.V15);
+                row[WinccExportField.Name] = tag.Replace('.', '_');
+                row[WinccExportField.Connection] = connectionName;
+                row[WinccExportField.PlcTag] = tag;
+
+                int column = 1;
+                foreach (var item in row)
+                {
+                    document.SetCellStyle(currentTagRow, column, genericStyle);
+                    document.SetCellValue(currentTagRow, column++, item);
+                }
 
 				currentTagRow++;
 
@@ -347,140 +271,420 @@ namespace Dmc.Siemens.Common.Export
 				document.SelectWorksheet(TAG_WORKSHEET_NAME);
 			}
 
-			document.SetCellValue(1, 1, "Name");
-			document.SetCellValue(1, 2, "Path");
-			document.SetCellValue(1, 3, "Connection");
-			document.SetCellValue(1, 5, "DataType");
-
-			if (exportType == WinccExportType.Professional)
-			{
-				document.SetCellValue(1, 4, "PLC tag");
-				document.SetCellValue(1, 6, "HMI DataType");
-				document.SetCellValue(1, 7, "Length");
-				document.SetCellValue(1, 8, "Coding");
-				document.SetCellValue(1, 9, "Access Method");
-				document.SetCellValue(1, 10, "Address");
-				document.SetCellValue(1, 11, "Start value");
-				document.SetCellValue(1, 12, "Quality Code");
-				document.SetCellValue(1, 13, "Persistency");
-				document.SetCellValue(1, 14, "Substitute value");
-				document.SetCellValue(1, 15, "Tag value [en-US]");
-				document.SetCellValue(1, 16, "Update Mode");
-				document.SetCellValue(1, 17, "Comment [en-US]");
-				document.SetCellValue(1, 18, "Limit Upper 2 Type");
-				document.SetCellValue(1, 19, "Limit Upper 2");
-				document.SetCellValue(1, 20, "Limit Lower 2 Type");
-				document.SetCellValue(1, 21, "Limit Lower 2");
-				document.SetCellValue(1, 22, "Linear scaling");
-				document.SetCellValue(1, 23, "End value PLC");
-				document.SetCellValue(1, 24, "Start value PLC");
-				document.SetCellValue(1, 25, "End value HMI");
-				document.SetCellValue(1, 26, "Start value HMI");
-				document.SetCellValue(1, 27, "Synchronization");
-			}
-			else // WinCC Comfort/Advanced
-			{
-				document.SetCellValue(1, 4, "Plc tag");
-				document.SetCellValue(1, 6, "Length");
-				document.SetCellValue(1, 7, "Coding");
-				document.SetCellValue(1, 8, "Access Method");
-				document.SetCellValue(1, 9, "Address");
-				document.SetCellValue(1, 10, "Indirect addressing");
-				document.SetCellValue(1, 11, "Index tag");
-				document.SetCellValue(1, 12, "Start value");
-				document.SetCellValue(1, 13, "ID tag");
-				document.SetCellValue(1, 14, "Display name [en-US]");
-				document.SetCellValue(1, 15, "Comment [en-US]");
-				document.SetCellValue(1, 16, "Acquisition mode");
-				document.SetCellValue(1, 17, "Acquisition cycle");
-				document.SetCellValue(1, 18, "Range Maximum Type");
-				document.SetCellValue(1, 19, "Range Maximum");
-				document.SetCellValue(1, 20, "Range Minimum Type");
-				document.SetCellValue(1, 21, "Range Minimum");
-				document.SetCellValue(1, 22, "Linear scaling");
-				document.SetCellValue(1, 23, "End value Plc");
-				document.SetCellValue(1, 24, "Start value Plc");
-				document.SetCellValue(1, 25, "End value HMI");
-				document.SetCellValue(1, 26, "Start value HMI");
-				document.SetCellValue(1, 27, "Gmp relevant");
-				document.SetCellValue(1, 28, "Confirmation Type");
-				document.SetCellValue(1, 29, "Mandatory Commenting");
-			}
+            int column = 1;
+            foreach (var header in WinccConstants.GetTagHeaders(exportType, TiaPortalVersion.V15))
+            {
+                document.SetCellValue(1, column++, header);
+            }
 			
 			document.AddWorksheet(ALARM_WORKSHEET_NAME);
 
-			document.SetCellValue(1, 1, "ID");
-			document.SetCellValue(1, 2, "Name");
-			document.SetCellValue(1, 5, "Class");
-			document.SetCellValue(1, 6, "Trigger tag");
-			document.SetCellValue(1, 7, "Trigger bit");
-			switch (exportType)
-			{
-				case WinccExportType.ComfortAdvanced:
-					document.SetCellValue(1, 3, "Alarm text [en-US], Alarm text");
-					document.SetCellValue(1, 4, "FieldInfo [Alarm text]");
-					document.SetCellValue(1, 8, "Acknowledgement tag");
-					document.SetCellValue(1, 9, "Acknowledgement bit");
-					document.SetCellValue(1, 10, "Plc acknowledgement tag");
-					document.SetCellValue(1, 11, "Plc acknowledgement bit");
-					document.SetCellValue(1, 12, "Group");
-					document.SetCellValue(1, 13, "Report");
-					document.SetCellValue(1, 14, "Info text [en-US], Info text");
-					break;
-				case WinccExportType.Professional:
-					document.SetCellValue(1, 3, "Alarm text [en-US], Alarm text 1");
-					document.SetCellValue(1, 4, "FieldInfo [Alarm text 1]");
-					document.SetCellValue(1, 8, "Trigger mode");
-					document.SetCellValue(1, 9, "Acknowledgement tag");
-					document.SetCellValue(1, 10, "Acknowledgement bit");
-					document.SetCellValue(1, 11, "Status tag");
-					document.SetCellValue(1, 12, "Status bit");
-					document.SetCellValue(1, 13, "Group");
-					document.SetCellValue(1, 14, "Priority");
-					document.SetCellValue(1, 15, "Single acknowledgement");
-					document.SetCellValue(1, 16, "Info text [en-US], Info text");
-					document.SetCellValue(1, 17, "Additional text 1 [en-US], Alarm text 2");
-					document.SetCellValue(1, 18, "FieldInfo [Alarm text 2]");
-					document.SetCellValue(1, 19, "Additional text 2 [en-US], Alarm text 3");
-					document.SetCellValue(1, 20, "FieldInfo [Alarm text 3]");
-					document.SetCellValue(1, 21, "Additional text 3 [en-US], Alarm text 4");
-					document.SetCellValue(1, 22, "FieldInfo [Alarm text 4]");
-					document.SetCellValue(1, 23, "Additional text 4 [en-US], Alarm text 5");
-					document.SetCellValue(1, 24, "FieldInfo [Alarm text 5]");
-					document.SetCellValue(1, 25, "Additional text 5 [en-US], Alarm text 6");
-					document.SetCellValue(1, 26, "FieldInfo [Alarm text 6]");
-					document.SetCellValue(1, 27, "Additional text 6 [en-US], Alarm text 7");
-					document.SetCellValue(1, 28, "FieldInfo [Alarm text 7]");
-					document.SetCellValue(1, 29, "Additional text 7 [en-US], Alarm text 8");
-					document.SetCellValue(1, 30, "FieldInfo [Alarm text 8]");
-					document.SetCellValue(1, 31, "Additional text 8 [en-US], Alarm text 9");
-					document.SetCellValue(1, 32, "FieldInfo [Alarm text 9]");
-					document.SetCellValue(1, 33, "Additional text 9 [en-US], Alarm text 10");
-					document.SetCellValue(1, 34, "FieldInfo [Alarm text 10]");
-					document.SetCellValue(1, 35, "Alarm parameter 1");
-					document.SetCellValue(1, 36, "Alarm parameter 2");
-					document.SetCellValue(1, 37, "Alarm parameter 3");
-					document.SetCellValue(1, 38, "Alarm parameter 4");
-					document.SetCellValue(1, 39, "Alarm parameter 5");
-					document.SetCellValue(1, 40, "Alarm parameter 6");
-					document.SetCellValue(1, 41, "Alarm parameter 7");
-					document.SetCellValue(1, 42, "Alarm parameter 8");
-					document.SetCellValue(1, 43, "Alarm parameter 9");
-					document.SetCellValue(1, 44, "Alarm parameter 10");
-					document.SetCellValue(1, 45, "Alarm annunciation");
-					document.SetCellValue(1, 46, "Display suppression mask");
-					document.SetCellValue(1, 47, "PLC number");
-					document.SetCellValue(1, 48, "CPU number");
-					
-					break;
-				default:
-					throw new NotSupportedException($"Export for version '{exportType}' not yet available.");
-			}
-			
+            column = 1;
+            foreach (var header in WinccConstants.GetAlarmHeaders(exportType, TiaPortalVersion.V15))
+            {
+                document.SetCellValue(1, column++, header);
+            }
 
 		}
 		
 		#endregion
+
+        private static class WinccConstants
+        {
+
+            #region Constants
+
+            internal const string ALARM_WORKSHEET_NAME = "DiscreteAlarms";
+            internal const string TAG_WORKSHEET_NAME = "Hmi Tags";
+            internal const string WINCC_NO_VALUE = "<No value>";
+            internal const string WINCC_NO_VALUE_CAPITAL = "<No Value>";
+            internal const string WINCC_ZERO = "0";
+            internal const string WINCC_FALSE = "False";
+            internal const string WINCC_NONE = "None";
+            internal const string WINCC_BOOL = "Bool";
+
+            #endregion
+
+            #region Column Mappings
+
+            private static readonly Dictionary<WinccExportField, int> _professionalV14TagsLookup = new Dictionary<WinccExportField, int>
+            {
+                { WinccExportField.Name, 0 },
+                { WinccExportField.Connection, 2 },
+                { WinccExportField.PlcTag, 3 },
+            };
+
+            private static readonly IEnumerable<WinccExportColumn> ProfessionalV14Tags = new WinccExportColumn[]
+            {
+                new WinccExportColumn("Name", null),
+                new WinccExportColumn("Path", "Default tag table"),
+                new WinccExportColumn("Connection", null),
+                new WinccExportColumn("PLC tag", null),
+                new WinccExportColumn("DataType", WINCC_BOOL),
+                new WinccExportColumn("HMI DataType", WINCC_BOOL),
+                new WinccExportColumn("Length", "1"),
+                new WinccExportColumn("Coding", "Binary"),
+                new WinccExportColumn("Access Method", "Symbolic access"),
+                new WinccExportColumn("Address", WINCC_NO_VALUE),
+                new WinccExportColumn("Start value", WINCC_NO_VALUE),
+                new WinccExportColumn("Quality Code", WINCC_NO_VALUE),
+                new WinccExportColumn("Persistency", WINCC_FALSE),
+                new WinccExportColumn("Substitute value", WINCC_FALSE),
+                new WinccExportColumn("Tag value [en-US]", WINCC_NO_VALUE),
+                new WinccExportColumn("Update Mode", "Client'=/Server wide"),
+                new WinccExportColumn("Comment [en-US]", WINCC_NO_VALUE),
+                new WinccExportColumn("Limit Upper 2 Type", WINCC_NONE),
+                new WinccExportColumn("Limit Upper 2", WINCC_NO_VALUE),
+                new WinccExportColumn("Limit Lower 2 Type", WINCC_NONE),
+                new WinccExportColumn("Limit Lower 2", WINCC_NO_VALUE),
+                new WinccExportColumn("Linear scaling", WINCC_FALSE),
+                new WinccExportColumn("End value PLC", "10"),
+                new WinccExportColumn("Start value PLC", WINCC_ZERO),
+                new WinccExportColumn("End value HMI", "100"),
+                new WinccExportColumn("Start value HMI", WINCC_ZERO),
+                new WinccExportColumn("Synchronization", WINCC_FALSE)
+            };
+
+            private static readonly Dictionary<WinccExportField, int> _comfortAdvancedV14TagsLookup = new Dictionary<WinccExportField, int>
+            {
+                { WinccExportField.Name, 0 },
+                { WinccExportField.Connection, 2 },
+                { WinccExportField.DataType, 4 },
+                { WinccExportField.Length, 5 },
+                { WinccExportField.Address, 8 },
+            };
+
+            private static readonly IEnumerable<WinccExportColumn> ComfortAdvancedV14Tags = new WinccExportColumn[]
+            {
+                new WinccExportColumn("Name", null),
+                new WinccExportColumn("Path", "Default tag table"),
+                new WinccExportColumn("Connection", null),
+                new WinccExportColumn("Plc tag", WINCC_NO_VALUE),
+                new WinccExportColumn("DataType", null),
+                new WinccExportColumn("Length", null),
+                new WinccExportColumn("Coding", "Binary"),
+                new WinccExportColumn("Access Method", "Absolute access"),
+                new WinccExportColumn("Address", null),
+                new WinccExportColumn("Indirect addressing", WINCC_FALSE),
+                new WinccExportColumn("Index tag", WINCC_NO_VALUE),
+                new WinccExportColumn("Start value", WINCC_NO_VALUE),
+                new WinccExportColumn("ID tag", "0"),
+                new WinccExportColumn("Display name [en-US]", WINCC_NO_VALUE),
+                new WinccExportColumn("Comment [en-US]", WINCC_NO_VALUE),
+                new WinccExportColumn("Acquisition mode", "Continuous"),
+                new WinccExportColumn("Acquisition cycle", "1 s"),
+                new WinccExportColumn("Range Maximum Type", WINCC_NONE),
+                new WinccExportColumn("Range Maximum", WINCC_NO_VALUE),
+                new WinccExportColumn("Range Minimum Type", WINCC_NONE),
+                new WinccExportColumn("Range Minimum", WINCC_NO_VALUE),
+                new WinccExportColumn("Linear scaling", WINCC_FALSE),
+                new WinccExportColumn("End value Plc", "10"),
+                new WinccExportColumn("Start value Plc", "0"),
+                new WinccExportColumn("End value HMI", "100"),
+                new WinccExportColumn("Start value HMI", "0"),
+                new WinccExportColumn("Gmp relevant", WINCC_FALSE),
+                new WinccExportColumn("Confirmation Type", WINCC_NONE),
+                new WinccExportColumn("Mandatory Commenting", WINCC_FALSE)
+            };
+
+            private static readonly Dictionary<WinccExportField, int> _professionalV14AlarmsLookup = new Dictionary<WinccExportField, int>
+            {
+                { WinccExportField.Id, 0 },
+                { WinccExportField.Name, 1 },
+                { WinccExportField.AlarmText, 2 },
+                { WinccExportField.TriggerTag, 5 },
+                { WinccExportField.InfoText, 15 },
+            };
+
+            private static readonly IEnumerable<WinccExportColumn> ProfessionalV14Alarms = new WinccExportColumn[]
+            {
+                new WinccExportColumn("ID", null),
+                new WinccExportColumn("Name", null),
+                new WinccExportColumn("Alarm text [en-US], Alarm text 1", null),
+                new WinccExportColumn("FieldInfo [Alarm text 1]", WINCC_NO_VALUE),
+                new WinccExportColumn("Class", "Errors"),
+                new WinccExportColumn("Trigger tag", null),
+                new WinccExportColumn("Trigger bit", WINCC_ZERO),
+                new WinccExportColumn("Trigger mode", "On rising edge"),
+                new WinccExportColumn("Acknowledgement tag", WINCC_NO_VALUE),
+                new WinccExportColumn("Acknowledgement bit", WINCC_ZERO),
+                new WinccExportColumn("Status tag", WINCC_NO_VALUE),
+                new WinccExportColumn("Status bit", WINCC_ZERO),
+                new WinccExportColumn("Group", WINCC_NO_VALUE),
+                new WinccExportColumn("Priority", WINCC_ZERO),
+                new WinccExportColumn("Single acknowledgement", WINCC_FALSE),
+                new WinccExportColumn("Info text [en-US], Info text", null),
+                new WinccExportColumn("Additional text 1 [en-US], Alarm text 2", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 2]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 2 [en-US], Alarm text 3", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 3]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 3 [en-US], Alarm text 4", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 4]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 4 [en-US], Alarm text 5", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 5]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 5 [en-US], Alarm text 6", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 6]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 6 [en-US], Alarm text 7", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 7]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 7 [en-US], Alarm text 8", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 8]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 8 [en-US], Alarm text 9", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 9]", WINCC_NO_VALUE),
+                new WinccExportColumn("Additional text 9 [en-US], Alarm text 10", WINCC_NO_VALUE),
+                new WinccExportColumn("FieldInfo [Alarm text 10]", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 1", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 2", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 3", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 4", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 5", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 6", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 7", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 8", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 9", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm parameter 10", WINCC_NO_VALUE),
+                new WinccExportColumn("Alarm annunciation", WINCC_FALSE),
+                new WinccExportColumn("Display suppression mask", WINCC_ZERO),
+                new WinccExportColumn("PLC number", WINCC_ZERO),
+                new WinccExportColumn("CPU number", WINCC_ZERO)
+            };
+
+            private static readonly Dictionary<WinccExportField, int> _comfortAdvancedV14AlarmsLookup = new Dictionary<WinccExportField, int>
+            {
+                { WinccExportField.Id, 0 },
+                { WinccExportField.Name, 1 },
+                { WinccExportField.AlarmText, 2 },
+                { WinccExportField.TriggerTag, 5 },
+                { WinccExportField.TriggerBit, 6 },
+                { WinccExportField.InfoText, 13 },
+            };
+
+            private static readonly IEnumerable<WinccExportColumn> ComfortAdvancedV14Alarms = new WinccExportColumn[]
+            {
+                new WinccExportColumn("ID", null),
+                new WinccExportColumn("Name", null),
+                new WinccExportColumn("Alarm text [en-US], Alarm text", null),
+                new WinccExportColumn("FieldInfo [Alarm text]", WINCC_NO_VALUE),
+                new WinccExportColumn("Class", "Errors"),
+                new WinccExportColumn("Trigger tag", null),
+                new WinccExportColumn("Trigger bit", null),
+                new WinccExportColumn("Acknowledgement tag", WINCC_NO_VALUE),
+                new WinccExportColumn("Acknowledgement bit", WINCC_ZERO),
+                new WinccExportColumn("Plc acknowledgement tag", WINCC_NO_VALUE),
+                new WinccExportColumn("Plc acknowledgement bit", WINCC_ZERO),
+                new WinccExportColumn("Group", WINCC_NO_VALUE),
+                new WinccExportColumn("Report", WINCC_FALSE),
+                new WinccExportColumn("Info text [en-US], Info text", null)
+            };
+
+            private static readonly Dictionary<WinccExportField, int> _comfortAdvancedV15TagsLookup = WinccConstants._comfortAdvancedV14TagsLookup;
+
+            private static readonly IEnumerable<WinccExportColumn> ComfortAdvancedV15Tags = new WinccExportColumn[]
+            {
+                new WinccExportColumn("Name", null),
+                new WinccExportColumn("Path", "Default tag table"),
+                new WinccExportColumn("Connection", null),
+                new WinccExportColumn("PLC tag", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("DataType", null),
+                new WinccExportColumn("Length", null),
+                new WinccExportColumn("Coding", "Binary"),
+                new WinccExportColumn("Access Method", "Absolute access"),
+                new WinccExportColumn("Address", null),
+                new WinccExportColumn("Indirect addressing", WINCC_FALSE),
+                new WinccExportColumn("Index tag", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Start value", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("ID tag", "0"),
+                new WinccExportColumn("Display name [en-US]", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Comment [en-US]", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Acquisition mode", "Continuous"),
+                new WinccExportColumn("Acquisition cycle", "1 s"),
+                new WinccExportColumn("Limit Upper 2 Type", WINCC_NONE),
+                new WinccExportColumn("Limit Upper 2", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Limit Upper 1 Type", WINCC_NONE),
+                new WinccExportColumn("Limit Upper 1", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Limit Lower 2 Type", WINCC_NONE),
+                new WinccExportColumn("Limit Lower 2", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Limit Lower 1 Type", WINCC_NONE),
+                new WinccExportColumn("Limit Lower 1", WINCC_NO_VALUE_CAPITAL),
+                new WinccExportColumn("Linear scaling", WINCC_FALSE),
+                new WinccExportColumn("End value PLC", "10"),
+                new WinccExportColumn("Start value PLC", "0"),
+                new WinccExportColumn("End value HMI", "100"),
+                new WinccExportColumn("Start value HMI", "0"),
+                new WinccExportColumn("Gmp relevant", WINCC_FALSE),
+                new WinccExportColumn("Confirmation Type", WINCC_NONE),
+                new WinccExportColumn("Mandatory Commenting", WINCC_FALSE)
+            };
+
+            private static readonly Dictionary<WinccExportField, int> _comfortAdvancedV15AlarmsLookup = WinccConstants._comfortAdvancedV14AlarmsLookup;
+
+            private static readonly IEnumerable<WinccExportColumn> ComfortAdvancedV15Alarms = WinccConstants.ComfortAdvancedV14Alarms;
+
+            #endregion
+
+            #region Generation Methods
+
+            public static IEnumerable<string> GetAlarmHeaders(WinccExportType exportType, TiaPortalVersion portalVersion)
+            {
+                switch (portalVersion)
+                {
+                    case TiaPortalVersion.V14:
+                    case TiaPortalVersion.V14SP1:
+                        switch (exportType)
+                        {
+                            case WinccExportType.ComfortAdvanced:
+                                return WinccConstants.ComfortAdvancedV14Alarms.Select(a => a.Header);
+                            case WinccExportType.Professional:
+                                return WinccConstants.ProfessionalV14Alarms.Select(a => a.Header);
+                        }
+                        break;
+                    case TiaPortalVersion.V15:
+                        switch (exportType)
+                        {
+                            case WinccExportType.ComfortAdvanced:
+                                return WinccConstants.ComfortAdvancedV15Alarms.Select(a => a.Header);
+                        }
+                        break;
+                }
+
+                return null;
+            }
+
+            public static IEnumerable<string> GetTagHeaders(WinccExportType exportType, TiaPortalVersion portalVersion)
+            {
+                switch (portalVersion)
+                {
+                    case TiaPortalVersion.V14:
+                    case TiaPortalVersion.V14SP1:
+                        switch (exportType)
+                        {
+                            case WinccExportType.ComfortAdvanced:
+                                return WinccConstants.ComfortAdvancedV14Tags.Select(a => a.Header);
+                            case WinccExportType.Professional:
+                                return WinccConstants.ProfessionalV14Tags.Select(a => a.Header);
+                        }
+                        break;
+                    case TiaPortalVersion.V15:
+                        switch (exportType)
+                        {
+                            case WinccExportType.ComfortAdvanced:
+                                return WinccConstants.ComfortAdvancedV15Tags.Select(a => a.Header);
+                        }
+                        break;
+                }
+
+                return null;
+            }
+
+            public static WinccExportRow GetAlarmRow(WinccExportType exportType, TiaPortalVersion portalVersion) => new WinccExportRow(exportType, portalVersion, false);
+
+            public static WinccExportRow GetTagRow(WinccExportType exportType, TiaPortalVersion portalVersion) => new WinccExportRow(exportType, portalVersion, true);
+
+            #endregion
+
+            #region Helper Classes
+
+            internal class WinccExportColumn
+            {
+                public string Header { get; set; }
+
+                public string DefaultValue { get; set; }
+
+                public WinccExportColumn(string header, string defaultValue)
+                {
+                    this.Header = header;
+                    this.DefaultValue = defaultValue;
+                }
+
+            }
+
+            internal class WinccExportRow : IEnumerable<string>
+            {
+
+                private readonly List<string> _values;
+                private readonly Dictionary<WinccExportField, int> _lookup;
+
+                public string this[WinccExportField field]
+                {
+                    get { return this._values[this._lookup[field]]; }
+                    set { this._values[this._lookup[field]] = value; }
+                }
+
+                public WinccExportRow(WinccExportType exportType, TiaPortalVersion portalVersion, bool isTags = false)
+                {
+                    if (isTags)
+                    {
+                        switch (portalVersion)
+                        {
+                            case TiaPortalVersion.V14:
+                            case TiaPortalVersion.V14SP1:
+                                switch (exportType)
+                                {
+                                    case WinccExportType.ComfortAdvanced:
+                                        this._values = new List<string>(WinccConstants.ComfortAdvancedV14Tags.Select(a => a.DefaultValue));
+                                        this._lookup = WinccConstants._comfortAdvancedV14TagsLookup;
+                                        break;
+                                    case WinccExportType.Professional:
+                                        this._values = new List<string>(WinccConstants.ProfessionalV14Tags.Select(a => a.DefaultValue));
+                                        this._lookup = WinccConstants._professionalV14TagsLookup;
+                                        break;
+                                }
+                                break;
+                            case TiaPortalVersion.V15:
+                                switch (exportType)
+                                {
+                                    case WinccExportType.ComfortAdvanced:
+                                        this._values = new List<string>(WinccConstants.ComfortAdvancedV15Tags.Select(a => a.DefaultValue));
+                                        this._lookup = WinccConstants._comfortAdvancedV15TagsLookup;
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (portalVersion)
+                        {
+                            case TiaPortalVersion.V14:
+                            case TiaPortalVersion.V14SP1:
+                                switch (exportType)
+                                {
+                                    case WinccExportType.ComfortAdvanced:
+                                        this._values = new List<string>(WinccConstants.ComfortAdvancedV14Alarms.Select(a => a.DefaultValue));
+                                        this._lookup = WinccConstants._comfortAdvancedV14AlarmsLookup;
+                                        break;
+                                    case WinccExportType.Professional:
+                                        this._values = new List<string>(WinccConstants.ProfessionalV14Alarms.Select(a => a.DefaultValue));
+                                        this._lookup = WinccConstants._professionalV14AlarmsLookup;
+                                        break;
+                                }
+                                break;
+                            case TiaPortalVersion.V15:
+                                switch (exportType)
+                                {
+                                    case WinccExportType.ComfortAdvanced:
+                                        this._values = new List<string>(WinccConstants.ComfortAdvancedV15Alarms.Select(a => a.DefaultValue));
+                                        this._lookup = WinccConstants._comfortAdvancedV15AlarmsLookup;
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                }
+
+                public IEnumerator<string> GetEnumerator()
+                {
+                    return ((IEnumerable<string>)this._values).GetEnumerator();
+                }
+
+                IEnumerator IEnumerable.GetEnumerator()
+                {
+                    return ((IEnumerable<string>)this._values).GetEnumerator();
+                }
+            }
+
+            #endregion
+
+        }
 
 	}
 }
