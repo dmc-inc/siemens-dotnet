@@ -11,6 +11,8 @@ using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Interfaces;
 using Dmc.Siemens.Common.Plc.Interfaces;
 using Dmc.Siemens.Portal.Base;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Dmc.Siemens.Common.Plc
 {
@@ -72,6 +74,7 @@ namespace Dmc.Siemens.Common.Plc
 		public abstract string DataHeader { get; }
 
 		private string _Version;
+        [SourceMetadata("VERSION")]
 		public string Version
 		{
 			get
@@ -83,7 +86,7 @@ namespace Dmc.Siemens.Common.Plc
 				this.SetProperty(ref this._Version, value);
 			}
 		}
-
+        
 		#endregion
 
 		#region Public Methods
@@ -94,19 +97,35 @@ namespace Dmc.Siemens.Common.Plc
             string[] split;
             bool isInData = false;
 
+            IEnumerable<(SourceMetadataAttribute attribute, PropertyInfo property)> metadata = this.GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Select(p => (p.GetCustomAttribute<SourceMetadataAttribute>(true), p)).Where(x => !(x.Item1 is null));
+
             while ((line = reader.ReadLine()) != null)
             {
                 if (!isInData)
                 {
-                    if (line.Contains("VERSION"))
+                    foreach (var item in metadata)
                     {
-                        split = line.Split(':');
-                        if (split.Length > 1)
+                        if (line.Contains(item.attribute.Keyword))
                         {
-                            this.Version = split[1].Trim();
+                            split = line.Split(item.attribute.Separator);
+                            if (split.Length > 1)
+                            {
+                                try
+                                {
+                                    var value = split[1].Trim();
+                                    if (!string.IsNullOrWhiteSpace(item.attribute.ValuePattern))
+                                        value = Regex.Match(value, item.attribute.ValuePattern).Value;
+
+                                    item.property.SetValue(this, Convert.ChangeType(value, item.property.PropertyType));
+                                }
+                                // Who cares if we can't set this property
+                                catch {  }
+                            }
                         }
                     }
-                    else if (line.Contains(this.DataHeader))
+                    if (line.Contains(this.DataHeader))
                     {
                         isInData = true;
                     }

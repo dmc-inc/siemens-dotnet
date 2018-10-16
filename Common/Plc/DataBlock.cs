@@ -18,6 +18,7 @@ namespace Dmc.Siemens.Common.Plc
         #region Public Properties
 
         private bool _IsOptimized;
+        [SourceMetadata("S7_Optimized_Access", '=', "[^\"']+")]
         public bool IsOptimized
         {
             get
@@ -70,6 +71,7 @@ namespace Dmc.Siemens.Common.Plc
         }
 
         private string _Title;
+        [SourceMetadata("TITLE", '=')]
         public string Title
         {
             get
@@ -95,51 +97,6 @@ namespace Dmc.Siemens.Common.Plc
 		#endregion
 
 		#region Public Methods
-
-		public override IParsableSource ParseSource(TextReader reader)
-        {
-            string line;
-            string[] split;
-            bool isInProperties = false;
-            while ((line = reader.ReadLine()) != null)
-            {
-                if (line.Contains('{'))
-                    isInProperties = true;
-                if (isInProperties)
-                {
-                    if (line.Contains("S7_Optimized_Access"))
-                    {
-                        this.IsOptimized = line.ToUpper().Contains("TRUE");
-                    }
-                    if (line.Contains('}'))
-                        isInProperties = false;
-                }
-                else if (line.Contains("TITLE ="))
-                {
-                    split = line.Split('=');
-                    if (split.Length > 1)
-                    {
-                        this.Title = split[1].Trim();
-                    }
-                }
-                else if (line.Contains("VERSION"))
-                {
-                    split = line.Split(':');
-                    if (split.Length > 1)
-                    {
-                        this.Version = split[1].Trim();
-                    }
-                }
-                else if (line.Contains("RETAIN"))
-                {
-                    base.ParseSource(reader);
-                    break;
-                }
-            }
-			
-            return this;
-
-        }
 
 		public override void ReadXml(XmlReader reader)
 		{
