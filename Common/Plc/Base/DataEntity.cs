@@ -45,45 +45,45 @@ namespace Dmc.Siemens.Common.Plc
 			}
 		}
 
-		private int _Number;
+		private int _number;
 		public int Number
 		{
 			get
 			{
-				return this._Number;
+				return this._number;
 			}
 			set
 			{
-				this.SetProperty(ref this._Number, value);
+				this.SetProperty(ref this._number, value);
 			}
 		}
 
-		private ProjectFolder _ParentFolder;
+		private ProjectFolder _parentFolder;
 		public ProjectFolder ParentFolder
 		{
 			get
 			{
-				return this._ParentFolder;
+				return this._parentFolder;
 			}
 			set
 			{
-				this.SetProperty(ref this._ParentFolder, value);
+				this.SetProperty(ref this._parentFolder, value);
 			}
 		}
 
 		public abstract string DataHeader { get; }
 
-		private string _Version;
+		private string _version;
         [SourceMetadata("VERSION")]
 		public string Version
 		{
 			get
 			{
-				return this._Version;
+				return this._version;
 			}
 			set
 			{
-				this.SetProperty(ref this._Version, value);
+				this.SetProperty(ref this._version, value);
 			}
 		}
         
@@ -105,20 +105,20 @@ namespace Dmc.Siemens.Common.Plc
             {
                 if (!isInData)
                 {
-                    foreach (var item in metadata)
+                    foreach (var (attribute, property) in metadata)
                     {
-                        if (line.Contains(item.attribute.Keyword))
+                        if (line.Contains(attribute.Keyword))
                         {
-                            split = line.Split(item.attribute.Separator);
+                            split = line.Split(attribute.Separator);
                             if (split.Length > 1)
                             {
                                 try
                                 {
                                     var value = split[1].Trim();
-                                    if (!string.IsNullOrWhiteSpace(item.attribute.ValuePattern))
-                                        value = Regex.Match(value, item.attribute.ValuePattern).Value;
+                                    if (!string.IsNullOrWhiteSpace(attribute.ValuePattern))
+                                        value = Regex.Match(value, attribute.ValuePattern).Value;
 
-                                    item.property.SetValue(this, Convert.ChangeType(value, item.property.PropertyType));
+                                    property.SetValue(this, Convert.ChangeType(value, property.PropertyType));
                                 }
                                 // Who cares if we can't set this property
                                 catch {  }

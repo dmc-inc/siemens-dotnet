@@ -16,11 +16,11 @@ namespace Dmc.Siemens.Common
 
         #region Private Fields
 
-        private static readonly ReadOnlyDictionary<string, Type> ParsableTypes = new ReadOnlyDictionary<string, Type>(new Dictionary<string, Type>()
+        private static readonly IReadOnlyDictionary<string, Type> s_parsableTypes = new Dictionary<string, Type>
         {
             { "DATA_BLOCK", typeof(DataBlock)},
             { "TYPE", typeof(UserDataType)}
-        });
+        };
 
         #endregion
 
@@ -55,7 +55,7 @@ namespace Dmc.Siemens.Common
             {
                 if (!isEndEntry)
                 {
-                    KeyValuePair<string, Type> parsableEntry = ParsableTypes.FirstOrDefault(e => line.Contains(e.Key));
+                    KeyValuePair<string, Type> parsableEntry = s_parsableTypes.FirstOrDefault(e => line.Contains(e.Key));
                     if (parsableEntry.Key != null)
                     {
                         newSource = (IParsableSource)Activator.CreateInstance(parsableEntry.Value);

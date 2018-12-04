@@ -49,7 +49,7 @@ namespace Dmc.Siemens.Common.Export
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
-			if (!FileHelpers.CheckValidFilePath(path, ".csv"))
+			if (!FileHelpers.IsValidFilePath(path, ".csv"))
 				throw new ArgumentException(path + " is not a valid path.", nameof(path));
 
 			try
@@ -112,18 +112,20 @@ namespace Dmc.Siemens.Common.Export
 						}
 						break;
 					case DataType.BOOL:
-						AlarmWorxRow row = new AlarmWorxRow();
-						row.LocationPath = @"\\Alarm Configurations\" + ALARM_FOLDER;
-						row.Name = ALARM_FOLDER + "." + prependNameText + entry.Name;
-						row.Description = stackedComment;
-						row.LastModified = DateTime.Now.ToString();
-						row.Input1 = opcServerPrefix + "\\" + prependNameText + entry.Name;
-						row.BaseText = stackedComment;  // Message text 
-						row.DigMessageText = " ";   // Prevents 'Digital Alarm' text at the end of each message
-						row.DigLimit = "1";     // Alarm state value needs to be 1 for a digital
-						row.DigSeverity = "500"; // Default severity is 500
-						row.DigRequiresAck = "1"; // Require an acknowledge by default
-						writer.WriteLine(row.ToString());
+                        AlarmWorxRow row = new AlarmWorxRow
+                        {
+                            LocationPath = @"\\Alarm Configurations\" + ALARM_FOLDER,
+                            Name = ALARM_FOLDER + "." + prependNameText + entry.Name,
+                            Description = stackedComment,
+                            LastModified = DateTime.Now.ToString(),
+                            Input1 = opcServerPrefix + "\\" + prependNameText + entry.Name,
+                            BaseText = stackedComment,  // Message text 
+                            DigMessageText = " ",   // Prevents 'Digital Alarm' text at the end of each message
+                            DigLimit = "1",     // Alarm state value needs to be 1 for a digital
+                            DigSeverity = "500", // Default severity is 500
+                            DigRequiresAck = "1" // Require an acknowledge by default
+                        };
+                        writer.WriteLine(row.ToString());
 						break;
 					default:
 						throw new ArgumentException("Cannot export datatype: " + entry.DataType.ToString() + " to AlarmWorX configuration");

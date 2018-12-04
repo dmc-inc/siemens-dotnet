@@ -48,7 +48,7 @@ namespace Dmc.Siemens.Portal
 
         public static void PlcTagTableToFile(string path, IEnumerable<PlcTagTable> tagTables)
         {
-            if (!FileHelpers.CheckValidFilePath(path, "xlsx"))
+            if (!FileHelpers.IsValidFilePath(path, "xlsx"))
                 throw new ArgumentException($"{nameof(path)} ({path}) is not a valid file path");
             if (tagTables?.Count() == 0)
                 throw new ArgumentException($"{nameof(tagTables)} cannot be empty");

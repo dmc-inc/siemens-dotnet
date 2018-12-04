@@ -17,70 +17,70 @@ namespace Dmc.Siemens.Common.Plc
 
         #region Public Properties
 
-        private bool _IsOptimized;
+        private bool _isOptimized;
         [SourceMetadata("S7_Optimized_Access", '=', "[^\"']+")]
         public bool IsOptimized
         {
             get
             {
-                return this._IsOptimized;
+                return this._isOptimized;
             }
             set
             {
-                this.SetProperty(ref this._IsOptimized, value);
+                this.SetProperty(ref this._isOptimized, value);
             }
         }
 
-        private bool _IsInstance;
+        private bool _isInstance;
         public bool IsInstance
         {
             get
             {
-                return this._IsInstance;
+                return this._isInstance;
             }
             set
             {
-                this.SetProperty(ref this._IsInstance, value);
+                this.SetProperty(ref this._isInstance, value);
             }
         }
 
-        private bool _IsDataType;
+        private bool _isDataType;
         public bool IsDataType
         {
             get
             {
-                return this._IsDataType;
+                return this._isDataType;
             }
             set
             {
-                this.SetProperty(ref this._IsDataType, value);
+                this.SetProperty(ref this._isDataType, value);
             }
         }
 
-        private string _InstanceName;
+        private string _instanceName;
         public string InstanceName
         {
             get
             {
-                return this._InstanceName;
+                return this._instanceName;
             }
             set
             {
-                this.SetProperty(ref this._InstanceName, value);
+                this.SetProperty(ref this._instanceName, value);
             }
         }
 
-        private string _Title;
+        private string _title;
         [SourceMetadata("TITLE", '=')]
         public string Title
         {
             get
             {
-                return this._Title;
+                return this._title;
             }
             set
             {
-                this.SetProperty(ref this._Title, value);
+                this.SetProperty(ref this._title, value);
             }
         }
 

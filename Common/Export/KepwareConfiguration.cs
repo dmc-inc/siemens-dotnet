@@ -44,7 +44,7 @@ namespace Dmc.Siemens.Common.Export
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
-			if (!FileHelpers.CheckValidFilePath(path, ".csv"))
+			if (!FileHelpers.IsValidFilePath(path, ".csv"))
 				throw new ArgumentException(path + " is not a valid path.", nameof(path));
 
 			try

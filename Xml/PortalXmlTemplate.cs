@@ -16,14 +16,7 @@ namespace Dmc.Siemens.Xml
 
 		#region Properties / Fields
 
-		private ObservableHashSet<ReplacementToken> _Tokens = new ObservableHashSet<ReplacementToken>();
-		public ObservableHashSet<ReplacementToken> Tokens
-		{
-			get
-			{
-				return this._Tokens;
-			}
-		}
+		private ObservableHashSet<ReplacementToken> Tokens { get; } = new ObservableHashSet<ReplacementToken>();
 
 		protected static readonly Regex TokenRegex = new Regex(@"{(.*?)}", RegexOptions.Compiled);
 
@@ -109,7 +102,7 @@ namespace Dmc.Siemens.Xml
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
-			if (!FileHelpers.CheckValidFilePath(path, "xml"))
+			if (!FileHelpers.IsValidFilePath(path, "xml"))
 				throw new ArgumentException("Invalid file path for XML export", nameof(path));
 			
 			File.WriteAllText(path, this.ReplaceTokens().FileContents);
