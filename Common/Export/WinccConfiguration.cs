@@ -34,7 +34,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void Create(IEnumerable<IBlock> blocks, string path, PortalPlc parentPlc, WinccExportType exportType = WinccExportType.ComfortAdvanced)
+		public static void Create(IEnumerable<IBlock> blocks, string path, PortalPlc parentPlc, WinccExportType exportType, TiaPortalVersion portalVersion)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -42,19 +42,19 @@ namespace Dmc.Siemens.Common.Export
 			if ((dataBlocks = blocks.OfType<DataBlock>())?.Count() <= 0)
 				throw new ArgumentException("Blocks does not contain any valid DataBlocks.", nameof(blocks));
 
-			WinccConfiguration.CreateInternal(dataBlocks, path, parentPlc, exportType);
+			WinccConfiguration.CreateInternal(dataBlocks, path, parentPlc, exportType, portalVersion);
 		}
 
-		public static void Create(IBlock block, string path, PortalPlc parentPlc, WinccExportType exportType = WinccExportType.ComfortAdvanced)
+		public static void Create(IBlock block, string path, PortalPlc parentPlc, WinccExportType exportType, TiaPortalVersion portalVersion)
 		{
-			WinccConfiguration.Create(new[] { block }, path, parentPlc);
+			WinccConfiguration.Create(new[] { block }, path, parentPlc, exportType, portalVersion);
 		}
 
 		#endregion
 
 		#region Private Methods
 
-		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, PortalPlc parentPlc, WinccExportType exportType)
+		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, PortalPlc parentPlc, WinccExportType exportType, TiaPortalVersion portalVersion)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -69,7 +69,7 @@ namespace Dmc.Siemens.Common.Export
 
 			using (SLDocument document = new SLDocument())
 			{
-				WinccConfiguration.WriteXlsxHeaders(document, exportType);
+				WinccConfiguration.WriteXlsxHeaders(document, exportType, portalVersion);
 				
 				foreach (DataBlock db in dataBlocks)
 				{
@@ -128,7 +128,7 @@ namespace Dmc.Siemens.Common.Export
 							document.SelectWorksheet(AlarmWorksheetName);
 						}
 
-                        var row = WinccConstants.GetAlarmRow(exportType, TiaPortalVersion.V15);
+                        var row = WinccConstants.GetAlarmRow(exportType, portalVersion);
                         row[WinccExportField.Id] = alarmNumber.ToString();
                         row[WinccExportField.Name] = $"Discrete_alarm_{alarmNumber}";
                         row[WinccExportField.AlarmText] = stackedComment;
@@ -206,7 +206,7 @@ namespace Dmc.Siemens.Common.Export
 					wordLength = 0;
 				}
 
-                var row = WinccConstants.GetTagRow(exportType, TiaPortalVersion.V15);
+                var row = WinccConstants.GetTagRow(exportType, portalVersion);
                 row[WinccExportField.Name] = dataBlock.Name;
                 row[WinccExportField.Connection] = connectionName;
                 row[WinccExportField.DataType] = dataType;
@@ -232,7 +232,7 @@ namespace Dmc.Siemens.Common.Export
 					document.SelectWorksheet(TagWorksheetName);
 				}
 
-                var row = WinccConstants.GetTagRow(exportType, TiaPortalVersion.V15);
+                var row = WinccConstants.GetTagRow(exportType, portalVersion);
                 row[WinccExportField.Name] = tag.Replace('.', '_');
                 row[WinccExportField.Connection] = connectionName;
                 row[WinccExportField.PlcTag] = tag;
@@ -262,7 +262,7 @@ namespace Dmc.Siemens.Common.Export
 
 		}
 
-		private static void WriteXlsxHeaders(SLDocument document, WinccExportType exportType)
+		private static void WriteXlsxHeaders(SLDocument document, WinccExportType exportType, TiaPortalVersion version)
 		{
 			string name = document.GetCurrentWorksheetName();
 			if (name != TagWorksheetName)
@@ -272,7 +272,7 @@ namespace Dmc.Siemens.Common.Export
 			}
 
             int column = 1;
-            foreach (var header in WinccConstants.GetTagHeaders(exportType, TiaPortalVersion.V15))
+            foreach (var header in WinccConstants.GetTagHeaders(exportType, version))
             {
                 document.SetCellValue(1, column++, header);
             }
@@ -280,7 +280,7 @@ namespace Dmc.Siemens.Common.Export
 			document.AddWorksheet(AlarmWorksheetName);
 
             column = 1;
-            foreach (var header in WinccConstants.GetAlarmHeaders(exportType, TiaPortalVersion.V15))
+            foreach (var header in WinccConstants.GetAlarmHeaders(exportType, version))
             {
                 document.SetCellValue(1, column++, header);
             }
