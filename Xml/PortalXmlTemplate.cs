@@ -84,13 +84,13 @@ namespace Dmc.Siemens.Xml
 			{
 				foreach (var token in tokens)
 				{
-					this.FileContents.Replace("{" + token.Key + "}", token.Value);
+					this.FileContents = this.FileContents.Replace("{" + token.Key + "}", token.Value);
 				}
 			}
 			
 			foreach (var token in this.Tokens)
 			{
-				this.FileContents.Replace("{" + token.Key + "}", token.Value);
+				this.FileContents = this.FileContents.Replace("{" + token.Key + "}", token.Value);
 			}
 			
 			this.IsReplaced = true;
@@ -107,6 +107,21 @@ namespace Dmc.Siemens.Xml
 			
 			File.WriteAllText(path, this.ReplaceTokens().FileContents);
 		}
+
+        public string ExportContents()
+        {
+            return string.Copy(this.ReplaceTokens().FileContents);
+        }
+
+        public PortalXmlTemplate RestoreFromFile()
+        {
+            if (this.LinkedFile != null)
+            {
+                this.FileContents = null;
+                this.IsReplaced = false;
+            }
+            return this;
+        }
 
 		#endregion
 
