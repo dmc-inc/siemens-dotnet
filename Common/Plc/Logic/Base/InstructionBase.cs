@@ -19,31 +19,19 @@ namespace Dmc.Siemens.Common.Plc.Logic.Base
 
 		protected abstract string _Name { get; }
 		public string Name
-		{
-			get
-			{
-				return this._Name;
-			}
-			set
-			{
-				throw new InvalidOperationException("Cannot set the name of an instruction/");
-			}
-		}
+        {
+            get => this._Name;
+            set => throw new InvalidOperationException("Cannot set the name of an instruction/");
+        }
 
-		protected abstract Dictionary<string, ReferenceBase> _Interface { get; }
-		public Dictionary<string, ReferenceBase> Interface
-		{
-			get
-			{
-				return this._Interface;
-			}
-		}
+        protected abstract Dictionary<string, ReferenceBase> _Interface { get; }
+        public Dictionary<string, ReferenceBase> Interface => this._Interface;
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public XmlSchema GetSchema()
+        public XmlSchema GetSchema()
 		{
 			return null;
 		}

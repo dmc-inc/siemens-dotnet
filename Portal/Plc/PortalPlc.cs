@@ -52,7 +52,7 @@ namespace Dmc.Siemens.Portal.Plc
 				{
 					try
 					{
-						if (SiemensConverter.TryParse(resolvedConstant.Value.ToString(), resolvedConstant.DataType, out object parsedValue))
+						if (SiemensConverter.TryParse(resolvedConstant.Value.ToString(), resolvedConstant.DataType, out var parsedValue))
 						{
 							return (T)Convert.ChangeType(parsedValue, typeof(T));
 						}

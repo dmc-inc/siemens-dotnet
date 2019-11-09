@@ -14,22 +14,16 @@ namespace Dmc.Siemens.Common.Plc.Logic.Instructions
 
 		private ReferenceBase _Operand;
 		public ReferenceBase Operand
-		{
-			get
-			{
-				return this._Operand;
-			}
-			set
-			{
-				this.SetProperty(ref this._Operand, value);
-			}
-		}
+        {
+            get => this._Operand;
+            set => this.SetProperty(ref this._Operand, value);
+        }
 
-		#endregion
+        #endregion
 
-		#region Protected Properties
+        #region Protected Properties
 
-		protected override string _Name => "Contact";
+        protected override string _Name => "Contact";
 
 		protected override Dictionary<string, ReferenceBase> _Interface
 		{

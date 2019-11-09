@@ -30,40 +30,22 @@ namespace Dmc.Siemens.Common.Plc.Base
         private string _Name;
         public string Name
         {
-            get
-            {
-                return this._Name;
-            }
-            set
-            {
-                this.SetProperty(ref this._Name, value);
-            }
+            get => this._Name;
+            set => this.SetProperty(ref this._Name, value);
         }
 
         private DataType _DataType;
         public DataType DataType
         {
-            get
-            {
-                return this._DataType;
-            }
-            set
-            {
-                this.SetProperty(ref this._DataType, value);
-            }
+            get => this._DataType;
+            set => this.SetProperty(ref this._DataType, value);
         }
 
         private object _Value;
         public object Value
         {
-            get
-            {
-                return this._Value;
-            }
-            set
-            {
-                this.SetProperty(ref this._Value, value);
-            }
+            get => this._Value;
+            set => this.SetProperty(ref this._Value, value);
         }
 
         #endregion

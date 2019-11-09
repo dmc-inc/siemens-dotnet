@@ -34,68 +34,44 @@ namespace Dmc.Siemens.Common.Plc
 		public override DataType DataType => DataType.STRUCT;
 		
 		public ProgramLanguage Language
-		{
-			get
-			{
-				return ProgramLanguage.STL;
-			}
-			set
-			{
-				throw new InvalidOperationException("Cannot change the BlockLanguage of a DataEntity");
-			}
-		}
+        {
+            get => ProgramLanguage.STL;
+            set => throw new InvalidOperationException("Cannot change the BlockLanguage of a DataEntity");
+        }
 
-		private int _number;
+        private int _number;
 		public int Number
-		{
-			get
-			{
-				return this._number;
-			}
-			set
-			{
-				this.SetProperty(ref this._number, value);
-			}
-		}
+        {
+            get => this._number;
+            set => this.SetProperty(ref this._number, value);
+        }
 
-		private ProjectFolder _parentFolder;
+        private ProjectFolder _parentFolder;
 		public ProjectFolder ParentFolder
-		{
-			get
-			{
-				return this._parentFolder;
-			}
-			set
-			{
-				this.SetProperty(ref this._parentFolder, value);
-			}
-		}
+        {
+            get => this._parentFolder;
+            set => this.SetProperty(ref this._parentFolder, value);
+        }
 
-		public abstract string DataHeader { get; }
+        public abstract string DataHeader { get; }
 
 		private string _version;
         [SourceMetadata("VERSION")]
 		public string Version
-		{
-			get
-			{
-				return this._version;
-			}
-			set
-			{
-				this.SetProperty(ref this._version, value);
-			}
-		}
-        
-		#endregion
+        {
+            get => this._version;
+            set => this.SetProperty(ref this._version, value);
+        }
 
-		#region Public Methods
+        #endregion
 
-		public virtual IParsableSource ParseSource(TextReader reader)
+        #region Public Methods
+
+        public virtual IParsableSource ParseSource(TextReader reader)
         {
             string line;
             string[] split;
-            bool isInData = false;
+            var isInData = false;
 
             IEnumerable<(SourceMetadataAttribute attribute, PropertyInfo property)> metadata = this.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -132,7 +108,7 @@ namespace Dmc.Siemens.Common.Plc
                 }
                 else
                 {
-                    if (!String.IsNullOrWhiteSpace(line))
+                    if (!string.IsNullOrWhiteSpace(line))
                     {
                         if (line.Contains("END_" + this.DataHeader))
                         {

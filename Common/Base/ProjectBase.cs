@@ -14,40 +14,14 @@ namespace Dmc.Siemens.Common.Base
 	public abstract class ProjectBase : AutomationObjectBase, IProject
 	{
 
-		#region Public Properties
-		
-		private IEnumerable<IAutomationObject> _AutomationObjects;
+		private IEnumerable<IAutomationObject> _automationObjects;
 		public IEnumerable<IAutomationObject> AutomationObjects
-		{
-			get
-			{
-				return this._AutomationObjects;
-			}
-			set
-			{
-				this.SetProperty(ref this._AutomationObjects, value);
-			}
-		}
+        {
+            get => this._automationObjects;
+            set => this.SetProperty(ref this._automationObjects, value);
+        }
 
-		#endregion
+        private IEnumerable<IPlc> Plcs => this.AutomationObjects?.OfType<IPlc>();
 
-		#region Private Properties
-
-		private IEnumerable<IPlc> Plcs
-		{
-			get
-			{
-				return this.AutomationObjects?.OfType<IPlc>();
-			}
-		}
-
-		#endregion
-
-		#region Public Methods
-
-		
-
-		#endregion
-
-	}
+    }
 }

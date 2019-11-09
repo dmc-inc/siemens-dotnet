@@ -22,8 +22,8 @@ namespace Dmc.Siemens.Common.Plc
 		#region Constructors
 
 		public DataEntry(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null,
-			IEnumerable<DataEntry> children = null, string dataTypeName = null, Constant<int> stringLength = default(Constant<int>),
-			DataEntry arrayDataEntry = null, Constant<int> arrayStartIndex = default(Constant<int>), Constant<int> arrayEndIndex = default(Constant<int>))
+			IEnumerable<DataEntry> children = null, string dataTypeName = null, Constant<int> stringLength = default,
+			DataEntry arrayDataEntry = null, Constant<int> arrayStartIndex = default, Constant<int> arrayEndIndex = default)
 			: base(name, dataType, comment, children)
 		{
 			this.DataTypeName = dataTypeName;
@@ -37,19 +37,13 @@ namespace Dmc.Siemens.Common.Plc
 
 		#region Public Properties
 
-		private DataEntry _ArrayDataEntry;
+		private DataEntry _arrayDataEntry;
 		public DataEntry ArrayDataEntry
-		{
-			get
-			{
-				return this._ArrayDataEntry;
-			}
-			set
-			{
-				this.SetProperty(ref this._ArrayDataEntry, value);
-			}
-		}
-		
+        {
+            get => this._arrayDataEntry;
+            set => this.SetProperty(ref this._arrayDataEntry, value);
+        }
+
         public Constant<int> ArrayStartIndex { get; set; }
         public Constant<int> ArrayEndIndex { get; set; }
         public Constant<int> StringLength { get; set; }
@@ -63,8 +57,8 @@ namespace Dmc.Siemens.Common.Plc
 					case DataType.ANY:
 						return "Any";
 					case DataType.ARRAY:
-						string arrayStart = (this.ArrayStartIndex.HasValue) ? this.ArrayStartIndex.Value.ToString() : $"\"{this.ArrayStartIndex.Name}\"";
-						string arrayEnd = (this.ArrayEndIndex.HasValue) ? this.ArrayEndIndex.Value.ToString() : $"\"{this.ArrayEndIndex.Name}\"";
+						var arrayStart = this.ArrayStartIndex.HasValue ? this.ArrayStartIndex.Value.ToString() : $"\"{this.ArrayStartIndex.Name}\"";
+						var arrayEnd = this.ArrayEndIndex.HasValue ? this.ArrayEndIndex.Value.ToString() : $"\"{this.ArrayEndIndex.Name}\"";
 						return $"Array[{arrayStart}..{arrayEnd}] of {this.ArrayDataEntry.DataTypeString}";
 					case DataType.BOOL:
 						return "Bool";
@@ -117,10 +111,10 @@ namespace Dmc.Siemens.Common.Plc
 
 			DataEntry newEntry;
 
-            string trimmedData = dataEntry.Trim();
-            string type = string.Empty;
-			string name = string.Empty;
-			string comment = string.Empty;
+            var trimmedData = dataEntry.Trim();
+            var type = string.Empty;
+			var name = string.Empty;
+			var comment = string.Empty;
 			string[] splitString;
 
             if (trimmedData.Contains("//"))
@@ -169,16 +163,16 @@ namespace Dmc.Siemens.Common.Plc
 						throw new ArgumentNullException(nameof(plc), "Plc cannot be null when the indices of an array are user defined constant values");
 
 					// resolve the actual start and end indices
-					int arrayStart = plc?.GetConstantValue(this.ArrayStartIndex) ?? this.ArrayStartIndex.Value;
-					int arrayEnd = plc?.GetConstantValue(this.ArrayEndIndex) ?? this.ArrayEndIndex.Value;
+					var arrayStart = plc?.GetConstantValue(this.ArrayStartIndex) ?? this.ArrayStartIndex.Value;
+					var arrayEnd = plc?.GetConstantValue(this.ArrayEndIndex) ?? this.ArrayEndIndex.Value;
 
 					// calculate the array dimension and the size of each index
-					int arraySize = arrayEnd - arrayStart + 1;
-					Address arraySubTypeSize = this.ArrayDataEntry.CalculateSize(plc);
+					var arraySize = arrayEnd - arrayStart + 1;
+					var arraySubTypeSize = this.ArrayDataEntry.CalculateSize(plc);
 					// check for the case that this is an array of bools
 					if (arraySubTypeSize.Byte == 0)
 					{
-						int overflow = arraySize % 16;
+						var overflow = arraySize % 16;
 						if (overflow > 0)
 						{
 							return TagHelper.IncrementAddress(new Address(arraySize / 16, overflow));

@@ -19,111 +19,59 @@ namespace Dmc.Siemens.Common.Plc
     public abstract class DataObject : NotifyPropertyChanged, IAutomationObject, IEnumerable<DataEntry>
     {
 
-		#region Constructors
-
-		public DataObject(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null, IEnumerable<DataEntry> children = null)
-		{
-			this.Name = name;
-			this.DataType = dataType;
-			this.Comment = comment;
-			this.Children = (children != null) ? new LinkedList<DataEntry>(children) : null;
-		}
-
-		#endregion
-
-		#region Public Properties
-
-		private string _Name;
+		private string _name;
         public string Name
         {
-            get
-            {
-                return this._Name;
-            }
-            set
-            {
-                this.SetProperty(ref this._Name, value);
-            }
+            get => this._name;
+            set => this.SetProperty(ref this._name, value);
         }
 
-        private DataType _DataType;
+        private DataType _dataType;
         public virtual DataType DataType
         {
-            get
-            {
-                return this._DataType;
-            }
-            set
-            {
-                this.SetProperty(ref this._DataType, value);
-            }
+            get => this._dataType;
+            set => this.SetProperty(ref this._dataType, value);
         }
 
-		private string _DataTypeName;
+        private string _dataTypeName;
 		public string DataTypeName
-		{
-			get
-			{
-				return this._DataTypeName;
-			}
-			set
-			{
-				this.SetProperty(ref this._DataTypeName, value);
-			}
-		}
+        {
+            get => this._dataTypeName;
+            set => this.SetProperty(ref this._dataTypeName, value);
+        }
 
-		private Address? _Address;
+        private Address? _address;
 		public Address? Address
-		{
-			get
-			{
-				return this._Address;
-			}
-			set
-			{
-				this.SetProperty(ref this._Address, value);
-			}
-		}
+        {
+            get => this._address;
+            set => this.SetProperty(ref this._address, value);
+        }
 
-		private string _Comment;
+        private string _comment;
         public string Comment
         {
-            get
-            {
-                return this._Comment;
-            }
-            set
-            {
-                this.SetProperty(ref this._Comment, value);
-            }
+            get => this._comment;
+            set => this.SetProperty(ref this._comment, value);
         }
 
-		private object _StartValue;
+        private object _startValue;
 		public object StartValue
-		{
-			get
-			{
-				return this._StartValue;
-			}
-			set
-			{
-				this.SetProperty(ref this._StartValue, value);
-			}
-		}
+        {
+            get => this._startValue;
+            set => this.SetProperty(ref this._startValue, value);
+        }
 
-		public virtual bool IsPrimitiveDataType
-		{
-			get
-			{
-				return TagHelper.IsPrimitive(this.DataType);
-			}
-		}
+        public virtual bool IsPrimitiveDataType => TagHelper.IsPrimitive(this.DataType);
+
+        public DataObject(string name = "", DataType dataType = DataType.UNKNOWN, string comment = null, IEnumerable<DataEntry> children = null)
+        {
+            this.Name = name;
+            this.DataType = dataType;
+            this.Comment = comment;
+            this.Children = (children != null) ? new LinkedList<DataEntry>(children) : null;
+        }
 
         public LinkedList<DataEntry> Children { get; set; }
-
-		#endregion
-
-		#region Public Methods
 
 		public void CalcluateAddresses(PortalPlc plc)
 		{
@@ -135,8 +83,8 @@ namespace Dmc.Siemens.Common.Plc
 				return;
 
 			// start at with the first child and offset 0
-			LinkedListNode<DataEntry> currentObject = this.Children.First;
-			Address addressOffset = new Address();
+			var currentObject = this.Children.First;
+			var addressOffset = new Address();
 			do
 			{
 				// set the next child's address
@@ -150,11 +98,11 @@ namespace Dmc.Siemens.Common.Plc
 
 		public virtual Address CalculateSize(PortalPlc plc)
 		{
-			bool isPrimitive = this.IsPrimitiveDataType;
+			var isPrimitive = this.IsPrimitiveDataType;
 			// If we are a pimitive, return the size directly
 			if (isPrimitive && this.DataType != DataType.STRING)
 			{
-				int size = TagHelper.GetPrimitiveByteSize(this.DataType);
+				var size = TagHelper.GetPrimitiveByteSize(this.DataType);
 				if (size == 0) // Check for the case that is a boolean
 					return new Address(0, 1);
 				else
@@ -175,8 +123,8 @@ namespace Dmc.Siemens.Common.Plc
 					throw new SiemensException("Struct does not have any valid children: " + this.Name);
 
 				// now we loop through all of the Children and add them together
-				LinkedListNode<DataEntry> currentObject = this.Children.First;
-				Address sumAddress = new Address();
+				var currentObject = this.Children.First;
+				var sumAddress = new Address();
 				do
 				{
 					sumAddress += currentObject.Value.CalculateSize(plc);
@@ -214,13 +162,9 @@ namespace Dmc.Siemens.Common.Plc
 			return this.Children.GetEnumerator();
 		}
 
-		#endregion
-
-		#region Private Methods
-
 		private static Address IncrementAddressOfChild(Address currentAddress, LinkedListNode<DataEntry> child)
 		{
-			Address nextAddress = currentAddress;
+			var nextAddress = currentAddress;
 
 			// if this is the last child object, make sure to round up to the nearest word
 			if (child.Next == null)
@@ -229,7 +173,7 @@ namespace Dmc.Siemens.Common.Plc
 			}
 
 			// if this is not the last child, increment depending on the next data type
-			DataType nextDataType = child.Next.Value.DataType;
+			var nextDataType = child.Next.Value.DataType;
 			switch (child.Value.DataType)
 			{
 				case DataType.BOOL:
@@ -271,15 +215,13 @@ namespace Dmc.Siemens.Common.Plc
 				if (plc == null)
 					throw new ArgumentNullException(nameof(plc), "Plc cannot be null when calculating the size of a UDT");
 
-				UserDataType udt = plc.UserDataTypes.FirstOrDefault(u => u.Name == this.DataTypeName);
+				var udt = plc.UserDataTypes.FirstOrDefault(u => u.Name == this.DataTypeName);
 				if (udt == null)
 					throw new SiemensException("Specified PLC does not contain UDT \"" + this.DataTypeName + "\"");
 
 				this.SetUdtStructure(udt);
 			}
 		}
-
-		#endregion
 
 	}
 }

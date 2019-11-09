@@ -30,35 +30,23 @@ namespace Dmc.Siemens.Common.Plc.Logic.Base
 
 		private ReferenceScope _Scope;
 		public ReferenceScope Scope
-		{
-			get
-			{
-				return this._Scope;
-			}
-			set
-			{
-				this.SetProperty(ref this._Scope, value);
-			}
-		}
+        {
+            get => this._Scope;
+            set => this.SetProperty(ref this._Scope, value);
+        }
 
-		private DataEntry _DataEntry;
+        private DataEntry _DataEntry;
 		public DataEntry DataEntry
-		{
-			get
-			{
-				return this._DataEntry;
-			}
-			set
-			{
-				this.SetProperty(ref this._DataEntry, value);
-			}
-		}
+        {
+            get => this._DataEntry;
+            set => this.SetProperty(ref this._DataEntry, value);
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public XmlSchema GetSchema()
+        public XmlSchema GetSchema()
 		{
 			return null;
 		}

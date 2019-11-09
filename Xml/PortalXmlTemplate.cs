@@ -47,7 +47,7 @@ namespace Dmc.Siemens.Xml
 			if (!File.Exists(path))
 				throw new FileNotFoundException("Path: " + path);
 
-			string contents = File.ReadAllText(path);
+			var contents = File.ReadAllText(path);
 
 			PortalXmlTemplate document;
 			if (options == PortalXmlFileOptions.InMemory)

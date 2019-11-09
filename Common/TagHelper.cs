@@ -52,7 +52,7 @@ namespace Dmc.Siemens.Common
 				case DataType.ANY:
 					return 10;
 				case DataType.STRING:
-					return (2 + stringLength);
+					return 2 + stringLength;
 				default:
 					return -1;
 			}
@@ -105,102 +105,101 @@ namespace Dmc.Siemens.Common
 			{
 				return DataType.STRUCT;
 			}
-			return (Enum.TryParse(dataTypeString, true, out DataType type)) ? type : DataType.UNKNOWN;
+			return Enum.TryParse(dataTypeString, true, out DataType type) ? type : DataType.UNKNOWN;
 		}
 
 		public static DataEntry ParseDataEntry(string dataEntryString, TextReader reader = null)
 		{
-			DataEntry newEntry = new DataEntry();
+			var newEntry = new DataEntry();
 
-			string type = dataEntryString.Trim();
+			var type = dataEntryString.Trim();
 			string[] splitString;
-			int length = 0;
-			int arrayStart = 0;
-			bool isUdt = false;
+            var isUdt = false;
 
-			if (type.ToUpper().Replace(" ", string.Empty).Contains("ARRAY["))
-			{
-				splitString = type.Split(new string[] { "[", "..", "]" }, StringSplitOptions.RemoveEmptyEntries);
-				if (splitString.Length >= 4)
-				{
-					if (int.TryParse(splitString[2], out length)) // See if the array end index is an integer
-					{
-						newEntry.ArrayEndIndex = length;
-					}
-					else // If not, the array index is a constant defined elsewhere
-					{
-						newEntry.ArrayEndIndex = new Constant<int>(splitString[2].Trim('\"'));
-					}
-					if (int.TryParse(splitString[1], out arrayStart)) // Do the same as above for the start index
-					{
-						newEntry.ArrayStartIndex = arrayStart;
-					}
-					else
-					{
-						newEntry.ArrayStartIndex = new Constant<int>(splitString[1].Trim('\"'));
-					}
+            int length;
+            if (type.ToUpper().Replace(" ", string.Empty).Contains("ARRAY["))
+            {
+                splitString = type.Split(new string[] { "[", "..", "]" }, StringSplitOptions.RemoveEmptyEntries);
+                if (splitString.Length >= 4)
+                {
+                    if (int.TryParse(splitString[2], out length)) // See if the array end index is an integer
+                    {
+                        newEntry.ArrayEndIndex = length;
+                    }
+                    else // If not, the array index is a constant defined elsewhere
+                    {
+                        newEntry.ArrayEndIndex = new Constant<int>(splitString[2].Trim('\"'));
+                    }
+                    if (int.TryParse(splitString[1], out var arrayStart)) // Do the same as above for the start index
+                    {
+                        newEntry.ArrayStartIndex = arrayStart;
+                    }
+                    else
+                    {
+                        newEntry.ArrayStartIndex = new Constant<int>(splitString[1].Trim('\"'));
+                    }
 
-				}
-				splitString = type.Replace(" of ", " OF ").Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
+                }
+                splitString = type.Replace(" of ", " OF ").Split(new string[] { " OF " }, StringSplitOptions.RemoveEmptyEntries);
 
-				string arrayType = string.Empty;
-				if (splitString.Length > 1)
-				{
-					arrayType = splitString[1].Trim().Trim('"');
-				}
-				else if (splitString.Length == 1 && reader != null)  // Search the next line for the array type if it hasn't already been defined
-				{
-					string line;
-					line = reader.ReadLine();
+                var arrayType = string.Empty;
+                if (splitString.Length > 1)
+                {
+                    arrayType = splitString[1].Trim().Trim('"');
+                }
+                else if (splitString.Length == 1 && reader != null)  // Search the next line for the array type if it hasn't already been defined
+                {
+                    string line;
+                    line = reader.ReadLine();
 
-					arrayType = line.Trim().Trim(';').Trim('\"');
-				}
+                    arrayType = line.Trim().Trim(';').Trim('\"');
+                }
 
-				var parsedType = TagHelper.ParseDataType(arrayType);
-				if (parsedType == DataType.UNKNOWN)
-				{
-					newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.UDT, dataTypeName: arrayType);
-				}
-				else if (parsedType == DataType.STRING)
-				{
-					newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.STRING, stringLength: ParseStringLength(arrayType));
-				}
-				else
-				{
-					newEntry.ArrayDataEntry = new DataEntry(dataType: parsedType);
-				}
+                var parsedType = TagHelper.ParseDataType(arrayType);
+                if (parsedType == DataType.UNKNOWN)
+                {
+                    newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.UDT, dataTypeName: arrayType);
+                }
+                else if (parsedType == DataType.STRING)
+                {
+                    newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.STRING, stringLength: ParseStringLength(arrayType));
+                }
+                else
+                {
+                    newEntry.ArrayDataEntry = new DataEntry(dataType: parsedType);
+                }
 
-				type = "ARRAY";
+                type = "ARRAY";
 
-			}
-			else if (type.Contains('"'))
-			{
-				int startUdt = type.IndexOf('"');
-				int endUdt = type.LastIndexOf('"');
-				if (startUdt >= 0 && endUdt >= 0)
-				{
-					newEntry.DataTypeName = type.Substring(startUdt + 1, endUdt - startUdt - 1);
-					isUdt = true;
-				}
-			}
-			else if (type.ToUpper().Contains("STRING"))
-			{
-				newEntry.StringLength = ParseStringLength(type);
+            }
+            else if (type.Contains('"'))
+            {
+                var startUdt = type.IndexOf('"');
+                var endUdt = type.LastIndexOf('"');
+                if (startUdt >= 0 && endUdt >= 0)
+                {
+                    newEntry.DataTypeName = type.Substring(startUdt + 1, endUdt - startUdt - 1);
+                    isUdt = true;
+                }
+            }
+            else if (type.ToUpper().Contains("STRING"))
+            {
+                newEntry.StringLength = ParseStringLength(type);
 
-				type = "STRING";
+                type = "STRING";
 
-			}
-			else if (type.ToUpper().Contains("STRUCT") && reader != null)
-			{
-				newEntry.Children = new LinkedList<DataEntry>();
-				string line;
-				while ((line = reader.ReadLine()) != null && !line.Contains("END_STRUCT"))
-				{
-					newEntry.Children.AddLast(DataEntry.FromString(line, reader));
-				}
-			}
+            }
+            else if (type.ToUpper().Contains("STRUCT") && reader != null)
+            {
+                newEntry.Children = new LinkedList<DataEntry>();
+                string line;
+                while ((line = reader.ReadLine()) != null && !line.Contains("END_STRUCT"))
+                {
+                    newEntry.Children.AddLast(DataEntry.FromString(line, reader));
+                }
+            }
 
-			DataType t;
+            DataType t;
 			if (isUdt && type != "ARRAY")
 			{
 				t = DataType.UDT;
@@ -284,13 +283,14 @@ namespace Dmc.Siemens.Common
 			if (entry.DataType != DataType.ARRAY)
 				return;
 
-			int arrayStart = parentPlc?.GetConstantValue(entry.ArrayStartIndex) ?? entry.ArrayStartIndex.Value;
-			int arrayEnd = parentPlc?.GetConstantValue(entry.ArrayEndIndex) ?? entry.ArrayEndIndex.Value;
-			Address arraySubTypeSize = entry.ArrayDataEntry.CalculateSize(parentPlc);
-			entry.Children = new LinkedList<DataEntry>();
+			var arrayStart = parentPlc?.GetConstantValue(entry.ArrayStartIndex) ?? entry.ArrayStartIndex.Value;
+			var arrayEnd = parentPlc?.GetConstantValue(entry.ArrayEndIndex) ?? entry.ArrayEndIndex.Value;
+
+            _ = entry.ArrayDataEntry.CalculateSize(parentPlc);
+            entry.Children = new LinkedList<DataEntry>();
 
 			// First populate the array Children with the correct number and type of children
-			for (int i = arrayStart; i <= arrayEnd; i++)
+			for (var i = arrayStart; i <= arrayEnd; i++)
 			{
 				entry.Children.AddLast(new DataEntry(entry.Name + $"[{i}]", entry.ArrayDataEntry.DataType, entry.Comment + $" ({i})", entry.ArrayDataEntry.Children,
 					entry.ArrayDataEntry.DataTypeName, entry.ArrayDataEntry.StringLength));

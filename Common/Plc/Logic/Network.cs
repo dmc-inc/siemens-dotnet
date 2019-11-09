@@ -25,53 +25,27 @@ namespace Dmc.Siemens.Common.Plc.Logic
 
 		private string _Title;
 		public string Title
-		{
-			get
-			{
-				return this._Title;
-			}
-			set
-			{
-				this.SetProperty(ref this._Title, value);
-			}
-		}
+        {
+            get => this._Title;
+            set => this.SetProperty(ref this._Title, value);
+        }
 
-		private string _Comment;
+        private string _Comment;
 		public string Comment
-		{
-			get
-			{
-				return this._Comment;
-			}
-			set
-			{
-				this.SetProperty(ref this._Comment, value);
-			}
-		}
+        {
+            get => this._Comment;
+            set => this.SetProperty(ref this._Comment, value);
+        }
 
-		private ProgramLanguage _Language;
+        private ProgramLanguage _Language;
 		public ProgramLanguage Language
-		{
-			get
-			{
-				return this._Language;
-			}
-			set
-			{
-				this.SetProperty(ref this._Language, value);
-			}
-		}
+        {
+            get => this._Language;
+            set => this.SetProperty(ref this._Language, value);
+        }
+        public ObservableCollection<InstructionBase> Instructions { get; } = new ObservableCollection<InstructionBase>();
 
-		private ObservableCollection<InstructionBase> _Instructions = new ObservableCollection<InstructionBase>();
-		public ObservableCollection<InstructionBase> Instructions
-		{
-			get
-			{
-				return this._Instructions;
-			}
-		}
+        #endregion
 
-		#endregion
-
-	}
+    }
 }

@@ -51,7 +51,7 @@ namespace Dmc.Siemens.Common.Export
 			{
 				using (var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read))
 				{
-					StreamWriter writer = new StreamWriter(file);
+					var writer = new StreamWriter(file);
 
 					KepwareConfiguration.WriteHeaders(writer);
 
@@ -84,8 +84,8 @@ namespace Dmc.Siemens.Common.Export
 
 			void AddDataEntry(DataEntry entry, string entryPrefix, Address parentOffset)
 			{
-				string addressPrefix = "";
-				string type = "";
+				var addressPrefix = "";
+				var type = "";
 
 				switch (entry.DataType)
 				{
@@ -95,7 +95,7 @@ namespace Dmc.Siemens.Common.Export
 						// write a new entry for each of the children
 						foreach (var child in entry.Children)
 						{
-							AddDataEntry(child, entryPrefix, (entry.Address.Value + parentOffset));
+							AddDataEntry(child, entryPrefix, entry.Address.Value + parentOffset);
 						}
 						break;
 					case DataType.BOOL:
@@ -141,7 +141,7 @@ namespace Dmc.Siemens.Common.Export
 						entry.CalcluateAddresses(parentPlc);
 						foreach (var child in entry)
 						{
-							AddDataEntry(child, entryPrefix + entry.Name + ".", (entry.Address.Value + parentOffset));
+							AddDataEntry(child, entryPrefix + entry.Name + ".", entry.Address.Value + parentOffset);
 						}
 						break;
 					case DataType.WORD:
@@ -154,15 +154,15 @@ namespace Dmc.Siemens.Common.Export
 
 				if (TagHelper.IsPrimitive(entry.DataType))
 				{
-					Address absoluteAddress = parentOffset + entry.Address.Value;
+					var absoluteAddress = parentOffset + entry.Address.Value;
 
-					string addressString = "DB" + block.Number + "." + addressPrefix + absoluteAddress.Byte;
+					var addressString = "DB" + block.Number + "." + addressPrefix + absoluteAddress.Byte;
 					if (entry.DataType == DataType.BOOL)
 						addressString += "." + absoluteAddress.Bit;
 					else if (entry.DataType == DataType.STRING)
 						addressString += "." + (parentPlc?.GetConstantValue(entry.StringLength) ?? entry.StringLength.Value).ToString();
 
-					string[] entryItems = new string[16]
+					var entryItems = new string[16]
 					{
 					entryPrefix + entry.Name,
 					addressString,

@@ -2,16 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dmc.Siemens.Common.Plc.Base
 {
     public static class SiemensConverter
     {
-
-        #region Public Properties
 
         public static ReadOnlyDictionary<DataType, Type> DataTypeConversionTable { get; } = new ReadOnlyDictionary<DataType, Type>(new Dictionary<DataType, Type>()
         {
@@ -29,10 +24,6 @@ namespace Dmc.Siemens.Common.Plc.Base
             { DataType.TIME_OF_DAY, typeof(DateTime) },
             { DataType.WORD, typeof(ushort) }
         });
-
-        #endregion
-
-        #region Public Methods
 
         public static bool TryParse(string value, DataType dataType, out object parsedValue)
         {
@@ -98,8 +89,7 @@ namespace Dmc.Siemens.Common.Plc.Base
 
         public static string ToS7Notation(object value, DataType dataType)
         {
-            object parsedValue;
-            if (!TryParse(value.ToString(), dataType, out parsedValue))
+            if (!TryParse(value.ToString(), dataType, out _))
             {
                 return value.ToString();
             }
@@ -123,8 +113,6 @@ namespace Dmc.Siemens.Common.Plc.Base
             }
 
         }
-
-        #endregion
 
     }
 }

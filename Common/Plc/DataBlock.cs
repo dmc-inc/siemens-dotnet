@@ -15,90 +15,48 @@ namespace Dmc.Siemens.Common.Plc
     public class DataBlock : DataEntity, IBlock
     {
 
-        #region Public Properties
-
         private bool _isOptimized;
         [SourceMetadata("S7_Optimized_Access", '=', "[^\"']+")]
         public bool IsOptimized
         {
-            get
-            {
-                return this._isOptimized;
-            }
-            set
-            {
-                this.SetProperty(ref this._isOptimized, value);
-            }
+            get => this._isOptimized;
+            set => this.SetProperty(ref this._isOptimized, value);
         }
 
         private bool _isInstance;
         public bool IsInstance
         {
-            get
-            {
-                return this._isInstance;
-            }
-            set
-            {
-                this.SetProperty(ref this._isInstance, value);
-            }
+            get => this._isInstance;
+            set => this.SetProperty(ref this._isInstance, value);
         }
 
         private bool _isDataType;
         public bool IsDataType
         {
-            get
-            {
-                return this._isDataType;
-            }
-            set
-            {
-                this.SetProperty(ref this._isDataType, value);
-            }
+            get => this._isDataType;
+            set => this.SetProperty(ref this._isDataType, value);
         }
 
         private string _instanceName;
         public string InstanceName
         {
-            get
-            {
-                return this._instanceName;
-            }
-            set
-            {
-                this.SetProperty(ref this._instanceName, value);
-            }
+            get => this._instanceName;
+            set => this.SetProperty(ref this._instanceName, value);
         }
 
         private string _title;
         [SourceMetadata("TITLE", '=')]
         public string Title
         {
-            get
-            {
-                return this._title;
-            }
-            set
-            {
-                this.SetProperty(ref this._title, value);
-            }
+            get => this._title;
+            set => this.SetProperty(ref this._title, value);
         }
 
         public BlockType Type => BlockType.DataBlock;
 
-		public override string DataHeader
-		{
-			get
-			{
-				return (this.IsOptimized) ? "VAR" : "STRUCT";
-			}
-		}
+        public override string DataHeader => this.IsOptimized ? "VAR" : "STRUCT";
 
-		#endregion
-
-		#region Public Methods
-
-		public override void ReadXml(XmlReader reader)
+        public override void ReadXml(XmlReader reader)
 		{
 			throw new NotImplementedException();
 		}
@@ -112,9 +70,6 @@ namespace Dmc.Siemens.Common.Plc
 		{
 			throw new NotImplementedException();
 		}
-
-		#endregion
-
 
 	}
 }

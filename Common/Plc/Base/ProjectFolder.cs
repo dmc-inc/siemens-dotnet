@@ -22,54 +22,36 @@ namespace Dmc.Siemens.Common.Plc
 
         #region Public Properties
 
-        private string _Name;
+        private string _name;
         public string Name
         {
-            get
-            {
-                return this._Name;
-            }
-            set
-            {
-                this.SetProperty(ref this._Name, value);
-            }
+            get => this._name;
+            set => this.SetProperty(ref this._name, value);
         }
 
-        private ObservableCollection<ProjectFolder> _SubFolders = new ObservableCollection<ProjectFolder>();
+        private ObservableCollection<ProjectFolder> _subFolders = new ObservableCollection<ProjectFolder>();
         public ObservableCollection<ProjectFolder> SubFolders
         {
-            get
-            {
-                return this._SubFolders;
-            }
-            set
-            {
-                this.SetProperty(ref this._SubFolders, value);
-            }
+            get => this._subFolders;
+            set => this.SetProperty(ref this._subFolders, value);
         }
 
-        private ProjectFolder _ParentFolder;
+        private ProjectFolder _parentFolder;
         public ProjectFolder ParentFolder
         {
-            get
-            {
-                return this._ParentFolder;
-            }
-            set
-            {
-                this.SetProperty(ref this._ParentFolder, value);
-            }
+            get => this._parentFolder;
+            set => this.SetProperty(ref this._parentFolder, value);
         }
 
         public string Path
         {
             get
             {
-                if (ParentFolder != null)
+                if (this.ParentFolder != null)
                 {
-                    return ParentFolder.Path + "\\" + Name;
+                    return this.ParentFolder.Path + "\\" + this.Name;
                 }
-                return Name;
+                return this.Name;
             }
         }
 

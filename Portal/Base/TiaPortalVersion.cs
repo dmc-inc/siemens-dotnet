@@ -12,7 +12,8 @@ namespace Dmc.Siemens.Portal
         V13SP2,
         V14,
         V14SP1,
-        V15
+        V15,
+        V15_1
 
     }
 }

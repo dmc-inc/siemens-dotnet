@@ -38,7 +38,7 @@ namespace Dmc.Siemens.Portal
 
             using (Stream fileStream = File.OpenRead(filePath))
             {
-                using (SLDocument document = new SLDocument(fileStream))
+                using (var document = new SLDocument(fileStream))
                 {
                     return ImportSpreadsheet(document);
                 }
@@ -69,15 +69,15 @@ namespace Dmc.Siemens.Portal
 
         private static IEnumerable<PlcTagTable> ImportSpreadsheet(SLDocument document)
         {
-            HashSet<PlcTagTable> tagTables = new HashSet<PlcTagTable>();
-            Dictionary<string, PlcTagTable> tagTableLookup = new Dictionary<string, PlcTagTable>();
+            var tagTables = new HashSet<PlcTagTable>();
+            var tagTableLookup = new Dictionary<string, PlcTagTable>();
 
 			// Check for and navigate to Plc tag tab
 			if (!ExcelEngine.ChangeActiveWorksheet(document, ExcelEngine.PLC_TAG_WORKSHEET_NAME))
 				throw new SiemensException("File does not contain " + ExcelEngine.PLC_TAG_WORKSHEET_NAME + " tab.");
 
 			// Parse all tags, starting at the row after the headers
-			int row = 1;
+			var row = 1;
 			PlcTag tag;
 			string parentTableName;
 			PlcTagTable tagTable;
@@ -123,8 +123,8 @@ namespace Dmc.Siemens.Portal
 				}
 
 				// Parse constant value
-				DataType dataType = TagHelper.ParseDataType(document.GetCellValueAsString(row, 2));
-				SiemensConverter.TryParse(document.GetCellValueAsString(row, 3), dataType, out object value);
+				var dataType = TagHelper.ParseDataType(document.GetCellValueAsString(row, 2));
+				SiemensConverter.TryParse(document.GetCellValueAsString(row, 3), dataType, out var value);
 
 				// Create a new constants entry
 				constant = new ConstantsEntry(document.GetCellValueAsString(row, 0), value, dataType);
@@ -142,9 +142,9 @@ namespace Dmc.Siemens.Portal
         private static void ExportToFile(string path, IEnumerable<ITagTable> tagTables)
         {
 
-            using (SLDocument document = new SLDocument())
+            using (var document = new SLDocument())
             {
-                foreach (ITagTable tagTable in tagTables)
+                foreach (var tagTable in tagTables)
                 {
                     if (tagTable is PlcTagTable)
                         ExportPlcTagTableToFile(document, tagTable as PlcTagTable);
@@ -152,7 +152,7 @@ namespace Dmc.Siemens.Portal
                         ExportHmiTagTableToFile(document, tagTable as HmiTagTable);
                 }
 
-                using (FileStream file = File.Open(path, FileMode.Create))
+                using (var file = File.Open(path, FileMode.Create))
                 {
                     document.SaveAs(file);
                 }
@@ -163,16 +163,16 @@ namespace Dmc.Siemens.Portal
         {
             if (tagTable?.PlcTags?.Count() > 0)
             {
-                foreach (PlcTag tag in tagTable.PlcTags)
+                foreach (var tag in tagTable.PlcTags)
                 {
-                    AddTagToDocument(document, tag);
+                    //AddTagToDocument(document, tag);
                 }
             }
             if (tagTable?.Constants?.Count() > 0)
             {
-                foreach (ConstantsEntry constant in tagTable.Constants)
+                foreach (var constant in tagTable.Constants)
                 {
-                    AddConstantToDocument(document, constant);
+                    //AddConstantToDocument(document, constant);
                 }
             }
         }
@@ -181,22 +181,22 @@ namespace Dmc.Siemens.Portal
         {
             if (tagTable?.HmiTags?.Count() > 0)
             {
-                foreach (HmiTag tag in tagTable.HmiTags)
+                foreach (var tag in tagTable.HmiTags)
                 {
                     //AddTagToDocument(document, tag);
                 }
             }
         }
 
-        private static void AddTagToDocument(SLDocument document, PlcTag tag)
-        {
+        //private static void AddTagToDocument(SLDocument document, PlcTag tag)
+        //{
 
-        }
+        //}
 
-        private static void AddConstantToDocument(SLDocument document, ConstantsEntry constant)
-        {
+        //private static void AddConstantToDocument(SLDocument document, ConstantsEntry constant)
+        //{
 
-        }
+        //}
 
         #endregion
 
@@ -204,7 +204,7 @@ namespace Dmc.Siemens.Portal
 
         private static bool ChangeActiveWorksheet(SLDocument document, string worksheetName, bool renameCurrentWorksheet = false)
         {
-            string name = document.GetCurrentWorksheetName();
+            var name = document.GetCurrentWorksheetName();
             // If the current worksheet name is the one we want, dont do anything
             if (name != worksheetName)
             {

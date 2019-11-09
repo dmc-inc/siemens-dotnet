@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dmc.Siemens.Common.Base
 {
+    [Serializable]
 	public class SiemensException : Exception
 	{
 
@@ -17,5 +14,8 @@ namespace Dmc.Siemens.Common.Base
 		{
 		}
 
-	}
+        public SiemensException()
+        {
+        }
+    }
 }

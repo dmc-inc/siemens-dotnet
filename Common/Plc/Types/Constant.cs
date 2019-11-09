@@ -1,35 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dmc.Siemens.Common.Plc.Types
 {
     public struct Constant<T> where T : struct
     {
 
-        #region Constructors
-
         public Constant(T value, string name = null)
         {
-            this._Value = value;
-            this._HasValue = true;
-            this._Name = name;
+            this._value = value;
+            this.HasValue = true;
+            this.Name = name;
         }
 
         public Constant(string name)
         {
-            this._Value = default(T);
-            this._Name = name;
-            this._HasValue = false;
+            this._value = default;
+            this.Name = name;
+            this.HasValue = false;
         }
 
-        #endregion
-
-        #region Public Properties
-
-        private T _Value;
+        private readonly T _value;
         public T Value
         {
             get
@@ -38,43 +28,16 @@ namespace Dmc.Siemens.Common.Plc.Types
                 {
                     throw new InvalidOperationException("Cannot retrieve a constant with no value.");
                 }
-                return _Value;
+                return this._value;
             }
         }
 
-        private string _Name;
-        public string Name
-        {
-            get
-            {
-                return this._Name;
-            }
-            private set
-            {
-                this._Name = value;
-            }
-        }
-
-        private bool _HasValue;
-        public bool HasValue
-        {
-            get
-            {
-                return this._HasValue;
-            }
-            private set
-            {
-                this._HasValue = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Methods
+        public string Name { get; private set; }
+        public bool HasValue { get; private set; }
 
         public override bool Equals(object obj)
         {
-            if (!this.HasValue) return (obj == null);
+            if (!this.HasValue) return obj == null;
             else if (obj == null) return false;
             return this.Value.Equals(obj);
         }
@@ -83,7 +46,7 @@ namespace Dmc.Siemens.Common.Plc.Types
         {
 			unchecked
 			{
-				int hash = (int)2166136261;
+				var hash = (int)2166136261;
 				if (this.HasValue)
 					hash = (hash * 16777619) ^ this.Value.GetHashCode();
 				if (this.Name != null)
@@ -95,7 +58,7 @@ namespace Dmc.Siemens.Common.Plc.Types
 
         public override string ToString()
         {
-            return HasValue ? this.Value.ToString() : "";
+            return this.HasValue ? this.Value.ToString() : "";
         }
 
 		public static implicit operator Constant<T>(T value)
@@ -107,8 +70,6 @@ namespace Dmc.Siemens.Common.Plc.Types
         {
             return value.Value;
         }
-
-        #endregion
 
     }
 }

@@ -40,14 +40,14 @@ namespace Dmc.Siemens.Common
 
         public static List<IParsableSource> FromText(IEnumerable<string> text)
         {
-            return FromText(String.Join(Environment.NewLine, text));
+            return FromText(string.Join(Environment.NewLine, text));
         }
 
         public static List<IParsableSource> FromTextReader(TextReader reader)
         {
-            List<IParsableSource> sourceList = new List<IParsableSource>();
+            var sourceList = new List<IParsableSource>();
 
-            bool isEndEntry = false;
+            var isEndEntry = false;
             string entryKey = null;
             string line;
             IParsableSource newSource = null;
@@ -55,12 +55,12 @@ namespace Dmc.Siemens.Common
             {
                 if (!isEndEntry)
                 {
-                    KeyValuePair<string, Type> parsableEntry = s_parsableTypes.FirstOrDefault(e => line.Contains(e.Key));
+                    var parsableEntry = s_parsableTypes.FirstOrDefault(e => line.Contains(e.Key));
                     if (parsableEntry.Key != null)
                     {
                         newSource = (IParsableSource)Activator.CreateInstance(parsableEntry.Value);
 
-                        string[] split = line.Split(' ');
+                        var split = line.Split(' ');
                         if (split.Length > 1)
                         {
                             newSource.Name = split[1].Trim('\"');

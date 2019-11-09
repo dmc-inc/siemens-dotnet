@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>.\_LatestBuild</OutputPath>
+    <OutputPath>bin</OutputPath>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>.\_LatestBuild</OutputPath>
+    <OutputPath>bin</OutputPath>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -25,6 +25,14 @@
     <None Remove="Openness\**" />
     <None Remove="packages\**" />
     <None Remove="_LatestBuild\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove=".git" />
+    <None Remove=".gitignore" />
+    <None Remove="Dmc.Siemens.nuspec" />
+    <None Remove="LICENSE.md" />
+    <None Remove="README.md" />
   </ItemGroup>
 
   <ItemGroup>

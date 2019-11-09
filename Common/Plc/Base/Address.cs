@@ -21,8 +21,8 @@ namespace Dmc.Siemens.Common.Plc.Base
 
 		public static Address operator +(Address address, Address addressOffset)
 		{
-			int bitOffset = address.Bit + addressOffset.Bit;
-			int byteOffset = address.Byte + addressOffset.Byte + (bitOffset / 8);
+			var bitOffset = address.Bit + addressOffset.Bit;
+			var byteOffset = address.Byte + addressOffset.Byte + (bitOffset / 8);
 
 			return new Address(byteOffset, bitOffset % 8);
 		}

@@ -22,78 +22,48 @@ namespace Dmc.Siemens.Common.Plc.Base
 
 		private string _Name;
 		public string Name
-		{
-			get
-			{
-				return this._Name;
-			}
-			set
-			{
-				this.SetProperty(ref this._Name, value);
-			}
-		}
+        {
+            get => this._Name;
+            set => this.SetProperty(ref this._Name, value);
+        }
 
-		public abstract BlockType Type { get; }
+        public abstract BlockType Type { get; }
 
 		private ProgramLanguage _Language;
 		public virtual ProgramLanguage Language
-		{
-			get
-			{
-				return this._Language;
-			}
-			set
-			{
-				this.SetProperty(ref this._Language, value);
-			}
-		}
+        {
+            get => this._Language;
+            set => this.SetProperty(ref this._Language, value);
+        }
 
-		private int _Number;
+        private int _Number;
 		public virtual int Number
-		{
-			get
-			{
-				return this._Number;
-			}
-			set
-			{
-				this.SetProperty(ref this._Number, value);
-			}
-		}
+        {
+            get => this._Number;
+            set => this.SetProperty(ref this._Number, value);
+        }
 
-		private string _Comment;
+        private string _Comment;
 		public string Comment
-		{
-			get
-			{
-				return this._Comment;
-			}
-			set
-			{
-				this.SetProperty(ref this._Comment, value);
-			}
-		}
+        {
+            get => this._Comment;
+            set => this.SetProperty(ref this._Comment, value);
+        }
 
-		public abstract string DataHeader { get; }
+        public abstract string DataHeader { get; }
 
 		private string _Version;
 		public string Version
-		{
-			get
-			{
-				return this._Version;
-			}
-			set
-			{
-				this.SetProperty(ref this._Version, value);
-			}
-		}
+        {
+            get => this._Version;
+            set => this.SetProperty(ref this._Version, value);
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public abstract void Export(string path);
+        public abstract void Export(string path);
 
 		public XmlSchema GetSchema()
 		{
@@ -115,7 +85,7 @@ namespace Dmc.Siemens.Common.Plc.Base
 				formatter.Serialize(stream, this);
 				stream.Position = 0;
 
-				return (formatter.Deserialize(stream) as T);
+				return formatter.Deserialize(stream) as T;
 			}
 		}
 

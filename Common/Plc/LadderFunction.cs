@@ -33,47 +33,19 @@ namespace Dmc.Siemens.Common.Plc
 
 		public override string DataHeader => throw new SiemensException("Function does not contain data.");
 
-		private IList<DataEntry> _Inputs = new ObservableCollection<DataEntry>();
-		public IList<DataEntry> Inputs
-		{
-			get
-			{
-				return this._Inputs;
-			}
-		}
+        public IList<DataEntry> Inputs { get; } = new ObservableCollection<DataEntry>();
 
-		private IList<DataEntry> _Outputs = new ObservableCollection<DataEntry>();
-		public IList<DataEntry> Outputs
-		{
-			get
-			{
-				return this._Outputs;
-			}
-		}
+        public IList<DataEntry> Outputs { get; } = new ObservableCollection<DataEntry>();
 
-		private IList<DataEntry> _InputOutputs = new ObservableCollection<DataEntry>();
-		public IList<DataEntry> InputOutputs
-		{
-			get
-			{
-				return this._InputOutputs;
-			}
-		}
+        public IList<DataEntry> InputOutputs { get; } = new ObservableCollection<DataEntry>();
 
-		private IList<DataEntry> _TemporaryData = new ObservableCollection<DataEntry>();
-		public IList<DataEntry> TemporaryData
-		{
-			get
-			{
-				return this._TemporaryData;
-			}
-		}
+        public IList<DataEntry> TemporaryData { get; } = new ObservableCollection<DataEntry>();
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public override void Export(string path)
+        public override void Export(string path)
 		{
 			throw new NotImplementedException();
 		}

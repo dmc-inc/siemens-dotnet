@@ -30,18 +30,12 @@ namespace Dmc.Siemens.Portal.Plc
 
 		private string _Name;
 		public string Name
-		{
-			get
-			{
-				return this._Name;
-			}
-			set
-			{
-				this.SetProperty(ref this._Name, value);
-			}
-		}
+        {
+            get => this._Name;
+            set => this.SetProperty(ref this._Name, value);
+        }
 
-		public ICollection<PlcTag> PlcTags { get; } = new ObservableHashSet<PlcTag>();
+        public ICollection<PlcTag> PlcTags { get; } = new ObservableHashSet<PlcTag>();
 
 		public ICollection<ConstantsEntry> Constants { get; } = new ObservableHashSet<ConstantsEntry>();
 

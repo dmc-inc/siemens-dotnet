@@ -55,7 +55,7 @@ namespace Dmc.Siemens.Common.Export
 			try
 			{
 				using (var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read))
-				using (StreamWriter writer = new StreamWriter(file))
+				using (var writer = new StreamWriter(file))
 				{
 					AlarmWorxConfiguration.WriteHeaders(writer);
 
@@ -113,7 +113,7 @@ namespace Dmc.Siemens.Common.Export
 						}
 						break;
 					case DataType.BOOL:
-                        AlarmWorxRow row = new AlarmWorxRow
+                        var row = new AlarmWorxRow
                         {
                             LocationPath = @"\\Alarm Configurations\" + ALARM_FOLDER,
                             Name = ALARM_FOLDER + "." + prependNameText + entry.Name,

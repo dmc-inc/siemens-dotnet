@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dmc.Siemens.Common.Interfaces;
+﻿using Dmc.Siemens.Common.Interfaces;
 using Dmc.Wpf;
 
 namespace Dmc.Siemens.Common.Base
@@ -11,22 +6,12 @@ namespace Dmc.Siemens.Common.Base
 	public abstract class AutomationObjectBase : NotifyPropertyChanged, IAutomationObject
 	{
 
-		#region Public Properties
-
-		private string _Name;
+		private string _name;
 		public string Name
-		{
-			get
-			{
-				return this._Name;
-			}
-			set
-			{
-				this.SetProperty(ref this._Name, value);
-			}
-		}
+        {
+            get => this._name;
+            set => this.SetProperty(ref this._name, value);
+        }
 
-		#endregion
-
-	}
+    }
 }

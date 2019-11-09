@@ -61,22 +61,22 @@ namespace Dmc.Siemens.Common.Export
 			if (!FileHelpers.IsValidFilePath(path, ".xlsx"))
 				throw new ArgumentException(path + " is not a valid path.", nameof(path));
 
-			int currentAlarmRow = 2;
-			int currentTagRow = 2;
-			string dataBlockName = string.Empty;
-			SLStyle genericStyle = new SLStyle() { FormatCode = "@" };
-			List<string> proTags = new List<string>();
+			var currentAlarmRow = 2;
+			var currentTagRow = 2;
+			string dataBlockName;
+			var genericStyle = new SLStyle() { FormatCode = "@" };
+			var proTags = new List<string>();
 
-			using (SLDocument document = new SLDocument())
+			using (var document = new SLDocument())
 			{
 				WinccConfiguration.WriteXlsxHeaders(document, exportType, portalVersion);
 				
-				foreach (DataBlock db in dataBlocks)
+				foreach (var db in dataBlocks)
 				{
 					dataBlockName = db.Name;
 					db.CalcluateAddresses(parentPlc);
 
-					foreach (DataEntry entry in db.Children)
+					foreach (var entry in db.Children)
 					{
 						ProcessDataEntry(document, entry, string.Empty, new Address(), db.Name);
 					}
@@ -121,7 +121,7 @@ namespace Dmc.Siemens.Common.Export
 				switch (entry.DataType)
 				{
 					case DataType.BOOL:
-						int alarmNumber = currentAlarmRow - 1;
+						var alarmNumber = currentAlarmRow - 1;
 
 						if (document.GetCurrentWorksheetName() != AlarmWorksheetName)
 						{
@@ -146,7 +146,7 @@ namespace Dmc.Siemens.Common.Export
                             row[WinccExportField.TriggerBit] = AddressToTriggerBit(addressOffset + entry.Address.Value).ToString();
 						}
 
-                        int column = 1;
+                        var column = 1;
                         foreach (var item in row)
                         {
                             document.SetCellStyle(currentAlarmRow, column, genericStyle);
@@ -158,7 +158,7 @@ namespace Dmc.Siemens.Common.Export
 					case DataType.UDT:
 					case DataType.STRUCT:
 						entry.CalcluateAddresses(parentPlc);
-						foreach (DataEntry newEntry in entry.Children)
+						foreach (var newEntry in entry.Children)
 						{
 							ProcessDataEntry(document, newEntry, stackedComment, addressOffset + entry.Address.Value, stackedTag);
 						}
@@ -169,7 +169,7 @@ namespace Dmc.Siemens.Common.Export
 						// write a new entry for each of the children
 						foreach (var child in entry.Children)
 						{
-							ProcessDataEntry(document, child, prependText, (entry.Address.Value + addressOffset), stackedTag);
+							ProcessDataEntry(document, child, prependText, entry.Address.Value + addressOffset, stackedTag);
 						}
 						break;
 					default:
@@ -190,9 +190,9 @@ namespace Dmc.Siemens.Common.Export
 
 				string dataType, address;
 				
-				int dbLength = dataBlock.CalculateSize(parentPlc).Byte;
+				var dbLength = dataBlock.CalculateSize(parentPlc).Byte;
 
-				int wordLength = (int)Math.Ceiling(dbLength / 2.0);
+				var wordLength = (int)Math.Ceiling(dbLength / 2.0);
 
 				if (dbLength > 2)
 				{
@@ -213,7 +213,7 @@ namespace Dmc.Siemens.Common.Export
                 row[WinccExportField.Length] = ((wordLength + 1) * 2).ToString();
                 row[WinccExportField.Address] = address;
 
-                int column = 1;
+                var column = 1;
                 foreach (var item in row)
                 {
                     document.SetCellStyle(currentTagRow, column, genericStyle);
@@ -237,7 +237,7 @@ namespace Dmc.Siemens.Common.Export
                 row[WinccExportField.Connection] = connectionName;
                 row[WinccExportField.PlcTag] = tag;
 
-                int column = 1;
+                var column = 1;
                 foreach (var item in row)
                 {
                     document.SetCellStyle(currentTagRow, column, genericStyle);
@@ -252,11 +252,11 @@ namespace Dmc.Siemens.Common.Export
 			{
 				if (address.Byte % 2 == 0)
 				{
-					return ((address.Byte + 1) * 8 + address.Bit);
+					return (address.Byte + 1) * 8 + address.Bit;
 				}
 				else
 				{
-					return ((address.Byte - 1) * 8 + address.Bit);
+					return (address.Byte - 1) * 8 + address.Bit;
 				}
 			}
 
@@ -264,14 +264,14 @@ namespace Dmc.Siemens.Common.Export
 
 		private static void WriteXlsxHeaders(SLDocument document, WinccExportType exportType, TiaPortalVersion version)
 		{
-			string name = document.GetCurrentWorksheetName();
+			var name = document.GetCurrentWorksheetName();
 			if (name != TagWorksheetName)
 			{
 				document.RenameWorksheet(name, TagWorksheetName);
 				document.SelectWorksheet(TagWorksheetName);
 			}
 
-            int column = 1;
+            var column = 1;
             foreach (var header in WinccConstants.GetTagHeaders(exportType, version))
             {
                 document.SetCellValue(1, column++, header);
@@ -605,8 +605,8 @@ namespace Dmc.Siemens.Common.Export
 
                 public string this[WinccExportField field]
                 {
-                    get { return this._values[this._lookup[field]]; }
-                    set { this._values[this._lookup[field]] = value; }
+                    get => this._values[this._lookup[field]];
+                    set => this._values[this._lookup[field]] = value;
                 }
 
                 public WinccExportRow(WinccExportType exportType, TiaPortalVersion portalVersion, bool isTags = false)
