@@ -71,5 +71,14 @@ namespace Dmc.Siemens.Common.Plc.Types
             return value.Value;
         }
 
+        public static bool operator ==(Constant<T> left, Constant<T> right)
+        {
+            return left.HasValue == right.HasValue && object.Equals(left._value, right._value) && left.Name == right.Name;
+        }
+
+        public static bool operator !=(Constant<T> left, Constant<T> right)
+        {
+            return !(left == right);
+        }
     }
 }

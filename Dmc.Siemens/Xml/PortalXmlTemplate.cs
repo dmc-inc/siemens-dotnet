@@ -110,7 +110,7 @@ namespace Dmc.Siemens.Xml
 
         public string ExportContents()
         {
-            return string.Copy(this.ReplaceTokens().FileContents);
+            return this.ReplaceTokens().FileContents.ToString();
         }
 
         public PortalXmlTemplate RestoreFromFile()
