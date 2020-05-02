@@ -1,0 +1,20 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION_FILE: ./src/Dmc.Siemens.sln
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.201
+      - name: Install dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+      - name: Build
+        run: dotnet build -c Release --no-restore ${{ env.SOLUTION_FILE }}

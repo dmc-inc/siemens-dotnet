@@ -1,3 +1,5 @@
+![](https://github.com/dmc-inc/siemens-dotnet/workflows/build/badge.svg?branch=master)
+
 # siemens-dotnet
 A C# library for interfacing with various Siemens Automation software packages
 
