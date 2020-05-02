@@ -1,5 +1,5 @@
 # siemens-dotnet
-A C# library for interfacing with various Siemens software components
+A C# library for interfacing with various Siemens Automation software packages
 
 
 ## Version 2.0 is coming!
