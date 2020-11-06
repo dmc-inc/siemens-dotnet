@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Dmc.IO;
 using Dmc.Siemens.Common.Base;
 using Dmc.Siemens.Common.Export.Base;
 using Dmc.Siemens.Common.Plc;
 using Dmc.Siemens.Common.Plc.Interfaces;
-using Dmc.Siemens.Portal.Base;
 using Dmc.Siemens.Portal.Plc;
 
 namespace Dmc.Siemens.Common.Export
@@ -25,7 +22,7 @@ namespace Dmc.Siemens.Common.Export
 
 		#region Public Methods
 
-		public static void Create(IEnumerable<IBlock> blocks, string path, string opcServerPrefix, PortalPlc parentPlc)
+		public static void Create(IEnumerable<IBlock> blocks, string path, PortalPlc parentPlc, AlarmworxSettings settings)
 		{
 			if (blocks == null)
 				throw new ArgumentNullException(nameof(blocks));
@@ -33,24 +30,26 @@ namespace Dmc.Siemens.Common.Export
 			if ((dataBlocks = blocks.OfType<DataBlock>())?.Count() <= 0)
 				throw new ArgumentException("Blocks does not contain any valid DataBlocks.", nameof(blocks));
 
-			AlarmWorxConfiguration.CreateInternal(dataBlocks, path, opcServerPrefix, parentPlc);
+			AlarmWorxConfiguration.CreateInternal(dataBlocks, path, parentPlc, settings);
 		}
 
-		public static void Create(DataBlock block, string path, string opcServerPrefix, PortalPlc parentPlc)
+		public static void Create(DataBlock block, string path, PortalPlc parentPlc, AlarmworxSettings settings)
 		{
-			AlarmWorxConfiguration.Create(new[] { block }, path, opcServerPrefix, parentPlc);
+			AlarmWorxConfiguration.Create(new[] { block }, path, parentPlc, settings);
 		}
 
 		#endregion
 
 		#region Private Methods
 
-		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, string opcServerPrefix, PortalPlc parentPlc)
+		private static void CreateInternal(IEnumerable<DataBlock> dataBlocks, string path, PortalPlc parentPlc, AlarmworxSettings settings)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
 			if (!FileHelpers.IsValidFilePath(path, ".csv"))
 				throw new ArgumentException(path + " is not a valid path.", nameof(path));
+
+            var tagSeparationCharacter = settings?.ExportStyle == OpcTagStyle.OpcUa ? "/" : ".";
 
 			try
 			{
@@ -68,7 +67,7 @@ namespace Dmc.Siemens.Common.Export
 						
 						foreach (var child in block)
 						{
-							WriteAlarmRow(writer, child, block.Name + ".", block.Comment);
+							WriteAlarmRow(writer, child, block.Name + tagSeparationCharacter, block.Comment);
 						}
 					}
                     AlarmWorxConfiguration.WriteFooter(writer);
@@ -85,13 +84,15 @@ namespace Dmc.Siemens.Common.Export
 			{
 				string stackedComment;
 				if (string.IsNullOrWhiteSpace(prependCommentText))
-					stackedComment = entry.Comment.Replace(",","-");
+					stackedComment = entry.Comment;
 				else if (prependCommentText.EndsWith(" - "))
 					stackedComment = prependCommentText + entry.Comment;
 				else
 					stackedComment = prependCommentText + " - " + entry.Comment;
 
-				switch (entry.DataType)
+                stackedComment = stackedComment.Replace(",", "-");
+
+                switch (entry.DataType)
 				{
 					case DataType.ARRAY:
 						TagHelper.ResolveArrayChildren(entry, parentPlc);
@@ -113,13 +114,23 @@ namespace Dmc.Siemens.Common.Export
 						}
 						break;
 					case DataType.BOOL:
+                        string tag = null;
+                        if (settings.ExportStyle == OpcTagStyle.OpcDa)
+                            tag = settings.OpcServerTagPrefix + "\\" + prependNameText + entry.Name;
+                        else if (settings.ExportStyle == OpcTagStyle.OpcUa)
+                        {
+                            var indexOfLastDot = prependNameText.LastIndexOf('.');
+                            var modifiedPrepend = prependNameText.Replace('.', '/');
+                            tag = settings.OpcServerTagPrefix + "/" + modifiedPrepend.Substring(0, indexOfLastDot)
+                                + '.' + modifiedPrepend.Substring(indexOfLastDot + 1) + entry.Name;
+                        }
                         var row = new AlarmWorxRow
                         {
-                            LocationPath = @"\\Alarm Configurations\" + ALARM_FOLDER,
+                            LocationPath = @"\Configurations\" + ALARM_FOLDER,
                             Name = ALARM_FOLDER + "." + prependNameText + entry.Name,
                             Description = stackedComment,
-                            LastModified = DateTime.Now.ToString(),
-                            Input1 = opcServerPrefix + "\\" + prependNameText + entry.Name,
+                            LastModified = DateTime.UtcNow.ToString("yyyy'-'MM'-'dd' 'HH':'mm':'ss'Z'"),
+                            Input1 = tag,
                             BaseText = stackedComment,  // Message text 
                             DigMessageText = " ",   // Prevents 'Digital Alarm' text at the end of each message
                             DigLimit = "1",     // Alarm state value needs to be 1 for a digital
@@ -130,7 +141,7 @@ namespace Dmc.Siemens.Common.Export
                         writer.WriteLine(row.ToString());
 						break;
 					default:
-						throw new ArgumentException("Cannot export datatype: " + entry.DataType.ToString() + " to AlarmWorX configuration");
+						throw new ArgumentException("Cannot export datatype '" + entry.DataType.ToString() + "' to AlarmWorX configuration");
 				}
 			}
 

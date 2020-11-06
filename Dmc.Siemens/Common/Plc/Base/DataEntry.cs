@@ -120,7 +120,10 @@ namespace Dmc.Siemens.Common.Plc
             if (trimmedData.Contains("//"))
             {
                 splitString = trimmedData.Split(new string[] { "//" }, StringSplitOptions.RemoveEmptyEntries);
-                comment = splitString[1].Trim();
+                if (splitString.Length > 1)
+                {
+                    comment = splitString[1].Trim();
+                }
                 trimmedData = splitString[0];
             }
 			if (trimmedData.Contains('{'))
