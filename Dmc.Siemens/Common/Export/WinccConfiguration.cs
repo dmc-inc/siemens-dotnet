@@ -16,7 +16,7 @@ using OfficeOpenXml;
 namespace Dmc.Siemens.Common.Export
 {
 	public static class WinccConfiguration
-	{
+    {
 
 		#region Private Fields
 
