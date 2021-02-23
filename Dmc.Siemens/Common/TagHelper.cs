@@ -164,6 +164,10 @@ namespace Dmc.Siemens.Common
                 {
                     newEntry.ArrayDataEntry = new DataEntry(dataType: DataType.STRING, stringLength: ParseStringLength(arrayType));
                 }
+                else if (parsedType == DataType.STRUCT)
+                {
+                    newEntry.ArrayDataEntry = TagHelper.ParseDataEntry("STRUCT", reader);
+                }
                 else
                 {
                     newEntry.ArrayDataEntry = new DataEntry(dataType: parsedType);
